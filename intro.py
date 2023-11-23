@@ -22,17 +22,9 @@ class IntroAnimation(QWidget):
     def init_ui(self):
         self.intro_title_label = QLabel("Welcome to Odyssey...", self)
         self.intro_title_label.setFont(QFont("Courier New", 24, QFont.Bold))
-        # Set alignment to center within the label
         self.intro_title_label.setAlignment(Qt.AlignCenter)
-        # Set the palette for the label
         self.intro_title_label.setPalette(self.get_palette_for_crawl())
-        # Set label geometry: x, y, width, height
-        self.intro_title_label.setGeometry(0, 0, self.width(), 100)
-        # Center label within the parent widget
-        self.intro_title_label.move(
-            (self.width() - self.intro_title_label.width()) // 2,
-            (self.height() - self.intro_title_label.height()) // 2
-        )
+        self.intro_title_label.setGeometry(0, self.height(), self.width(), 100)
         self.intro_title_label.show()
 
         QTimer.singleShot(3000, self.start_intro_crawl)
@@ -45,17 +37,16 @@ class IntroAnimation(QWidget):
     def scroll_title(self):
         current_y = self.intro_title_label.y()
         new_y = current_y - 2  # Adjust the speed as necessary
-
+        
         if new_y < -self.intro_title_label.height():
             self.title_timer.stop()
             self.intro_title_label.deleteLater()
             self.animate_intro_text()
         else:
-            # Center label within the parent widget as it moves
-            self.intro_title_label.move(
-                (self.width() - self.intro_title_label.width()) // 2,
-                new_y
-            )
+            self.intro_title_label.move(self.intro_title_label.x(), new_y)
+
+    def load_game_ui(self):
+        self.animationComplete.emit()
 
     def animate_intro_text(self):
         intro_text_data = load_text('intro_text')
