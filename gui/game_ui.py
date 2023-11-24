@@ -43,15 +43,26 @@ class GameUI(QWidget):
         self.enter_button.clicked.connect(self.process_command)
         self.command_input.returnPressed.connect(self.process_command)
 
-        # Set the dark theme palette
+        # Set the dark theme palette for the entire widget
         palette = QPalette()
         palette.setColor(QPalette.Window, QColor(35, 35, 35))
-        palette.setColor(QPalette.WindowText, QColor(255, 255, 0))
+        palette.setColor(QPalette.WindowText, QColor(255, 255, 0))  # Yellow window text
         palette.setColor(QPalette.Base, QColor(25, 25, 25))
-        palette.setColor(QPalette.Text, QColor(255, 255, 0))
         palette.setColor(QPalette.Button, QColor(53, 53, 53))
-        palette.setColor(QPalette.ButtonText, QColor(0, 0, 0))  # Black button text
+        palette.setColor(QPalette.ButtonText, QColor(0, 0, 0))  # Yellow button text
         self.setPalette(palette)
+
+        # Create a new palette for the drop down menu and the command input
+        input_palette = QPalette()
+        input_palette.setColor(QPalette.Text, QColor(0, 0, 0))  # Black text for input
+        input_palette.setColor(QPalette.Base, QColor(255, 255, 255))  # White background for input
+        self.drop_down_menu.setPalette(input_palette)
+        self.command_input.setPalette(input_palette)
+
+        # Ensure the game_text_area retains the yellow text color
+        text_area_palette = self.game_text_area.palette()
+        text_area_palette.setColor(QPalette.Text, QColor(255, 255, 0))  # Yellow text for game_text_area
+        self.game_text_area.setPalette(text_area_palette)
 
     def process_command(self):
         # Get the command from the input
