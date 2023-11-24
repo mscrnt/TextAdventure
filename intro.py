@@ -70,18 +70,21 @@ class IntroAnimation(QWidget):
         self.intro_text_label.show()
         self.create_skip_label()  # Recreate the skip label for the intro text
 
-        self.intro_timer.start(10)
+        self.intro_timer.start(30)
 
     def scroll_text(self):
-        current_y = self.intro_text_label.y()
-        new_y = current_y - 3
-        
+        # Use a more substantial scroll amount for smoother scrolling
+        scroll_amount = 1
+        new_y = self.intro_text_label.y() - scroll_amount
+
+        # Check if the new_y position is less than the negative height of the label
         if new_y < -self.intro_text_label.height():
             self.intro_timer.stop()
             self.intro_text_label.deleteLater()
             self.load_game_ui()
         else:
             self.intro_text_label.move(self.intro_text_label.x(), new_y)
+
 
     def start_intro_crawl(self):
         self.intro_title_label.deleteLater()
