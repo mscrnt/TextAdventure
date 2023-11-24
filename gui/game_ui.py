@@ -2,7 +2,6 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox
 from PySide6.QtCore import Qt, QTimer, QSize
 from PySide6.QtGui import QFont, QPalette, QColor, QTextCursor
-from PySide6.QtCore import Qt
 import time
 
 class GameUI(QWidget):
@@ -26,6 +25,8 @@ class GameUI(QWidget):
         self.game_text_area = QTextEdit()
         self.command_input = QLineEdit()
         self.enter_button = QPushButton("Enter")
+        self.game_text_area.setReadOnly(True)
+
 
         # Add widgets to the right panel layout
         right_panel_layout.addWidget(self.game_text_area, 5)
@@ -71,4 +72,4 @@ class GameUI(QWidget):
             # Process events to update the text area immediately
             QApplication.processEvents()
             # Sleep for a short duration to create a typing effect
-            time.sleep(0.1)
+            time.sleep(0.05)

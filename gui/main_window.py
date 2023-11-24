@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         # Initialize Menu Bar first
         self.init_menu_bar()
 
-        # Then create central widget and stacked layout
+        # Create central widget and stacked layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.layout = QStackedLayout(central_widget)
@@ -29,8 +29,15 @@ class MainWindow(QMainWindow):
         # Initialize Splash Screen
         self.init_splash_screen()
 
+        # Create the GameUI but don't display it yet
+        self.game_ui = GameUI()
+
         # Initialize Main Game Interface
         self.init_game_interface()
+
+    def on_intro_animation_complete(self):
+        # Here, switch to the game UI
+        self.setCentralWidget(self.game_ui)
 
     def init_splash_screen(self):
         splash_widget = QWidget()
@@ -38,14 +45,13 @@ class MainWindow(QMainWindow):
 
         # ASCII Art Splash
         ascii_splash_label = QLabel(self.create_ascii_banner("Click Anywhere to Start"))
-        ascii_splash_label.setFont(QFont("Courier New", 10)) 
+        ascii_splash_label.setFont(QFont("Courier New", 10))
         ascii_splash_label.setAlignment(Qt.AlignCenter)
-        
-        # The color palette for the label is inherited from the application palette set in main.py
         splash_layout.addWidget(ascii_splash_label)
 
         # Event filter for mouse clicks on the splash screen
         splash_widget.mousePressEvent = self.start_game
+        splash_widget.setFocusPolicy(Qt.StrongFocus)  # Ensure the widget can be focused to receive mouse events
 
         self.layout.addWidget(splash_widget)
 
@@ -107,12 +113,13 @@ class MainWindow(QMainWindow):
         return banner_text
 
     def start_game(self, event):
-        # Initialize the intro animation
-        self.introAnimation = IntroAnimation(self)
-        self.introAnimation.animationComplete.connect(self.change_to_game_ui)
-        self.setCentralWidget(self.introAnimation)
+        # This method gets called when the splash screen is clicked
+        if event.button() == Qt.LeftButton:  # Check if left mouse button was clicked
+            self.introAnimation = IntroAnimation(self)
+            self.introAnimation.animationComplete.connect(self.on_intro_animation_complete)
+            self.setCentralWidget(self.introAnimation)
 
     def change_to_game_ui(self):
-        # Here, you will set up and show the game UI after the intro animation
+        # Instantiate the game UI and set it as the central widget
         self.game_ui = GameUI()
         self.setCentralWidget(self.game_ui)
