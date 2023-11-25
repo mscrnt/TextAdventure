@@ -19,10 +19,20 @@ def load_text(file_name: str) -> Dict:
 
 # Function to save game state
 def save_game(state, filename='savegame.pkl'):
-    with open(filename, 'wb') as f:
-        pickle.dump(state, f)
+    try:
+        with open(filename, 'wb') as f:
+            pickle.dump(state, f)
+        print(f"Game saved successfully as {filename}.")
+    except Exception as e:
+        print(f"An error occurred while saving the game: {e}")
 
 # Function to load game state
 def load_game(filename='savegame.pkl'):
-    with open(filename, 'rb') as f:
-        return pickle.load(f)
+    try:
+        with open(filename, 'rb') as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        print("Save file not found.")
+    except Exception as e:
+        print(f"An error occurred while loading the game: {e}")
+    return None

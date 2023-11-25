@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout
+from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout, QPushButton
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFont, QPalette, QColor
 from engine.game_manager import GameManager
@@ -34,6 +34,28 @@ class MainWindow(QMainWindow):
 
         # Initialize Main Game Interface
         self.init_game_interface()
+
+        self.init_entry_point()
+
+    def init_entry_point(self):
+        self.entry_point_widget = QWidget()  # Assign to an attribute
+        entry_point_layout = QVBoxLayout(self.entry_point_widget)
+
+        # New Game Button
+        new_game_button = QPushButton("New Game")
+        new_game_button.setMaximumWidth(200)  # Set maximum width
+        new_game_button.setStyleSheet("QPushButton { background-color: #333; color: #fff; }")  # Set the style
+        new_game_button.clicked.connect(self.start_new_game)
+        entry_point_layout.addWidget(new_game_button, 0, Qt.AlignCenter)  # Align to center
+
+        # Load Game Button
+        load_game_button = QPushButton("Load Game")
+        load_game_button.setMaximumWidth(200)  # Set maximum width
+        load_game_button.setStyleSheet("QPushButton { background-color: #333; color: #fff; }")  # Set the style
+        load_game_button.clicked.connect(self.load_game)
+        entry_point_layout.addWidget(load_game_button, 0, Qt.AlignCenter)  # Align to center
+
+        self.layout.addWidget(self.entry_point_widget)
 
     def on_intro_animation_complete(self):
         # Here, switch to the game UI
@@ -113,13 +135,24 @@ class MainWindow(QMainWindow):
         return banner_text
 
     def start_game(self, event):
-        # This method gets called when the splash screen is clicked
-        if event.button() == Qt.LeftButton:  # Check if left mouse button was clicked
-            self.introAnimation = IntroAnimation(self)
-            self.introAnimation.animationComplete.connect(self.on_intro_animation_complete)
-            self.setCentralWidget(self.introAnimation)
+        # This method is called when the splash screen is clicked
+        if event.button() == Qt.LeftButton:
+            # Change to the entry point screen
+            self.layout.setCurrentIndex(self.layout.indexOf(self.entry_point_widget))
+
 
     def change_to_game_ui(self):
         # Instantiate the game UI and set it as the central widget
         self.game_ui = GameUI()
         self.setCentralWidget(self.game_ui)
+
+    def start_new_game(self):
+        # Logic to start a new game
+        self.introAnimation = IntroAnimation(self)
+        self.introAnimation.animationComplete.connect(self.on_intro_animation_complete)
+        self.setCentralWidget(self.introAnimation)
+
+    def load_game(self):
+        # Logic to load a saved game
+        # This will need to interact with the GameManager to load saved game data
+        pass
