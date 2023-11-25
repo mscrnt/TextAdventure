@@ -8,3 +8,4 @@ engine/__pycache__/quest_tracker.cpython-310.pyc
 gui/__pycache__/game_ui.cpython-310.pyc
 gui/__pycache__/__init__.cpython-310.pyc
 gui/__pycache__/main_window.cpython-310.pyc
+engine/__pycache__/player_sheet.cpython-310.pyc
