@@ -93,8 +93,8 @@ class GameUI(QWidget):
         self.drop_down_menu.activated.connect(self.update_ui_from_dropdown)
 
         # Set the default view to Inventory
-        self.drop_down_menu.setCurrentIndex(0)  # Inventory is the first item
-        self.update_ui_from_dropdown(0)  # Update the UI to show inventory items
+        self.drop_down_menu.setCurrentIndex(3)  # Inventory is the first item
+        self.update_ui_from_dropdown(3)  # Update the UI to show inventory items
 
 
     def update_ui_from_dropdown(self, index):

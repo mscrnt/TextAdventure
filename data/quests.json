@@ -3,13 +3,13 @@
         "name": "Read Email",
         "slug": "initialQuest",
         "description": "Check unread emails",
-        "isActive": true,
-        "completed": true,
+        "isActive": false,
+        "completed": false,
         "objectives": [
             {
                 "type": "readEmail",
                 "target": "Welcome to Odyssey",
-                "completed": true
+                "completed": false
             }
         ]
     }

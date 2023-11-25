@@ -28,9 +28,9 @@ class GameManager:
         self.player_sheet.add_email({"name": "Welcome to Odyssey", "description": "Welcome to Odyssey! We hope you enjoy your stay.", "read": False, "sender": "Odyssey Admin"})
         read_email_quest = self.quest_tracker.get_quest("Read Email")
         if read_email_quest:
-            ic("Adding Read Email quest")
-            self.player_sheet.add_quest(read_email_quest)
-
+            ic("Activating Read Email quest")
+            self.quest_tracker.activate_quest("Read Email") 
+            
     def update_inventory_ui(self):
         pass  # Update inventory UI here
 
@@ -86,6 +86,8 @@ class GameManager:
         # Attempt to find the quest by name
         quest_detail = next((quest for quest in self.player_sheet.quests if quest['name'] == quest_name), None)
         
+        # Debug print to check what is being retrieved
+        ic(f"Quest search for '{quest_name}' found: {quest_detail}")
         
         if quest_detail:
             # If the quest is found, return its details
