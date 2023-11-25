@@ -1,11 +1,24 @@
 {
-    "VR Home": {
-      "items": [
-        {
-          "name": "Laser Pistol",
-          "description": "A basic weapon for self-defense.",
-          "quantity": 1
-        }
-        ]
-    }
+  "items": [
+      {
+          "name": "Health Potion",
+          "description": "Restores a moderate amount of health.",
+          "type": "Consumable"
+      },
+      {
+          "name": "Excalibur",
+          "description": "The legendary sword of King Arthur.",
+          "type": "Weapon"
+      },
+      {
+          "name": "Ancient Scroll",
+          "description": "A scroll containing ancient wisdom.",
+          "type": "Note"
+      },
+      {
+          "name": "Bitcoin",
+          "description": "Decentralized digital currency.",
+          "type": "Currency"
+      }
+  ]
 }

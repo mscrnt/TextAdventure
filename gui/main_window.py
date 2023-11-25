@@ -1,6 +1,6 @@
 # gui/main_window.py
 
-from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout, QPushButton, QFileDialog, QInputDialog
+from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout, QPushButton, QFileDialog, QInputDialog, QDialog
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFont, QPalette, QColor
 from engine.game_manager import GameManager
@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         load_game_button = QPushButton("Load Game")
         load_game_button.setMaximumWidth(200)  # Set maximum width
         load_game_button.setStyleSheet("QPushButton { background-color: #333; color: #fff; }")  # Set the style
-        load_game_button.clicked.connect(self.load_game)
+        load_game_button.clicked.connect(self.select_save_file)
         entry_point_layout.addWidget(load_game_button, 0, Qt.AlignCenter)  # Align to center
 
         self.layout.addWidget(self.entry_point_widget)
@@ -107,8 +107,8 @@ class MainWindow(QMainWindow):
 
         # Connect actions
         new_game_action.triggered.connect(self.start_new_game)
-        save_game_action.triggered.connect(self.save_game)
-        load_game_action.triggered.connect(self.load_game)
+        save_game_action.triggered.connect(self.trigger_save_game)
+        load_game_action.triggered.connect(self.select_save_file)
         exit_action.triggered.connect(self.close)
 
         # Add actions to menu
@@ -174,12 +174,12 @@ class MainWindow(QMainWindow):
             print("No player name entered, new game not started.")
 
     # Method to save the game
-    def save_game(self):
+    def trigger_save_game(self):
         # You will need a reference to your game_manager to call its save method
         self.game_ui.game_manager.save_game()
 
     # Method to load the game
-    def load_game(self):
+    def select_save_file(self):
         # Open a file dialog to select the save file, starting in the 'save_data/' directory
         filename, _ = QFileDialog.getOpenFileName(self, "Load Game", "save_data/", "Save Files (*.pkl)")
         if filename:
@@ -199,7 +199,14 @@ class MainWindow(QMainWindow):
             print("No file selected.")
 
     def prompt_for_player_name(self):
-        name, ok = QInputDialog.getText(self, "Player Name", "Enter your name:")
-        if ok and name:
-            return name
+        dialog = QInputDialog(self)
+        # Ensure text in QLineEdit and QPushButton is black
+        dialog.setStyleSheet("""
+            QLineEdit { color: black; }
+            QPushButton { color: black; }
+        """)
+        dialog.setWindowTitle("Player Name")
+        dialog.setLabelText("Enter your name:")
+        if dialog.exec() == QDialog.Accepted:
+            return dialog.textValue()
         return None

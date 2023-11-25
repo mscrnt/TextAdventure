@@ -20,8 +20,16 @@ class PlayerSheet:
     def add_item(self, item):
         ic("Adding item to inventory")
         ic(item)
-        # Add an item dictionary to the inventory if it's not already there
-        if not any(existing_item['name'] == item['name'] for existing_item in self.inventory):
+        # Check if the item already exists in the inventory
+        for existing_item in self.inventory:
+            if existing_item['name'] == item['name']:
+                # Assuming all items have a 'quantity' key
+                existing_item['quantity'] += item.get('quantity', 1)  # Default to 1 if 'quantity' not specified
+                break
+        else:
+            # If the item does not exist, set its quantity to 1 if not specified, then append it
+            if 'quantity' not in item:
+                item['quantity'] = 1
             self.inventory.append(item)
 
     def remove_item(self, item_name):

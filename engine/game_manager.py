@@ -6,11 +6,12 @@ from icecream import ic
 import utilities
 from PySide6.QtCore import QObject, Signal
 
+
 class GameManager(QObject):
     gameLoaded = Signal()
 
     def __init__(self, player_name, ui):
-        super().__init__()  # This line calls the __init__ method of QObject
+        super().__init__() 
         self.player_sheet = PlayerSheet(player_name)
         self.quest_tracker = QuestTracker(self)
         self.ui = ui
@@ -19,15 +20,41 @@ class GameManager(QObject):
         self.update_quests_ui()
         
         # Initialize the game state with initial items, locations, etc.
-        self.populate_initial_game_state()
         ic("GameManager initialized")   
+
+    def load_global_inventory(self):
+        ic("Loading global inventory")
+        global_inventory = utilities.load_json("item_list", "items")
+        return global_inventory
 
     def populate_initial_game_state(self):
         ic("Populating initial game state")
 
-        # Add initial items, locations, notes, and quests
-        self.player_sheet.add_item({"name": "Sword", "description": "A long pointy thing used to make people bleed", "quantity": 1})
-        self.player_sheet.add_item({"name": "Health Potion", "description": "Restores 5 Hit Points", "quantity": 5})
+        # Function to find an item by name
+        def find_item_by_name(name):
+            for item in global_items:
+                if item['name'] == name:
+                    return item
+            return None
+
+        # Load the global inventory
+        global_items = self.load_global_inventory()
+        ic("Global items loaded")
+        ic(global_items)
+
+        # Add items to the player's inventory
+        excalibur = find_item_by_name("Excalibur")
+        if excalibur:
+            self.player_sheet.add_item(excalibur)
+            ic("Excalibur added to inventory")
+
+        health_potion = find_item_by_name("Health Potion")
+        if health_potion:
+            # Modify the quantity here
+            health_potion['quantity'] = 5
+            self.player_sheet.add_item(health_potion)
+            ic("Health potion added to inventory")
+
         self.player_sheet.add_fast_travel_location({"name": "Old Town", "description": "A small town with a few shops and a tavern"})
         self.player_sheet.add_fast_travel_location({"name": "Mystic Forest", "description": "A dark forest with strange creatures"})
         self.player_sheet.add_note({"name": "Enchanted Cave", "description": "Remember to check the enchanted cave."})

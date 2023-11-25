@@ -4,6 +4,7 @@ import json
 from typing import Dict
 import pickle
 import os
+from icecream import ic
 
 # Function to load text from a JSON file
 def load_text(file_name: str) -> Dict:
@@ -19,6 +20,21 @@ def load_text(file_name: str) -> Dict:
         print(f"An error occurred: {e}")
 
     return {} 
+
+# Function to load json data from a file
+def load_json(file_name: str, key) -> Dict:
+    path = f'data/{file_name}.json'
+    try:
+        with open(path, 'r') as file:
+            data = json.load(file)
+            return data.get(key, [])  # Using .get() avoids KeyError if the key doesn't exist
+    except FileNotFoundError:
+        ic(f"The file {file_name}.json was not found.")
+    except json.JSONDecodeError as e:
+        ic(f"The file {file_name}.json contains invalid JSON: {e}")
+    except Exception as e:
+        ic(f"An error occurred: {e}")
+    return []
 
 # Function to save game state
 def save_game(state, filename='savegame.pkl'):
