@@ -3,16 +3,22 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout,
 from PySide6.QtCore import Qt, QTimer, QSize
 from PySide6.QtGui import QFont, QPalette, QColor, QTextCursor, QTextBlockFormat, QTextCharFormat, QFontMetrics
 import time
+from engine.game_manager import GameManager
+from icecream import ic
 
 class GameUI(QWidget):
     def __init__(self, parent=None):
         super(GameUI, self).__init__(parent)
         self.is_item_clicked_connected = False  
+        self.current_category = None 
         self.init_ui()
+        self.game_manager = GameManager("Kenneth", self)
+        ic("GameUI initialized")
         self.initialize_drop_down_menu() 
 
     def init_ui(self):
         # Create the main layout
+        ic("Initializing UI")
         main_layout = QHBoxLayout(self)
         
         # Create the inventory panel
@@ -73,15 +79,15 @@ class GameUI(QWidget):
         text_area_palette.setColor(QPalette.Text, QColor(255, 255, 0))  # Yellow text for game_text_area
         self.game_text_area.setPalette(text_area_palette)
 
-        #self.initialize_drop_down_menu()
-
 
     def initialize_drop_down_menu(self):
+        ic("Initializing drop down menu")
         # Add categories to the drop-down menu
         self.drop_down_menu.addItem("Inventory")
         self.drop_down_menu.addItem("Fast Travel")
         self.drop_down_menu.addItem("Notes")
         self.drop_down_menu.addItem("Quest Log")
+        self.drop_down_menu.addItem("Emails")
 
         # Connect the selection change to update UI
         self.drop_down_menu.activated.connect(self.update_ui_from_dropdown)
@@ -92,8 +98,10 @@ class GameUI(QWidget):
 
 
     def update_ui_from_dropdown(self, index):
+        ic("Updating UI from dropdown")
         # Get the current text of the selected item
         selected_item = self.drop_down_menu.currentText()
+        self.current_category = selected_item
         
         # Set the inventory label text to the selected category
         self.inventory_label.setText(selected_item + " Locations" if selected_item == "Fast Travel" else selected_item)
@@ -115,6 +123,11 @@ class GameUI(QWidget):
             self.populate_notes()
         elif selected_item == "Quest Log":
             self.populate_quest_log()
+            self.update_quest_log(self.game_manager.get_player_quests())
+        elif selected_item == "Emails":
+            self.populate_emails()
+        ic("Connecting item clicked")
+
 
         # Ensure to connect the item clicked signal to the display_item_information method
         self.inventory_list.itemClicked.connect(self.display_item_information)
@@ -122,33 +135,45 @@ class GameUI(QWidget):
 
     # Implement these new methods to handle the display of each section
     def populate_inventory(self):
-        # Logic to populate inventory items
-        # For demo purposes, we'll just add some dummy items
-        items = ["Sword", "Shield", "Potion"]
-        for item in items:
-            self.inventory_list.addItem(item)
+        ic("Populating inventory")
+        # Use the GameManager to get inventory items
+        items = self.game_manager.get_inventory_items()
+        for item_string in items:
+            self.inventory_list.addItem(item_string)
 
     def populate_fast_travel_locations(self):
-        # Logic to populate fast travel locations
-        locations = ["Town", "Forest", "Castle"]
+        ic("Populating fast travel locations")
+        # Get fast travel locations from the game manager
+        locations = self.game_manager.get_fast_travel_locations()
         for location in locations:
-            self.inventory_list.addItem(location)
-
+            # Add each location's name to the inventory list
+            self.inventory_list.addItem(location['name'])  # This line is correct
 
     def populate_notes(self):
-        # Logic to populate user notes
-        notes = ["Note 1", "Note 2", "Note 3"]
+        ic("Populating notes")
+        # Get notes from the game manager
+        notes = self.game_manager.get_player_notes()
         for note in notes:
-            self.inventory_list.addItem(note)
-
+            # Add each note's name or a summary to the inventory list
+            self.inventory_list.addItem(note['name'])
 
     def populate_quest_log(self):
-        # Logic to populate quests
-        quests = ["Quest 1", "Quest 2", "Quest 3"]
+        ic("Populating quest log")
+        # Use the GameManager to get player quests
+        quests = self.game_manager.get_player_quests()
         for quest in quests:
             self.inventory_list.addItem(quest)
 
+    def populate_emails(self):
+        ic("Populating emails")
+        # Get emails from the game manager and include the read status
+        emails = self.game_manager.get_player_emails()
+        for email in emails:
+            read_status = "Read" if email['read'] else "Unread"
+            self.inventory_list.addItem(f"{email['name']} ({read_status})")
+
     def process_command(self):
+        ic("Processing command")
         # Get the command from the input
         command = self.command_input.text()
         # Clear the command input
@@ -156,14 +181,44 @@ class GameUI(QWidget):
         # Process the command
         self.display_text(f"Command executed: {command}")
 
-    def display_item_information(self, item):
-        # This method will be called when an item in the inventory list is clicked
-        # You should replace this with the actual logic to fetch the item's information
-        item_info = f"Information about {item.text()}"
-        self.display_text(item_info)
+    def display_item_information(self, item_widget):
+        ic("Displaying item information")
+        # Retrieve the selected item's text
+        selected_text = item_widget.text()
 
+        # If the current category is "Quest Log", strip out the status from the item text
+        if self.current_category == "Quest Log":
+            selected_name = selected_text.split(":")[0].strip()  # Get the name part only before the colon
+        else:
+            selected_name = selected_text.split(' (')[0].strip()  # Removes the quantity, assuming it's in the format "Name (xQuantity)"
+
+        item_details = None
+        if self.current_category == "Inventory":
+            item_details = self.game_manager.get_inventory_item_details(selected_name)
+        elif self.current_category == "Fast Travel":
+            item_details = self.game_manager.get_fast_travel_location_details(selected_name)
+        elif self.current_category == "Notes":
+            item_details = self.game_manager.get_note_details(selected_name)
+        elif self.current_category == "Quest Log":
+            item_details = self.game_manager.get_quest_details(selected_name)
+        elif self.current_category == "Emails":
+            item_details = self.game_manager.get_player_email_details(selected_name)
+            self.game_manager.mark_email_as_read(selected_name)
+
+        if item_details:
+            # For quests, you want to display the status as well, so append it if it's a quest
+            if self.current_category == "Quest Log":
+                formatted_details = f"{selected_name}:\n{'Completed' if item_details['completed'] else 'In Progress'}\n\n{item_details['description']}"
+            elif self.current_category == "Emails":
+                formatted_details = f"{selected_name}:\nFrom: {item_details['sender']}\n\n {item_details['description']}"
+            else:
+                formatted_details = f"{selected_name}:\n\n{item_details['description']}"
+            self.display_text(formatted_details)
+        else:
+            self.display_text("Item details not found.")
 
     def display_text(self, text):
+        ic("Displaying text")
         # Clear the game text area before displaying new text
         self.game_text_area.clear()
         self.game_text_area.verticalScrollBar().setStyleSheet("QScrollBar {width:0px;}") # Hides the scrollbar
@@ -184,12 +239,12 @@ class GameUI(QWidget):
         # Calculate font metrics for the current font
         metrics = QFontMetrics(font)
         text_lines = text.split('\n')
-        max_lines = 16
+        max_lines = 1000 // metrics.height()  # Calculate the maximum number of lines that can fit in the text area
 
         # Function to calculate padding
         def calculate_padding(text_block):
             text_height = metrics.height() * len(text_block)
-            text_area_height = self.game_text_area.viewport().height() - 5
+            text_area_height = self.game_text_area.viewport().height() - 75
             padding_lines = max(0, (text_area_height - text_height) // (2 * metrics.height()))
             return '\n' * padding_lines
 
@@ -223,3 +278,9 @@ class GameUI(QWidget):
         # Ensure the scrollbar is adjusted properly at the end of all text
         self.game_text_area.verticalScrollBar().setValue(0)  # Reset scrollbar to the top
         self.game_text_area.ensureCursorVisible()
+
+    def update_quest_log(self, quests):
+        ic("Updating quest log")
+        self.inventory_list.clear()
+        for quest in quests:
+            self.inventory_list.addItem(quest)

@@ -1,5 +1,6 @@
 import json
 from typing import Dict
+import pickle
 
 # Function to load text from a JSON file
 def load_text(file_name: str) -> Dict:
@@ -16,3 +17,12 @@ def load_text(file_name: str) -> Dict:
 
     return {} 
 
+# Function to save game state
+def save_game(state, filename='savegame.pkl'):
+    with open(filename, 'wb') as f:
+        pickle.dump(state, f)
+
+# Function to load game state
+def load_game(filename='savegame.pkl'):
+    with open(filename, 'rb') as f:
+        return pickle.load(f)

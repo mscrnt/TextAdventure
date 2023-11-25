@@ -1,0 +1,16 @@
+[
+    {
+        "name": "Read Email",
+        "slug": "initialQuest",
+        "description": "Check unread emails",
+        "isActive": true,
+        "completed": true,
+        "objectives": [
+            {
+                "type": "readEmail",
+                "target": "Welcome to Odyssey",
+                "completed": true
+            }
+        ]
+    }
+]

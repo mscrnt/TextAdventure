@@ -4,9 +4,24 @@ from PySide6.QtGui import QPalette, QColor
 from PySide6.QtCore import Qt 
 from gui.main_window import MainWindow
 from icecream import ic
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--debug', action='store_true')
+args = parser.parse_args()
+debug_on = args.debug
 
 
 def main():
+    if not debug_on:
+        ic.disable()
+    else:
+        ic.enable()
+        ic.configureOutput(includeContext=True)
+        ic.configureOutput(prefix='DEBUG - ')
+        ic.configureOutput(includeContext=True, prefix='DEBUG - ')
+        ic.configureOutput(includeContext=True, prefix='DEBUG - ', outputFunction=print)
+        
     app = QApplication(sys.argv)
 
     # Set the palette for a dark theme
@@ -34,3 +49,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

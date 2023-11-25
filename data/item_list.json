@@ -1,0 +1,11 @@
+{
+    "VR Home/Lobby": {
+      "items": [
+        {
+          "name": "Laser Pistol",
+          "description": "A basic weapon for self-defense.",
+          "quantity": 1
+        }
+        ]
+    }
+}
