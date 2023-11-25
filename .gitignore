@@ -6,3 +6,5 @@ engine/__pycache__/game_manager.cpython-310.pyc
 .gitignore
 engine/__pycache__/quest_tracker.cpython-310.pyc
 gui/__pycache__/game_ui.cpython-310.pyc
+gui/__pycache__/__init__.cpython-310.pyc
+gui/__pycache__/main_window.cpython-310.pyc
