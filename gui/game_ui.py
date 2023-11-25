@@ -1,3 +1,5 @@
+# gui/game_ui.py
+
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QScrollBar, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox
 from PySide6.QtCore import Qt, QTimer, QSize
@@ -7,14 +9,19 @@ from engine.game_manager import GameManager
 from icecream import ic
 
 class GameUI(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, player_name, parent=None):
         super(GameUI, self).__init__(parent)
         self.is_item_clicked_connected = False  
         self.current_category = None 
         self.init_ui()
-        self.game_manager = GameManager("Kenneth", self)
+        self.game_manager = GameManager(player_name, self)
+        self.game_manager.gameLoaded.connect(self.on_game_loaded)
         ic("GameUI initialized")
         self.initialize_drop_down_menu() 
+
+    def on_game_loaded(self):
+        # This slot will be called when the GameManager emits the gameLoaded signal
+        self.update_ui()
 
     def init_ui(self):
         # Create the main layout
@@ -284,3 +291,13 @@ class GameUI(QWidget):
         self.inventory_list.clear()
         for quest in quests:
             self.inventory_list.addItem(quest)
+
+    def update_ui(self):
+        ic("Updating UI")
+        # Set the dropdown to 'Quest Log'
+        quest_log_index = self.drop_down_menu.findText('Quest Log')
+        if quest_log_index >= 0:
+            self.drop_down_menu.setCurrentIndex(quest_log_index)
+            self.update_ui_from_dropdown(quest_log_index)
+        else:
+            print("Quest Log not found in dropdown.")

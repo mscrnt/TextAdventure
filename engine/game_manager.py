@@ -1,13 +1,19 @@
+# engine/game_manager.py
+
 from engine.player_sheet import PlayerSheet
 from engine.quest_tracker import QuestTracker
 from icecream import ic
+import utilities
+from PySide6.QtCore import QObject, Signal
 
-class GameManager:
+class GameManager(QObject):
+    gameLoaded = Signal()
+
     def __init__(self, player_name, ui):
+        super().__init__()  # This line calls the __init__ method of QObject
         self.player_sheet = PlayerSheet(player_name)
         self.quest_tracker = QuestTracker(self)
-        self.ui = ui  # Initialize the UI attribute with the UI instance passed in
-
+        self.ui = ui
 
         self.populate_initial_game_state()
         self.update_quests_ui()
@@ -30,7 +36,7 @@ class GameManager:
         if read_email_quest:
             ic("Activating Read Email quest")
             self.quest_tracker.activate_quest("Read Email") 
-            
+
     def update_inventory_ui(self):
         pass  # Update inventory UI here
 
@@ -105,3 +111,26 @@ class GameManager:
                 ic(email)
                 self.quest_tracker.check_all_quests()
                 break
+
+    def save_game(self):
+        # Create a state dictionary to save player data and any other game state information
+        state = {
+            'player_sheet': self.player_sheet,
+            # Add other game state information as needed
+        }
+        utilities.save_game(state, f"{self.player_sheet.name}_savegame.pkl")
+
+    def load_game(self, filename):
+        if filename:
+            # Attempt to load the game state from the provided file
+            state = utilities.load_game(filename)
+            if state:
+                # Update the game manager's state with the loaded data
+                self.player_sheet.__dict__.update(state['player_sheet'].__dict__)
+                self.gameLoaded.emit()
+                return True
+            else:
+                print(f"Failed to load game from {filename}.")
+        else:
+            print("No filename provided for loading the game.")
+        return False

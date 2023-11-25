@@ -1,4 +1,6 @@
-from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout, QPushButton
+# gui/main_window.py
+
+from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout, QPushButton, QFileDialog, QInputDialog
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFont, QPalette, QColor
 from engine.game_manager import GameManager
@@ -8,6 +10,7 @@ from icecream import ic
 import sys
 from intro import IntroAnimation
 from gui.game_ui import GameUI
+import utilities
 
 
 class MainWindow(QMainWindow):
@@ -30,7 +33,7 @@ class MainWindow(QMainWindow):
         self.init_splash_screen()
 
         # Create the GameUI but don't display it yet
-        self.game_ui = GameUI()
+        # self.game_ui = GameUI()
 
         # Initialize Main Game Interface
         self.init_game_interface()
@@ -96,11 +99,24 @@ class MainWindow(QMainWindow):
 
         # File Menu
         file_menu = menu_bar.addMenu("File")
-        file_menu.addAction("New Game")
-        file_menu.addAction("Save Game")
-        file_menu.addAction("Load Game")
+        new_game_action = file_menu.addAction("New Game")
+        save_game_action = file_menu.addAction("Save Game")
+        load_game_action = file_menu.addAction("Load Game")
         file_menu.addSeparator()
-        file_menu.addAction("Exit")
+        exit_action = file_menu.addAction("Exit")
+
+        # Connect actions
+        new_game_action.triggered.connect(self.start_new_game)
+        save_game_action.triggered.connect(self.save_game)
+        load_game_action.triggered.connect(self.load_game)
+        exit_action.triggered.connect(self.close)
+
+        # Add actions to menu
+        file_menu.addAction(new_game_action)
+        file_menu.addAction(save_game_action)
+        file_menu.addAction(load_game_action)
+        file_menu.addSeparator()
+        file_menu.addAction(exit_action)
 
         # Edit Menu
         edit_menu = menu_bar.addMenu("Edit")
@@ -147,12 +163,43 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.game_ui)
 
     def start_new_game(self):
-        # Logic to start a new game
-        self.introAnimation = IntroAnimation(self)
-        self.introAnimation.animationComplete.connect(self.on_intro_animation_complete)
-        self.setCentralWidget(self.introAnimation)
+        player_name = self.prompt_for_player_name()  # Get the player's name
+        if player_name:
+            self.game_ui = GameUI(player_name)  # Pass the name to GameUI
+            self.introAnimation = IntroAnimation(self)
+            self.introAnimation.animationComplete.connect(self.on_intro_animation_complete)
+            self.setCentralWidget(self.introAnimation)
+        else:
+            # Optionally, handle the case where no name was entered, such as showing a message to the user
+            print("No player name entered, new game not started.")
 
+    # Method to save the game
+    def save_game(self):
+        # You will need a reference to your game_manager to call its save method
+        self.game_ui.game_manager.save_game()
+
+    # Method to load the game
     def load_game(self):
-        # Logic to load a saved game
-        # This will need to interact with the GameManager to load saved game data
-        pass
+        # Open a file dialog to select the save file, starting in the 'save_data/' directory
+        filename, _ = QFileDialog.getOpenFileName(self, "Load Game", "save_data/", "Save Files (*.pkl)")
+        if filename:
+            # Create a GameUI instance if it does not exist
+            if not hasattr(self, 'game_ui'):
+                # Since we don't have the player's name, we might need to extract it from the save file or set a default
+                player_name = 'Default'  # You should replace this with the actual name from the save file if possible
+                self.game_ui = GameUI(player_name)
+
+            if self.game_ui.game_manager.load_game(filename):
+                # No need to call update_ui here as it's now connected to the signal
+                self.setCentralWidget(self.game_ui)
+                print(f"Game loaded successfully from {filename}.")
+            else:
+                print("Failed to load the game.")
+        else:
+            print("No file selected.")
+
+    def prompt_for_player_name(self):
+        name, ok = QInputDialog.getText(self, "Player Name", "Enter your name:")
+        if ok and name:
+            return name
+        return None

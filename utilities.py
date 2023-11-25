@@ -1,6 +1,9 @@
+# utilities.py
+
 import json
 from typing import Dict
 import pickle
+import os
 
 # Function to load text from a JSON file
 def load_text(file_name: str) -> Dict:
@@ -19,10 +22,18 @@ def load_text(file_name: str) -> Dict:
 
 # Function to save game state
 def save_game(state, filename='savegame.pkl'):
+    # Define the directory where you want to save games
+    save_directory = "save_data"
+    if not os.path.exists(save_directory):
+        os.makedirs(save_directory)
+
+    # Construct the full path where the game will be saved
+    file_path = os.path.join(save_directory, filename)
+
     try:
-        with open(filename, 'wb') as f:
+        with open(file_path, 'wb') as f:
             pickle.dump(state, f)
-        print(f"Game saved successfully as {filename}.")
+        print(f"Game saved successfully as {file_path}.")
     except Exception as e:
         print(f"An error occurred while saving the game: {e}")
 

@@ -1,3 +1,5 @@
+# engine/player_sheet.py
+
 from icecream import ic
 import utilities
 
@@ -111,20 +113,3 @@ class PlayerSheet:
         ic(email_name)
         return next((email for email in self.emails if email['name'] == email_name), None)
 
-    def save_game(self):
-        filename = f"{self.name}_savegame.pkl"  # Creates a file name based on the player's name
-        utilities.save_game(self, filename)
-        ic(f"Game state saved for player: {self.name}")
-
-    def load_game(self):
-        # This will call the load_game function from utilities.py and will try to set the loaded state to the current object
-        try:
-            loaded_state = utilities.load_game()
-            if loaded_state:
-                self.__dict__.update(loaded_state.__dict__)
-                ic("Game state loaded.")
-            else:
-                ic("No game state to load.")
-        except AttributeError as e:
-            ic(f"Failed to load game state: {e}")
-    ##TODO Additional methods to manage level, experience, stats, etc.

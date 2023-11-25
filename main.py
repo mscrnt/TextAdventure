@@ -1,3 +1,5 @@
+# main.py
+
 import sys
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QPalette, QColor
@@ -21,7 +23,7 @@ def main():
         ic.configureOutput(prefix='DEBUG - ')
         ic.configureOutput(includeContext=True, prefix='DEBUG - ')
         ic.configureOutput(includeContext=True, prefix='DEBUG - ', outputFunction=print)
-        
+
     app = QApplication(sys.argv)
 
     # Set the palette for a dark theme
