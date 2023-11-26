@@ -6,7 +6,9 @@
             "name": "Central Avalonia",
             "description": "The heart of Avalonia, home to the Grand Castle and bustling markets.",
             "paths": {
-                "east": "The Shattered Road"
+                "east": "The Shattered Road",
+                "north": "Frostwing Mountains",
+                "west": "Whispering Forest"
             },
             "sublocations": [
                 {
@@ -118,7 +120,8 @@
             "name": "Crystal Lake Village",
             "description": "A charming village by a crystal-clear lake, known for its serene beauty.",
             "paths": {
-                "west": "The Shattered Road"
+                "west": "The Shattered Road",
+                "down": "Sunken City of Zephyra"
             },
             "sublocations": [
                 {
@@ -188,6 +191,122 @@
                                     "type": "Document",
                                     "collectable": true,
                                     "quantity": 1
+                                }
+                            ]
+                        }
+                    ]
+                },        {
+                    "name": "Frostwing Mountains",
+                    "description": "A range of snow-capped mountains to the north of Avalonia, known for its treacherous paths and hidden ancient ruins.",
+                    "paths": {
+                        "south": "Central Avalonia"
+                    },
+                    "sublocations": [
+                        {
+                            "name": "Icebound Cave",
+                            "description": "A mysterious cave known to house ancient artifacts and dangerous creatures.",
+                            "paths": {
+                                "exit": "Frostwing Mountains"
+                            },
+                            "items": [
+                                {
+                                    "name": "Frost Shard",
+                                    "description": "A shard of ice that never melts, radiating a strange energy.",
+                                    "type": "Artifact",
+                                    "collectable": true,
+                                    "quantity": 1
+                                }
+                            ],
+                            "containers": [
+                                {
+                                    "name": "Frozen Chest",
+                                    "description": "A chest encased in ice, holding secrets of the past.",
+                                    "type": "Container",
+                                    "collectable": false,
+                                    "contains": [
+                                        {
+                                            "name": "Ancient Scroll",
+                                            "description": "A scroll detailing forgotten magic spells.",
+                                            "type": "Magic Item",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Whispering Forest",
+                    "description": "A dense forest to the West, filled with ancient trees and rumored to be enchanted.",
+                    "paths": {
+                        "east": "Central Avalonia"
+                    },
+                    "sublocations": [
+                        {
+                            "name": "Elven Sanctuary",
+                            "description": "A hidden sanctuary of the elves, full of ancient knowledge and powerful allies.",
+                            "paths": {
+                                "exit": "Whispering Forest"
+                            },
+                            "items": [
+                                {
+                                    "name": "Elven Bow",
+                                    "description": "A finely crafted bow from the elder trees, imbued with elven magic.",
+                                    "type": "Weapon",
+                                    "collectable": true,
+                                    "quantity": 1
+                                }
+                            ],
+                            "interactables": [
+                                {
+                                    "name": "Ancient Tree of Wisdom",
+                                    "description": "An ancient tree that whispers secrets of the forest to those who listen.",
+                                    "type": "Tree",
+                                    "collectable": false
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Sunken City of Zephyra",
+                    "description": "An ancient city submerged under Crystal Lake, accessible through hidden underwater paths.",
+                    "paths": {
+                        "up": "Crystal Lake Village"
+                    },
+                    "sublocations": [
+                        {
+                            "name": "Coral Throne Room",
+                            "description": "The heart of the Sunken City, where the lost treasures of Zephyra lie.",
+                            "paths": {
+                                "exit": "Sunken City of Zephyra"
+                            },
+                            "items": [
+                                {
+                                    "name": "Pearl of the Depths",
+                                    "description": "A luminescent pearl said to control the waters.",
+                                    "type": "Treasure",
+                                    "collectable": true,
+                                    "quantity": 1
+                                }
+                            ],
+                            "containers": [
+                                {
+                                    "name": "Sealed Coral Chest",
+                                    "description": "A chest guarded by ancient sea creatures, filled with sunken riches.",
+                                    "type": "Container",
+                                    "collectable": false,
+                                    "contains": [
+                                        {
+                                            "name": "Enchanted Trident",
+                                            "description": "A powerful trident once wielded by a sea king.",
+                                            "type": "Weapon",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
                                 }
                             ]
                         }
