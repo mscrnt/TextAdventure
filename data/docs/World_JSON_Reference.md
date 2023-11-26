@@ -1,5 +1,5 @@
 
-# Avalonia Game World JSON Structure Reference
+# World JSON Structure Reference
 
 ## Overview
 
@@ -124,4 +124,3 @@ Example:
 
 ---
 
-Feel free to expand on this structure to accommodate more complex game mechanics or narrative elements. This reference should provide a solid foundation for further development of the Avalonia game world.
