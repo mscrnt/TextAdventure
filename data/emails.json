@@ -1,0 +1,35 @@
+{
+    "emails": [
+      {
+        "name": "Welcome to Odyssey",
+        "description": "Welcome to Odyssey! We hope you enjoy your stay.",
+        "read": false,
+        "sender": "Odyssey Admin"
+      },
+      {
+        "name": "Your Adventure Awaits",
+        "description": "Are you ready to embark on a journey of a lifetime? Gear up and meet us at the Guild.",
+        "read": false,
+        "sender": "The Adventurer's Guild"
+      },
+      {
+        "name": "Treasure Map Sale",
+        "description": "Exclusive offer! Purchase a treasure map this week and discover hidden riches.",
+        "read": false,
+        "sender": "Bargain Maps"
+      },
+      {
+        "name": "Mystic Forest Sightings",
+        "description": "Recent sightings of mystical creatures have been reported in the Mystic Forest. Caution advised.",
+        "read": false,
+        "sender": "Ranger's Watch"
+      },
+      {
+        "name": "Invitation to the King's Banquet",
+        "description": "You are cordially invited to attend the grand banquet hosted by King Arthur.",
+        "read": false,
+        "sender": "Royal Messenger"
+      }
+    ]
+  }
+  

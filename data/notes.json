@@ -1,0 +1,24 @@
+{
+    "notes": [
+        {
+            "name": "Enchanted Cave",
+            "description": "The cave is said to house a secret power guarded by ancient spirits. Approach with respect and the path shall open."
+        },
+        {
+            "name": "Mystic Forest Map",
+            "description": "The map reveals hidden pathways through the Mystic Forest. Some paths lead to treasures, others to peril."
+        },
+        {
+            "name": "Ancient Ruins",
+            "description": "Beware the ruins at the mountain peak. Legends speak of a slumbering beast with eyes like coal and a roar that shakes the earth."
+        },
+        {
+            "name": "Herbalist's Recipe",
+            "description": "For a potion of healing, mix two parts Redleaf with one part Moonflower under the light of a full moon."
+        },
+        {
+            "name": "Thief's Confession",
+            "description": "Hidden in the depths of the Thieves' Guild lies a gemstone, the Heart of the Ocean. Its curse I've borne; now it seeks a new keeper."
+        }
+    ]
+}

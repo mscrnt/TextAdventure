@@ -26,6 +26,21 @@ class GameManager(QObject):
         ic("Loading global inventory")
         global_inventory = utilities.load_json("item_list", "items")
         return global_inventory
+    
+    def load_worlds_data(self):
+        ic("Loading worlds data")
+        worlds_data = utilities.load_json("locations", "worlds")
+        return worlds_data
+    
+    def load_notes(self):
+        ic("Loading notes")
+        notes = utilities.load_json("notes", "notes")
+        return notes
+    
+    def load_emails(self):
+        ic("Loading emails")
+        emails = utilities.load_json("emails", "emails")
+        return emails
 
     def populate_initial_game_state(self):
         ic("Populating initial game state")
@@ -55,10 +70,58 @@ class GameManager(QObject):
             self.player_sheet.add_item(health_potion)
             ic("Health potion added to inventory")
 
-        self.player_sheet.add_fast_travel_location({"name": "Old Town", "description": "A small town with a few shops and a tavern"})
-        self.player_sheet.add_fast_travel_location({"name": "Mystic Forest", "description": "A dark forest with strange creatures"})
-        self.player_sheet.add_note({"name": "Enchanted Cave", "description": "Remember to check the enchanted cave."})
-        self.player_sheet.add_email({"name": "Welcome to Odyssey", "description": "Welcome to Odyssey! We hope you enjoy your stay.", "read": False, "sender": "Odyssey Admin"})
+        # Load the worlds data
+        worlds_data = self.load_worlds_data()
+        ic("Worlds data loaded")
+
+        # Find Avalonia world
+        avalonia = next((world for world in worlds_data if world['name'] == "Avalonia"), None)
+        if avalonia:
+            # Add the main area of Avalonia to fast travel locations if it's marked as main_area
+            main_area = next((location for location in avalonia['locations'] if location.get('main_area', False)), None)
+            if main_area:
+                self.player_sheet.add_fast_travel_location(main_area)
+                ic(f"{main_area['name']} (Main Area) added to fast travel locations")
+
+            # Add Eldergrove Forest to fast travel locations
+            eldergrove_forest = next((location for location in avalonia['locations'] if location['name'] == "Eldergrove Forest"), None)
+            if eldergrove_forest:
+                self.player_sheet.add_fast_travel_location(eldergrove_forest)
+                ic(f"{eldergrove_forest['name']} added to fast travel locations")
+        else:
+            ic("Avalonia not found in worlds data")
+
+        # Load the notes
+        notes = self.load_notes()
+
+        # Add the notes to the player's notes
+        Enchanted_Cave = next((note for note in notes if note['name'] == "Enchanted Cave"), None)
+        Thiefs_Confession = next((note for note in notes if note['name'] == "Thief's Confession"), None)
+
+        if Enchanted_Cave:
+            self.player_sheet.add_note(Enchanted_Cave)
+            ic("Enchanted Cave note added")
+
+        if Thiefs_Confession:
+            self.player_sheet.add_note(Thiefs_Confession)
+            ic("Thief's Confession note added")
+
+        # Load the emails
+        emails = self.load_emails()
+
+        # Add the emails to the player's emails
+        Welcome_to_Odyssey = next((email for email in emails if email['name'] == "Welcome to Odyssey"), None)
+        Treasure_Map_Sale = next((email for email in emails if email['name'] == "Treasure Map Sale"), None)
+
+        if Welcome_to_Odyssey:
+            self.player_sheet.add_email(Welcome_to_Odyssey)
+            ic("Welcome to Odyssey email added")
+
+        if Treasure_Map_Sale:
+            self.player_sheet.add_email(Treasure_Map_Sale)
+            ic("Treasure Map Sale email added")
+
+        # self.player_sheet.add_email({"name": "Welcome to Odyssey", "description": "Welcome to Odyssey! We hope you enjoy your stay.", "read": False, "sender": "Odyssey Admin"})
         read_email_quest = self.quest_tracker.get_quest("Read Email")
         if read_email_quest:
             ic("Activating Read Email quest")

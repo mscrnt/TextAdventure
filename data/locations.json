@@ -1,0 +1,47 @@
+{
+    "worlds": [
+        {
+            "name": "Avalonia",
+            "description": "A mystical land brimming with ancient magic and diverse biomes.",
+            "locations": [
+                {
+                    "name": "Central Avalonia",
+                    "description": "The heart of Avalonia, home to the Grand Castle and bustling markets.",
+                    "main_area": true
+                },
+                {
+                    "name": "Grand Castle",
+                    "description": "The seat of power for the Avalonian kingdom."
+                },
+                {
+                    "name": "The Great Library",
+                    "description": "A vast repository of knowledge, housing the world's greatest collection of books."
+                },
+                {
+                    "name": "The Great Bazaar",
+                    "description": "A bustling marketplace, where merchants from all over the world come to sell their wares."
+                },
+                {
+                    "name": "The Great Arena",
+                    "description": "A massive coliseum, where the greatest warriors come to test their mettle."
+                },
+                {
+                    "name": "The Great Cathedral",
+                    "description": "A massive cathedral, where the devout come to worship the gods."
+                },
+                {
+                    "name": "Crystal Lake Village",
+                    "description": "A quaint village known for its crystal clear waters and friendly folk."
+                },
+                {
+                    "name": "Eldergrove Forest",
+                    "description": "An old forest, whispered to be the dwelling of the ageless Eldertree."
+                },
+                {
+                    "name": "Dreadmount Peaks",
+                    "description": "A treacherous mountain range that guards the realm's northern borders."
+                }
+            ]
+        }
+    ]
+}
