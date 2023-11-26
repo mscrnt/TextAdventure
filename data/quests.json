@@ -8,7 +8,7 @@
         "objectives": [
             {
                 "type": "readEmail",
-                "target": "Welcome to Odyssey",
+                "target": "all-unread",
                 "completed": false
             }
         ]

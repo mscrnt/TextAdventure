@@ -88,7 +88,6 @@ class PlayerSheet:
     def add_email(self, email):
         ic("Adding email")
         ic(email)
-        # Add an email dictionary to the emails if it's not already there
         if not any(existing_email['name'] == email['name'] for existing_email in self.emails):
             self.emails.append(email)
 
@@ -117,7 +116,9 @@ class PlayerSheet:
             self.fast_travel_locations.remove(location)
 
     def get_email(self, email_name):
-        ic("Getting email")
-        ic(email_name)
+        ic(f"Getting email: {email_name}")
         return next((email for email in self.emails if email['name'] == email_name), None)
 
+    def get_all_emails(self):
+        ic("Getting all emails")
+        return self.emails

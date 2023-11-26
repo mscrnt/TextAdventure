@@ -93,17 +93,30 @@ class BaseObjective:
 # Objective for reading an email
 class ReadEmailObjective(BaseObjective):
     def check_objective(self):
-        ic("Checking ReadEmailObjective")
-        email = self.game_manager.player_sheet.get_email(self.objective_data['target'])
-        ic(email)  # Check the state of the email
-        if email and email['read']:
-            ic("Email read, completing objective")
+        # Handle the case where all items should be checked
+        if self.objective_data['target'] == "all-unread":
+            return self.check_all_emails_read()
+
+        # Handle the case where specific items are listed
+        elif isinstance(self.objective_data['target'], list):
+            return all(self.check_specific_email_read(email_name) for email_name in self.objective_data['target'])
+
+        # Handle the case where there is only one target
+        else:
+            return self.check_specific_email_read(self.objective_data['target'])
+
+    def check_all_emails_read(self):
+        emails = self.game_manager.player_sheet.get_all_emails()
+        if all(email.get('read', False) for email in emails):
             self.complete()
             return True
-        else:
-            ic("Email not read")
         return False
 
+    def check_specific_email_read(self, email_name):
+        email = self.game_manager.player_sheet.get_email(email_name)
+        if email and email.get('read', False):
+            return True
+        return False
 
 # Objective for fetching an item
 class FetchItemObjective(BaseObjective):

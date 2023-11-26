@@ -1,7 +1,7 @@
 # gui/game_ui.py
 
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QScrollBar, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox
+from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QScrollBar, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox, QListWidgetItem
 from PySide6.QtCore import Qt, QTimer, QSize
 from PySide6.QtGui import QFont, QPalette, QColor, QTextCursor, QTextBlockFormat, QTextCharFormat, QFontMetrics
 import time
@@ -173,11 +173,29 @@ class GameUI(QWidget):
 
     def populate_emails(self):
         ic("Populating emails")
-        # Get emails from the game manager and include the read status
+        # Clear the existing items in the list to refresh the list
+        self.inventory_list.clear()
+        # Get emails from the game manager
         emails = self.game_manager.get_player_emails()
-        for email in emails:
-            read_status = "Read" if email['read'] else "Unread"
-            self.inventory_list.addItem(f"{email['name']} ({read_status})")
+        
+        # Sort emails so that unread emails come first
+        sorted_emails = sorted(emails, key=lambda x: x['read'])
+        
+        # Add emails to the list with a different style if read
+        for email in sorted_emails:
+            item_text = f"{email['name']} (Read)" if email['read'] else email['name']
+            item = QListWidgetItem(item_text)
+            
+            # If the email is read, set the color to grey
+            if email['read']:
+                item.setForeground(QColor('grey'))
+            else:
+                # Ensure that unread emails are bold
+                font = item.font()
+                font.setBold(True)
+                item.setFont(font)
+            
+            self.inventory_list.addItem(item)
 
     def process_command(self):
         ic("Processing command")

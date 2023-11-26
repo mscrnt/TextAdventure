@@ -200,6 +200,7 @@ class GameManager(QObject):
                 ic(f"Email {email_name} marked as read")
                 ic(email)
                 self.quest_tracker.check_all_quests()
+                self.ui.populate_emails()
                 break
 
     def save_game(self):
