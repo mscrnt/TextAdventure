@@ -38,14 +38,14 @@ This project consists of multiple Python files that together form the backbone o
 To start the game, run `main.py`. Ensure that all dependencies are installed and that the necessary game assets and data files are in their appropriate directories.
 
 ## Contributions
-Contributions to the Avalonia game project are welcome. Please ensure that any additions or changes are well-documented and align with the existing code structure and game design.
+Contributions to the game project are welcome. Please ensure that any additions or changes are well-documented and align with the existing code structure and game design.
 
 ## License
 Specify the license under which this project is released.
 
 ## Contact
-For more information or queries regarding the Avalonia game project, please contact the project maintainer.
+For more information or queries regarding the game project, please contact the project maintainer.
 
 ---
 
-This README provides a basic overview of the Avalonia game project. For more detailed information about each component, refer to the respective file documentation.
+This README provides a basic overview of the game project. For more detailed information about each component, refer to the respective file documentation.
