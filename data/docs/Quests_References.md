@@ -3,7 +3,7 @@
 
 ## Overview
 
-This document serves as a guide for managing and expanding quests in the Avalonia game world using the `quests.json` file.
+This document serves as a guide for managing and expanding quests in the game world using the `quests.json` file.
 
 ## Structure of a Quest
 
