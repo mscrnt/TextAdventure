@@ -5,6 +5,7 @@ from engine.quest_tracker import QuestTracker
 from icecream import ic
 import utilities
 from PySide6.QtCore import QObject, Signal
+from engine.world_builder import WorldBuilder
 
 
 class GameManager(QObject):
@@ -21,6 +22,7 @@ class GameManager(QObject):
         
         # Initialize the game state with initial items, locations, etc.
         ic("GameManager initialized")   
+        self.world_builder = WorldBuilder(self)
 
     def load_global_inventory(self):
         ic("Loading global inventory")
@@ -121,7 +123,6 @@ class GameManager(QObject):
             self.player_sheet.add_email(Treasure_Map_Sale)
             ic("Treasure Map Sale email added")
 
-        # self.player_sheet.add_email({"name": "Welcome to Odyssey", "description": "Welcome to Odyssey! We hope you enjoy your stay.", "read": False, "sender": "Odyssey Admin"})
         read_email_quest = self.quest_tracker.get_quest("Read Email")
         if read_email_quest:
             ic("Activating Read Email quest")
@@ -225,3 +226,7 @@ class GameManager(QObject):
         else:
             print("No filename provided for loading the game.")
         return False
+    
+    def update_location(self, new_location):
+        self.player_sheet.location = new_location
+        self.world_builder.build_scene()

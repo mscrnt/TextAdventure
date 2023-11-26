@@ -1,0 +1,199 @@
+{
+    "name": "Avalonia",
+    "description": "A mystical land brimming with ancient magic and diverse biomes.",
+    "locations": [
+        {
+            "name": "Central Avalonia",
+            "description": "The heart of Avalonia, home to the Grand Castle and bustling markets.",
+            "paths": {
+                "east": "The Shattered Road"
+            },
+            "sublocations": [
+                {
+                    "name": "The Great Bazaar",
+                    "description": "A lively marketplace filled with exotic goods and intriguing characters.",
+                    "paths": {
+                        "exit": "Central Avalonia"
+                    },
+                    "items": [
+                        {
+                            "name": "Mystical Amulet",
+                            "description": "An amulet said to grant protection to its wearer.",
+                            "type": "Accessory",
+                            "collectable": true,
+                            "quantity": 2
+                        }
+                    ],
+                    "containers": [
+                        {
+                            "name": "Merchant's Chest",
+                            "description": "A chest belonging to a seasoned merchant, containing various goods.",
+                            "paths": {
+                                "close": "The Great Bazaar"
+                            },
+                            "type": "Container",
+                            "collectable": false,
+                            "contains": [
+                                {
+                                    "name": "Spices",
+                                    "description": "Rare spices from distant lands.",
+                                    "type": "Goods",
+                                    "collectable": true,
+                                    "quantity": 5
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "The Great Arena",
+                    "description": "An arena where warriors and adventurers clash in epic battles.",
+                    "paths": {
+                        "exit": "Central Avalonia"
+                    },
+                    "items": [
+                        {
+                            "name": "Champion's Sword",
+                            "description": "A sword once wielded by the arena's greatest champion.",
+                            "type": "Weapon",
+                            "collectable": true,
+                            "quantity": 1
+                        }
+                    ],
+                    "interactables": [
+                        {
+                            "name": "Hall of Fame",
+                            "description": "Walls adorned with the names of past champions.",
+                            "type": "Decor",
+                            "collectable": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "The Shattered Road",
+            "description": "A once majestic road now fractured and worn, winding towards Crystal Lake Village.",
+            "paths": {
+                "west": "Central Avalonia",
+                "east": "Crystal Lake Village"
+            },
+            "sublocations": [
+                {
+                    "name": "Wayfarer's Inn",
+                    "description": "A modest inn offering shelter to travelers on the Shattered Road.",
+                    "paths": {
+                        "exit": "The Shattered Road"
+                    },
+                    "items": [
+                        {
+                            "name": "Traveler's Cloak",
+                            "description": "A durable cloak for protection against the elements.",
+                            "type": "Clothing",
+                            "collectable": true,
+                            "quantity": 2
+                        }
+                    ],
+                    "containers": [
+                        {
+                            "name": "Worn Trunk",
+                            "description": "An old trunk containing various trinkets left behind by travelers.",
+                            "type": "Container",
+                            "collectable": false,
+                            "contains": [
+                                {
+                                    "name": "Antique Locket",
+                                    "description": "An old locket with a faded portrait inside.",
+                                    "type": "Jewelry",
+                                    "collectable": true,
+                                    "quantity": 1
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Crystal Lake Village",
+            "description": "A charming village by a crystal-clear lake, known for its serene beauty.",
+            "paths": {
+                "west": "The Shattered Road"
+            },
+            "sublocations": [
+                {
+                    "name": "Lakeside Inn",
+                    "description": "A cozy inn offering respite to weary travelers.",
+                    "paths": {
+                        "exit": "Crystal Lake Village"
+                    },
+                    "items": [
+                        {
+                            "name": "Lake Fish",
+                            "description": "Fresh fish caught from the crystal lake.",
+                            "type": "Food",
+                            "collectable": true,
+                            "quantity": 10
+                        }
+                    ],
+                    "containers": [
+                        {
+                            "name": "Innkeeper's Desk",
+                            "description": "A well-kept desk with various items of interest.",
+                            "paths": {
+                                "close": "Innkeeper's Desk"
+                            },
+                            "type": "Container",
+                            "collectable": false,
+                            "contains": [
+                                {
+                                    "name": "Old Key",
+                                    "description": "An old rusty key, purpose unknown.",
+                                    "type": "Key",
+                                    "collectable": true,
+                                    "quantity": 1
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "Village Market",
+                    "description": "A bustling market where villagers and travelers barter and trade.",
+                    "paths": {
+                        "exit": "Crystal Lake Village"
+                    },
+                    "items": [
+                        {
+                            "name": "Woven Basket",
+                            "description": "A handcrafted basket, perfect for carrying goods.",
+                            "type": "Utility",
+                            "collectable": true,
+                            "quantity": 3
+                        }
+                    ],
+                    "containers": [
+                        {
+                            "name": "Hidden Compartment",
+                            "description": "A secret compartment found under a market stall.",
+                            "paths": {
+                                "close": "Village Market"
+                            },
+                            "type": "Container",
+                            "collectable": false,
+                            "contains": [
+                                {
+                                    "name": "Secret Letter",
+                                    "description": "A letter containing mysterious instructions.",
+                                    "type": "Document",
+                                    "collectable": true,
+                                    "quantity": 1
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

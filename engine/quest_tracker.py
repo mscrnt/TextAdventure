@@ -86,11 +86,10 @@ class BaseObjective:
         ic(f"Completing objective: {self.objective_data}")
         self.completed = True
         self.objective_data['completed'] = True
-        # Ensure that the objective's completion is reflected in the quest data
-        #self.game_manager.player_sheet.update_quest(self.objective_data)
+
         
 
-# Objective for reading an email
+# Objective for reading email(s)
 class ReadEmailObjective(BaseObjective):
     def check_objective(self):
         # Handle the case where all items should be checked

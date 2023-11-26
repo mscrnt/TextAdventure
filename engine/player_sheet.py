@@ -10,7 +10,7 @@ class PlayerSheet:
         self.health = 100
         self.action_points = 10
         self.inventory = []
-        self.location = "Start Location"
+        self.location = "Central Avalonia"
         self.fast_travel_locations = []
         self.quests = []
         self.notes = []

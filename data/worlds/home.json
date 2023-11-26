@@ -1,0 +1,21 @@
+{
+    "name": "Home",
+    "description": "Your VR home. You can decorate it with items you find in the world.",
+    "locations": [
+        {
+            "name": "Central Avalonia",
+            "description": "The heart of Avalonia, home to the Grand Castle and bustling markets.",
+            "paths": {
+                "east": "The Shattered Road"
+            },
+            "items": [
+                {
+                    "name": "Avalonian Coin",
+                    "description": "A coin from Avalonia. It has a picture of the Grand Castle on it.",
+                    "type": "coin",
+                    "value": 1
+                }
+            ]
+        }
+    ]
+}

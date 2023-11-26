@@ -1,12 +1,12 @@
 # gui/game_ui.py
 
-import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QScrollBar, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox, QListWidgetItem
-from PySide6.QtCore import Qt, QTimer, QSize
-from PySide6.QtGui import QFont, QPalette, QColor, QTextCursor, QTextBlockFormat, QTextCharFormat, QFontMetrics
+from PySide6.QtWidgets import QApplication, QTextEdit, QVBoxLayout, QWidget, QLabel, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox, QListWidgetItem
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont, QPalette, QColor, QTextBlockFormat, QFontMetrics
 import time
 from engine.game_manager import GameManager
 from icecream import ic
+from engine.world_builder import WorldBuilder
 
 class GameUI(QWidget):
     def __init__(self, player_name, parent=None):
@@ -16,6 +16,7 @@ class GameUI(QWidget):
         self.init_ui()
         self.game_manager = GameManager(player_name, self)
         self.game_manager.gameLoaded.connect(self.on_game_loaded)
+        self.world_builder = WorldBuilder(self.game_manager) 
         ic("GameUI initialized")
         self.initialize_drop_down_menu() 
 
@@ -198,13 +199,29 @@ class GameUI(QWidget):
             self.inventory_list.addItem(item)
 
     def process_command(self):
-        ic("Processing command")
-        # Get the command from the input
-        command = self.command_input.text()
-        # Clear the command input
+        command = self.command_input.text().strip().lower()
         self.command_input.clear()
-        # Process the command
-        self.display_text(f"Command executed: {command}")
+
+        response = ""  # Variable to store response from WorldBuilder
+        if command.startswith("take"):
+            item_name = command[len("take"):].strip()
+            response = self.world_builder.take_item(item_name)
+        elif command.startswith("move to"):
+            location_name = command[len("move to"):].strip()
+            response = self.world_builder.move_player(location_name)
+        elif command.startswith("examine"):
+            item_name = command[len("examine"):].strip()
+            response = self.world_builder.examine_item(item_name)
+        elif command.startswith("whereami"):
+            response = self.world_builder.where_am_i()
+        elif command.startswith("look around"):
+            response = self.world_builder.look_around()
+        elif command.startswith("help"):
+            response = self.world_builder.display_help()
+        else:
+            response = f"Unrecognized command: {command}"
+
+        self.display_text(response)
 
     def display_item_information(self, item_widget):
         ic("Displaying item information")
@@ -288,10 +305,10 @@ class GameUI(QWidget):
                 # Process events to update the text area immediately
                 QApplication.processEvents()
                 # Sleep for a short duration to create the typing effect
-                time.sleep(0.05)
+                time.sleep(0.025)
 
             # Wait for a moment after each chunk
-            time.sleep(2)
+            time.sleep(1)
 
             # Clear the area for the next chunk
             if i + max_lines < len(text_lines):
@@ -319,3 +336,7 @@ class GameUI(QWidget):
             self.update_ui_from_dropdown(quest_log_index)
         else:
             print("Quest Log not found in dropdown.")
+
+    def update_scene_display(self):
+        scene_text = self.world_builder.build_scene_text()
+        self.display_text(scene_text)
