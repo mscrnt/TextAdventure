@@ -1,4 +1,3 @@
-[]: # Title: Text Adventure Game - Project README
 ---
 
 # Text Adventure Game - Project README
