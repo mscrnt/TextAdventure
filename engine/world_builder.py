@@ -3,46 +3,46 @@
 import json
 from icecream import ic
 import re
+from engine.ai_assist import AIAssist 
 
 class WorldBuilder:
     def __init__(self, game_manager, world_data):
         self.game_manager = game_manager
         self.world_data = world_data
 
-    def incoming_command(self, command):
-        # Check if a container is open and restrict actions
-        open_container_name = self.is_container_open()
-        # if open_container_name and not (command.startswith("close") or command.startswith("take") or command.startswith("help") or command.startswith("examine") or command.startswith("look around") or command.startswith("give") or command.startswith("whereami") or command.startswith("place")):
-        #     # Show a message and the contents of the open container
-        #     container_contents = self.open_container(open_container_name)
-        #     return "You cannot do that while a container is open. \n\n" + container_contents
+        self.use_ai_assist = True  
+        if self.use_ai_assist:
+            self.ai_assist = AIAssist(game_manager, self)
 
-        # Process the command normally
-        if command.startswith("take"):
-            item_name = command[len("take"):].strip()
-            return self.take_item(item_name)
-        elif command.startswith("move to") or command.startswith("go to"):
-            location_name = command[len("move to"):].strip() if command.startswith("move to") else command[len("go to"):].strip()
-            return self.move_player(location_name)
-        elif command.startswith("examine"):
-            item_name = command[len("examine"):].strip()
-            return self.examine_item(item_name)
-        elif command.startswith("whereami") or command.startswith("where am i"):
-            return self.where_am_i()
-        elif command.startswith("look around") or command.startswith("look"):
-            return self.look_around()
-        elif command.startswith("open"):
-            container_name = command[len("open"):].strip()
-            return self.open_container(container_name)
-        elif command.startswith("close"):
-            return self.close_container()
-        elif command.startswith("give"):
-            item_name = command[len("give"):].strip()
-            return self.give_item(item_name)
-        elif command.startswith("help"):
-            return self.display_help()
+    def incoming_command(self, command):
+        if self.use_ai_assist:
+            return self.ai_assist.handle_player_command(command)  # Use AI to process command
         else:
-            return f"Unrecognized command: {command}"
+            if command.startswith("take"):
+                item_name = command[len("take"):].strip()
+                return self.take_item(item_name)
+            elif command.startswith("move to") or command.startswith("go to"):
+                location_name = command[len("move to"):].strip() if command.startswith("move to") else command[len("go to"):].strip()
+                return self.move_player(location_name)
+            elif command.startswith("examine"):
+                item_name = command[len("examine"):].strip()
+                return self.examine_item(item_name)
+            elif command.startswith("whereami") or command.startswith("where am i"):
+                return self.where_am_i()
+            elif command.startswith("look around") or command.startswith("look"):
+                return self.look_around()
+            elif command.startswith("open"):
+                container_name = command[len("open"):].strip()
+                return self.open_container(container_name)
+            elif command.startswith("close"):
+                return self.close_container()
+            elif command.startswith("give"):
+                item_name = command[len("give"):].strip()
+                return self.give_item(item_name)
+            elif command.startswith("help"):
+                return self.display_help()
+            else:
+                return f"Unrecognized command: {command}"
 
     def find_location_data(self, location_name):
         if isinstance(location_name, dict):
