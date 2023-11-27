@@ -3,7 +3,7 @@
 
 ## Overview
 
-This document serves as a guide for expanding the Avalonia game world. The world is structured in JSON format, comprising locations, sublocations, paths, items, and other interactive elements.
+This document serves as a guide for expanding the game world. The world is structured in JSON format, comprising locations, sublocations, paths, items, and other interactive elements.
 
 ## Adding Locations
 
@@ -13,6 +13,7 @@ This document serves as a guide for expanding the Avalonia game world. The world
 {
     "name": "Location Name",
     "description": "Description of the location.",
+    "main-entry": true or false,
     "paths": {
         "direction": "Connected Location"
     },
@@ -26,6 +27,7 @@ This document serves as a guide for expanding the Avalonia game world. The world
 
 - **name**: A string representing the location's name.
 - **description**: A brief description of the location.
+- **main-entry**: Boolean indicating if the location is the main entry point for the game.
 - **paths**: An object where each key is a direction (e.g., "north", "east", "south", "west", "up", "down") and each value is the name of the location it connects to.
 - **sublocations**: An array of sublocation objects (see below for sublocation structure).
 
@@ -106,6 +108,7 @@ Example:
         "close": "Parent Sublocation"
     },
     "type": "Container",
+    "isOpen": false,
     "collectable": false,
     "contains": [
         // Item objects
@@ -119,6 +122,7 @@ Example:
 - **description**: Details about the container.
 - **paths**: Object with a "close" key pointing back to the sublocation.
 - **type**: Always set as "Container".
+- **isOpen**: Boolean indicating if the container is open.
 - **collectable**: Should be `false` for containers.
 - **contains**: An array of items within the container.
 
