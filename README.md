@@ -1,5 +1,4 @@
-Certainly, I can merge the details from your provided `README.md` into the one I drafted. This will enhance the existing sections with more specific information about the game's components and functionalities. Here's the updated draft:
-
+[]: # Title: Text Adventure Game - Project README
 ---
 
 # Text Adventure Game - Project README
