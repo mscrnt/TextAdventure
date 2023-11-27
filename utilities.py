@@ -27,7 +27,7 @@ def load_json(file_name: str, key) -> Dict:
     try:
         with open(path, 'r') as file:
             data = json.load(file)
-            return data.get(key, [])  # Using .get() avoids KeyError if the key doesn't exist
+            return data.get(key, []) 
     except FileNotFoundError:
         ic(f"The file {file_name}.json was not found.")
     except json.JSONDecodeError as e:

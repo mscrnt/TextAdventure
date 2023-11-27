@@ -1,10 +1,8 @@
 # gui/main_window.py
 
 from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout, QPushButton, QFileDialog, QInputDialog, QDialog
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QFont, QPalette, QColor
-from engine.game_manager import GameManager
-import json
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont
 from typing import Dict
 from icecream import ic
 import sys
@@ -41,22 +39,22 @@ class MainWindow(QMainWindow):
         self.init_entry_point()
 
     def init_entry_point(self):
-        self.entry_point_widget = QWidget()  # Assign to an attribute
+        self.entry_point_widget = QWidget()  
         entry_point_layout = QVBoxLayout(self.entry_point_widget)
 
         # New Game Button
         new_game_button = QPushButton("New Game")
-        new_game_button.setMaximumWidth(200)  # Set maximum width
-        new_game_button.setStyleSheet("QPushButton { background-color: #333; color: #fff; }")  # Set the style
+        new_game_button.setMaximumWidth(200)  
+        new_game_button.setStyleSheet("QPushButton { background-color: #333; color: #fff; }") 
         new_game_button.clicked.connect(self.start_new_game)
-        entry_point_layout.addWidget(new_game_button, 0, Qt.AlignCenter)  # Align to center
+        entry_point_layout.addWidget(new_game_button, 0, Qt.AlignCenter)  
 
         # Load Game Button
         load_game_button = QPushButton("Load Game")
-        load_game_button.setMaximumWidth(200)  # Set maximum width
-        load_game_button.setStyleSheet("QPushButton { background-color: #333; color: #fff; }")  # Set the style
+        load_game_button.setMaximumWidth(200) 
+        load_game_button.setStyleSheet("QPushButton { background-color: #333; color: #fff; }")
         load_game_button.clicked.connect(self.select_save_file)
-        entry_point_layout.addWidget(load_game_button, 0, Qt.AlignCenter)  # Align to center
+        entry_point_layout.addWidget(load_game_button, 0, Qt.AlignCenter) 
 
         self.layout.addWidget(self.entry_point_widget)
 
@@ -76,7 +74,7 @@ class MainWindow(QMainWindow):
 
         # Event filter for mouse clicks on the splash screen
         splash_widget.mousePressEvent = self.start_game
-        splash_widget.setFocusPolicy(Qt.StrongFocus)  # Ensure the widget can be focused to receive mouse events
+        splash_widget.setFocusPolicy(Qt.StrongFocus) 
 
         self.layout.addWidget(splash_widget)
 
@@ -182,7 +180,6 @@ class MainWindow(QMainWindow):
 
     # Method to save the game
     def trigger_save_game(self):
-        # You will need a reference to your game_manager to call its save method
         self.game_ui.game_manager.save_game()
 
     # Method to load the game
@@ -193,11 +190,10 @@ class MainWindow(QMainWindow):
             # Create a GameUI instance if it does not exist
             if not hasattr(self, 'game_ui'):
                 # Since we don't have the player's name, we might need to extract it from the save file or set a default
-                player_name = 'Default'  # You should replace this with the actual name from the save file if possible
+                player_name = 'Default'  # This will be replaced once we have the player's name
                 self.game_ui = GameUI(player_name)
 
             if self.game_ui.game_manager.load_game(filename):
-                # No need to call update_ui here as it's now connected to the signal
                 self.setCentralWidget(self.game_ui)
                 print(f"Game loaded successfully from {filename}.")
             else:
@@ -207,7 +203,6 @@ class MainWindow(QMainWindow):
 
     def prompt_for_player_name(self):
         dialog = QInputDialog(self)
-        # Ensure text in QLineEdit and QPushButton is black
         dialog.setStyleSheet("""
             QLineEdit { color: black; }
             QPushButton { color: black; }

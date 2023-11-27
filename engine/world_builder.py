@@ -12,37 +12,39 @@ class WorldBuilder:
     def incoming_command(self, command):
         # Check if a container is open and restrict actions
         open_container_name = self.is_container_open()
-        if open_container_name and not (command.startswith("close") or command.startswith("take") or command.startswith("help") or command.startswith("examine")):
-            # Show a message and the contents of the open container
-            container_contents = self.open_container(open_container_name)
-            return "You must close the open container before doing anything else.\n\n" + container_contents
+        # if open_container_name and not (command.startswith("close") or command.startswith("take") or command.startswith("help") or command.startswith("examine") or command.startswith("look around") or command.startswith("give") or command.startswith("whereami") or command.startswith("place")):
+        #     # Show a message and the contents of the open container
+        #     container_contents = self.open_container(open_container_name)
+        #     return "You cannot do that while a container is open. \n\n" + container_contents
 
         # Process the command normally
         if command.startswith("take"):
             item_name = command[len("take"):].strip()
             return self.take_item(item_name)
-        elif command.startswith("move to"):
-            location_name = command[len("move to"):].strip()
+        elif command.startswith("move to") or command.startswith("go to"):
+            location_name = command[len("move to"):].strip() if command.startswith("move to") else command[len("go to"):].strip()
             return self.move_player(location_name)
         elif command.startswith("examine"):
             item_name = command[len("examine"):].strip()
             return self.examine_item(item_name)
-        elif command.startswith("whereami"):
+        elif command.startswith("whereami") or command.startswith("where am i"):
             return self.where_am_i()
-        elif command.startswith("look around"):
+        elif command.startswith("look around") or command.startswith("look"):
             return self.look_around()
         elif command.startswith("open"):
             container_name = command[len("open"):].strip()
             return self.open_container(container_name)
         elif command.startswith("close"):
             return self.close_container()
+        elif command.startswith("give"):
+            item_name = command[len("give"):].strip()
+            return self.give_item(item_name)
         elif command.startswith("help"):
             return self.display_help()
         else:
             return f"Unrecognized command: {command}"
 
     def find_location_data(self, location_name):
-        # Handle the case where location_name is a dictionary
         if isinstance(location_name, dict):
             location_name = location_name.get("location/sublocation", "Unknown Location")
 
@@ -72,7 +74,6 @@ class WorldBuilder:
         if isinstance(player_location, dict):
             location_name = player_location.get("location/sublocation", "Unknown Location")
         else:
-            # If it's already a string, use it directly
             location_name = player_location
 
         location_data = self.find_location_data(location_name)
@@ -152,31 +153,39 @@ class WorldBuilder:
         # Normalize the item name for comparison
         normalized_item_name = self.normalize_name(item_name)
 
-        # Check if the item is inside an open container
+        # Get the current location data
         current_location = self.game_manager.player_sheet.location
         current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
         location_data = self.find_location_data(current_location_str)
 
-        if location_data and 'containers' in location_data:
-            for container in location_data['containers']:
-                if container['isOpen']:
-                    for item in container.get('contains', []):
-                        if self.normalize_name(item['name']) == normalized_item_name:
-                            # Check if the item is collectable
-                            if not item.get('collectable', True):  # Default to True if 'collectable' not specified
-                                return f"{item['name']} cannot be taken."
+        # Check if the item is in an open container
+        item_taken = self._take_item_from_open_container(item_name, location_data)
+        if item_taken:
+            return item_taken
 
-                            # Remove the item from the container in location_data
-                            container['contains'].remove(item)
-
-                            # Update the container in world_data with the new container contents
-                            self.update_world_data(current_location_str, {'containers': location_data['containers']})
-
-                            # Add the item to the player's inventory
-                            self.game_manager.player_sheet.add_item(item)
-                            return f"You have taken {item['name']} from {container['name']}."
+        # If not in a container, try taking directly from the location
+        for item in location_data.get('items', []):
+            if self.normalize_name(item['name']) == normalized_item_name:
+                # Remove the item from the location
+                location_data['items'].remove(item)
+                self.update_world_data(current_location_str, {'items': location_data['items']})
+                self.game_manager.player_sheet.add_item(item)
+                return f"You have taken {item['name']}."
 
         return "You cannot take that item."
+
+    def _take_item_from_open_container(self, item_name, location_data):
+        for container in location_data.get('containers', []):
+            if container.get('isOpen', False):
+                for item in container.get('contains', []):
+                    if self.normalize_name(item['name']) == item_name:
+                        if not item.get('collectable', True):
+                            return f"{item['name']} cannot be taken."
+                        container['contains'].remove(item)
+                        self.update_world_data(location_data['name'], {'containers': location_data['containers']})
+                        self.game_manager.player_sheet.add_item(item)
+                        return f"You have taken {item['name']} from {container['name']}."
+        return None
 
     
     def is_container_open(self):
@@ -227,8 +236,6 @@ class WorldBuilder:
             # Move to the new location
             destination = next((dest for dest in current_location_data['paths'].values() if self.normalize_name(dest) == sanitized_location_name), None)
             if destination:
-                # Here we assume destination is just the location name, not a full dictionary
-                # You would need to ensure this matches the expected dictionary structure
                 new_location_dict = {
                     "world": current_location['world'],  # keep the current world
                     "location/sublocation": destination  # update sublocation
@@ -253,28 +260,69 @@ class WorldBuilder:
 
 
     def examine_item(self, item_name):
-        location_data = self.find_location_data(self.game_manager.player_sheet.location)
-        item = self.find_item_in_location_or_inventory(item_name, location_data)
-        if item:
-            return f"{item['name']}: {item['description']}"
+        # Normalize the item name for comparison
+        normalized_item_name = self.normalize_name(item_name)
+
+        # Get the current location data
+        current_location = self.game_manager.player_sheet.location
+        current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
+        location_data = self.find_location_data(current_location_str)
+
+        # Check if the item is in an open container
+        item_description = self._examine_item_in_open_container(item_name, location_data)
+        if item_description:
+            return item_description
+
+        # If not in a container, try examining directly from the location
+        for item in location_data.get('items', []):
+            if self.normalize_name(item['name']) == normalized_item_name:
+                return f"{item['name']}: {item['description']}"
+
         return f"{item_name} not found."
+
+    def _examine_item_in_open_container(self, item_name, location_data):
+        for container in location_data.get('containers', []):
+            if container.get('isOpen', False):
+                for item in container.get('contains', []):
+                    if self.normalize_name(item['name']) == item_name:
+                        return f"{item['name']}: {item['description']}"
+        return None
 
     def where_am_i(self):
         # Extract location name from the player's location
         location = self.game_manager.player_sheet.location
-        if isinstance(location, dict):
-            location_str = location.get("location/sublocation", "Unknown Location")
-        else:
-            location_str = location
+        location_str = location.get("location/sublocation", "Unknown Location") if isinstance(location, dict) else location
 
         # Use the extracted string to find location data
         location_data = self.find_location_data(location_str)
-        if location_data:
-            return f"You are at {location_str}. {location_data['description']}"
-        return "You are in an unknown location."
+        location_description = location_data['description'] if location_data else "You are in an unknown location."
+
+        # Initialize container_info
+        container_info = ""
+
+        # Check for any open container in the current location
+        open_container_name = self.is_container_open()
+        if open_container_name:
+            container_info = f" Inside '{open_container_name}' container."
+
+        return f"You are at {location_str}. {location_description}.{container_info}"
 
 
     def look_around(self):
+        # Check if the player is currently looking inside an open container
+        open_container_name = self.is_container_open()
+        if open_container_name:
+            current_location = self.game_manager.player_sheet.location
+            location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
+            location_data = self.find_location_data(location_str)
+
+            if location_data and 'containers' in location_data:
+                for container in location_data['containers']:
+                    if container['name'] == open_container_name:
+                        # Display contents of the open container
+                        return f"You are looking into '{open_container_name}':\n\n{self.list_container_contents(container)}"
+
+        # If no container is open, return the normal scene text
         return self.build_scene_text()
     
     def show_sublocations(self, location_data):
@@ -285,15 +333,16 @@ class WorldBuilder:
 
     def display_help(self):
         help_text = (
-            "Available commands:\n"
-            "\n"
-            "take <item> - Take an item from the current location and add it to your inventory.\n\n"
-            "move <location> - Move to a different location.\n\n"
-            "examine <item> - Examine an item in your current location or in your inventory for more details.\n\n"
-            "whereami - Find out your current location.\n\n"
-            "look around - Look around your current location to see items, interactables, and containers.\n\n"
-            "open <container> - Open a container in your current location to see its contents.\n\n"
-            "help - Display this list of commands."
+            "Available commands:\n\n"
+            "take <item> - Take an item from the current location or an open container and add it to your inventory.\n Example: 'take potion'\n\n"
+            "give <quantity> <item> - Give a specified quantity of an item from your inventory to an open container or NPC.\n Example: 'give 2 potions'\n\n"
+            "move <location> - Move to a different location or sublocation.\n Example: 'move to the garden'\n\n"
+            "examine <item> - Examine an item in your current location, an open container, or in your inventory for more details.\n Example: 'examine key'\n\n"
+            "whereami - Find out your current location including any open container.\n Example: 'whereami'\n\n"
+            "look around - Look around your current location to see items, interactables, containers, and sublocations. If inside an open container, it shows the contents of the container.\n Example: 'look around'\n\n"
+            "open <container> - Open a container in your current location to interact with its contents.\n Example: 'open chest'\n\n"
+            "close - Close the currently open container.\n Example: 'close'\n\n"
+            "help - Display this list of commands.\n"
         )
         return help_text
     
@@ -337,3 +386,64 @@ class WorldBuilder:
         """Close all containers in a specific location."""
         for container in location.get('containers', []):
             container['isOpen'] = False
+
+    def give_item(self, command):
+        # Extract item name and quantity from the command
+        # Example command: "1 health potion"
+        parts = command.split(maxsplit=1)  # Split only into two parts: 'give', '1', 'health potion'
+        if len(parts) < 2:
+            return "Please specify an item and quantity to give. E.g., 'give 2 potions'."
+
+        try:
+            print(f'parts[1]: {parts[0]} type: {type(parts[0])}')
+            quantity = int(parts[0])
+        except ValueError:
+            return "Invalid quantity. Please specify a valid number."
+
+        item_name = parts[1].strip()
+        normalized_item_name = self.normalize_name(item_name)
+
+        # Check if a container is open
+        open_container_name = self.is_container_open()
+        if open_container_name:
+            # Give item to the open container
+            return self._give_item_to_container(normalized_item_name, quantity, open_container_name)
+        
+        # Future implementation for NPCs can be added here
+
+        return "You need to open a container or talk to an NPC to give items."
+
+    def _give_item_to_container(self, normalized_item_name, quantity, container_name):
+        player_inventory = self.game_manager.player_sheet.inventory
+        current_location = self.game_manager.player_sheet.location
+        location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
+        location_data = self.find_location_data(location_str)
+
+        for container in location_data.get('containers', []):
+            if container['name'] == container_name and container['isOpen']:
+                for item in player_inventory:
+                    if self.normalize_name(item['name']) == normalized_item_name:
+                        if item['quantity'] >= quantity:
+                            # Update item quantity in player's inventory
+                            item['quantity'] -= quantity
+                            if item['quantity'] == 0:
+                                player_inventory.remove(item)
+                            
+                            # Add item to the container
+                            self._add_item_to_container(container, item, quantity, normalized_item_name)
+                            return f"You have given {quantity} {item['name']} to {container_name}."
+                        else:
+                            return f"You don't have enough {item['name']} to give."
+
+        return f"No container named '{container_name}' found here."
+
+    def _add_item_to_container(self, container, item, quantity, normalized_item_name):
+        for existing_item in container.get('contains', []):
+            if self.normalize_name(existing_item['name']) == normalized_item_name:
+                existing_item['quantity'] += quantity
+                return
+        container.setdefault('contains', []).append({
+            'name': item['name'],
+            'description': item.get('description', ''),
+            'quantity': quantity
+        })

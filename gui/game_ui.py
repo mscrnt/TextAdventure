@@ -33,14 +33,14 @@ class GameUI(QWidget):
         inventory_layout = QVBoxLayout()
 
         # Add a label to the inventory panel for the category
-        self.inventory_label = QLabel("Inventory")  # Default text
+        self.inventory_label = QLabel("Inventory")  
         self.inventory_label.setAlignment(Qt.AlignCenter)
         self.inventory_label.setFont(QFont("Arial", 16, QFont.Bold))
     
         self.inventory_list = QListWidget()
         self.drop_down_menu = QComboBox()
         inventory_layout.addWidget(self.inventory_label)
-        inventory_layout.addWidget(self.inventory_list, 5)  # Adjust the stretch factor to make it taller
+        inventory_layout.addWidget(self.inventory_list, 5)  
         inventory_layout.addWidget(self.drop_down_menu, 1)
 
         # Create the right panel for output text and command input
@@ -56,11 +56,11 @@ class GameUI(QWidget):
         input_layout = QHBoxLayout()
         input_layout.addWidget(self.command_input, 4)
         input_layout.addWidget(self.enter_button)
-        right_panel_layout.addLayout(input_layout, 1)  # Adjust the stretch factor to make it shorter
+        right_panel_layout.addLayout(input_layout, 1)
         
         # Add both left and right panels to the main layout
-        main_layout.addLayout(inventory_layout, 2)  # Adjust the stretch factor to make the inventory panel wider
-        main_layout.addLayout(right_panel_layout, 5)  # Adjust the stretch factor to control the width of the right panel
+        main_layout.addLayout(inventory_layout, 2)  
+        main_layout.addLayout(right_panel_layout, 5)  
 
         # Set up interactions
         self.enter_button.clicked.connect(self.process_command)
@@ -69,16 +69,16 @@ class GameUI(QWidget):
         # Set the dark theme palette for the entire widget
         palette = QPalette()
         palette.setColor(QPalette.Window, QColor(35, 35, 35))
-        palette.setColor(QPalette.WindowText, QColor(255, 255, 0))  # Yellow window text
+        palette.setColor(QPalette.WindowText, QColor(255, 255, 0)) 
         palette.setColor(QPalette.Base, QColor(25, 25, 25))
         palette.setColor(QPalette.Button, QColor(53, 53, 53))
-        palette.setColor(QPalette.ButtonText, QColor(0, 0, 0))  # Yellow button text
+        palette.setColor(QPalette.ButtonText, QColor(0, 0, 0))  
         self.setPalette(palette)
 
         # Create a new palette for the drop down menu and the command input
         input_palette = QPalette()
-        input_palette.setColor(QPalette.Text, QColor(0, 0, 0))  # Black text for input
-        input_palette.setColor(QPalette.Base, QColor(255, 255, 255))  # White background for input
+        input_palette.setColor(QPalette.Text, QColor(0, 0, 0)) 
+        input_palette.setColor(QPalette.Base, QColor(255, 255, 255)) 
         self.drop_down_menu.setPalette(input_palette)
         self.command_input.setPalette(input_palette)
 
@@ -141,7 +141,6 @@ class GameUI(QWidget):
         self.inventory_list.itemClicked.connect(self.display_item_information)
         self.is_item_clicked_connected = True
 
-    # Implement these new methods to handle the display of each section
     def populate_inventory(self):
         ic("Populating inventory")
         # Use the GameManager to get inventory items
@@ -155,7 +154,7 @@ class GameUI(QWidget):
         locations = self.game_manager.get_fast_travel_locations()
         for location in locations:
             # Add each location's name to the inventory list
-            self.inventory_list.addItem(location['name'])  # This line is correct
+            self.inventory_list.addItem(location['name'])  
 
     def populate_notes(self):
         ic("Populating notes")
@@ -167,7 +166,6 @@ class GameUI(QWidget):
 
     def populate_quest_log(self):
         ic("Populating quest log")
-        # Use the GameManager to get player quests
         quests = self.game_manager.get_player_quests()
         for quest in quests:
             self.inventory_list.addItem(quest)
@@ -263,14 +261,14 @@ class GameUI(QWidget):
 
         # Optionally set a monospace font
         font = self.game_text_area.font()
-        font.setFamily("Consolas")  # This is just an example, replace with the font of your choice
-        font.setPointSize(12)  # Adjust the size as needed
+        font.setFamily("Consolas")  
+        font.setPointSize(12) 
         self.game_text_area.setFont(font)
 
         # Calculate font metrics for the current font
         metrics = QFontMetrics(font)
         text_lines = text.split('\n')
-        max_lines = 1000 // metrics.height()  # Calculate the maximum number of lines that can fit in the text area
+        max_lines = 1000 // metrics.height()  # Calculate the maximum number of lines that can fit in the text area. This is basically limitless for our purposes.
 
         # Function to calculate padding
         def calculate_padding(text_block):

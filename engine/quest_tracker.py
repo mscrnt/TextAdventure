@@ -22,9 +22,9 @@ class QuestTracker:
     def activate_quest(self, quest_name):
         quest_data = self.get_quest(quest_name)
         if quest_data and not quest_data['completed']:
-            quest_data['isActive'] = True  # Make sure to set the quest as active
-            self.game_manager.player_sheet.add_quest(quest_data)  # Add the active quest to the player's sheet
-            ic(f"Quest {quest_name} activated")  # Debug output to confirm activation
+            quest_data['isActive'] = True  
+            self.game_manager.player_sheet.add_quest(quest_data)  
+            ic(f"Quest {quest_name} activated") 
 
 
     def initialize_quest(self, quest_slug, quest_data):
@@ -37,7 +37,6 @@ class QuestTracker:
     def quest_class_for_slug(self, quest_slug):
         quest_classes = {
             'initialQuest': initialQuest,
-            # Other mappings...
         }
         return quest_classes.get(quest_slug)
 
@@ -151,7 +150,7 @@ class BaseQuest:
         ic("All objectives completed:", all_objectives_completed)
 
         if all_objectives_completed:
-            self.complete()  # Mark the quest as complete if all objectives are done
+            self.complete()  
             return True
 
         return False

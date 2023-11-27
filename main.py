@@ -15,6 +15,15 @@ debug_on = args.debug
 
 
 def main():
+    """
+    This function initializes the main application and sets up the debug mode and dark theme palette.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     if not debug_on:
         ic.disable()
     else:
@@ -35,12 +44,12 @@ def main():
     palette.setColor(QPalette.ToolTipBase, Qt.white)
     palette.setColor(QPalette.ToolTipText, Qt.white)
     palette.setColor(QPalette.Text, Qt.white)
-    palette.setColor(QPalette.Button, QColor(35, 35, 35))  # Darker background for buttons
-    palette.setColor(QPalette.ButtonText, Qt.white)  # Text color for buttons
+    palette.setColor(QPalette.Button, QColor(35, 35, 35))  
+    palette.setColor(QPalette.ButtonText, Qt.white)  
     palette.setColor(QPalette.BrightText, Qt.red)
     palette.setColor(QPalette.Link, QColor(42, 130, 218))
-    palette.setColor(QPalette.Highlight, QColor(75, 110, 175))  # A more noticeable highlight color
-    palette.setColor(QPalette.HighlightedText, Qt.white)  # Ensure highlighted text is white
+    palette.setColor(QPalette.Highlight, QColor(75, 110, 175)) 
+    palette.setColor(QPalette.HighlightedText, Qt.white)
 
     app.setPalette(palette)
 

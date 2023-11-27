@@ -1,7 +1,6 @@
 # engine/player_sheet.py
 
 from icecream import ic
-import utilities
 
 class PlayerSheet:
     def __init__(self, name):
@@ -33,7 +32,7 @@ class PlayerSheet:
         for existing_item in self.inventory:
             if existing_item['name'] == item['name']:
                 # Assuming all items have a 'quantity' key
-                existing_item['quantity'] += item.get('quantity', 1)  # Default to 1 if 'quantity' not specified
+                existing_item['quantity'] += item.get('quantity', 1)  # Add the quantity if specified
                 break
         else:
             # If the item does not exist, set its quantity to 1 if not specified, then append it

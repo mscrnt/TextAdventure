@@ -2,8 +2,6 @@ from utilities import load_text
 from PySide6.QtWidgets import QLabel, QWidget
 from PySide6.QtGui import QFont, QPalette, QColor
 from PySide6.QtCore import QTimer, Qt, Signal
-from engine.game_manager import GameManager
-from gui.game_ui import GameUI
 
 class IntroAnimation(QWidget):
     animationComplete = Signal()
@@ -20,10 +18,10 @@ class IntroAnimation(QWidget):
         self.intro_timer.timeout.connect(self.scroll_text)
 
         # Start the title display
-        self.title_timer.start(2000)  # Adjust time as needed
+        self.title_timer.start(2000) # Adjust length of title display as necessary
 
         # Enable mouse click event to skip the intro
-        self.setMouseTracking(True)  # Make sure the widget tracks mouse movement
+        self.setMouseTracking(True) 
         self.mousePressEvent = self.skip_intro
 
     def init_ui(self):
@@ -41,12 +39,12 @@ class IntroAnimation(QWidget):
 
     def get_palette_for_crawl(self):
         palette = QPalette()
-        palette.setColor(QPalette.WindowText, QColor(255, 255, 0))  # Example color
+        palette.setColor(QPalette.WindowText, QColor(255, 255, 0)) 
         return palette
 
     def scroll_title(self):
         current_y = self.intro_title_label.y()
-        new_y = current_y - 2  # Adjust the speed as necessary
+        new_y = current_y - 2 
         
         if new_y < -self.intro_title_label.height():
             self.title_timer.stop()
@@ -68,12 +66,11 @@ class IntroAnimation(QWidget):
         self.intro_text_label.setPalette(self.get_palette_for_crawl())
         self.intro_text_label.setGeometry(0, self.height(), self.width(), self.height()*.5)
         self.intro_text_label.show()
-        self.create_skip_label()  # Recreate the skip label for the intro text
+        self.create_skip_label() 
 
-        self.intro_timer.start(30)
+        self.intro_timer.start(30) # Adjust speed of scroll as necessary
 
     def scroll_text(self):
-        # Use a more substantial scroll amount for smoother scrolling
         scroll_amount = 1
         new_y = self.intro_text_label.y() - scroll_amount
 
@@ -93,7 +90,7 @@ class IntroAnimation(QWidget):
     def show_intro_text(self):
         # This function replaces the title with the scrolling intro text
         self.title_timer.stop()
-        self.intro_title_label.deleteLater()  # Remove the title label
+        self.intro_title_label.deleteLater() 
         self.animate_intro_text()
 
     def skip_intro(self, event):
@@ -102,12 +99,12 @@ class IntroAnimation(QWidget):
 
         if hasattr(self, 'intro_text_label') and self.intro_text_label.isVisible():
             self.intro_text_label.deleteLater()
-        self.animationComplete.emit()  # Emit the signal to indicate completion
+        self.animationComplete.emit() 
 
     def create_skip_label(self):
         self.skip_label = QLabel("Click to Skip", self)
         self.skip_label.setFont(QFont("Arial", 10, QFont.Bold))
-        self.skip_label.setStyleSheet("color: rgba(255, 255, 255, 150);")  # Semi-transparent white
+        self.skip_label.setStyleSheet("color: rgba(255, 255, 255, 150);")
         self.skip_label.setAlignment(Qt.AlignRight | Qt.AlignBottom)
         self.skip_label.setGeometry(self.width() - 120, self.height() - 30, 110, 20)
         self.skip_label.show()

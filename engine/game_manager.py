@@ -131,13 +131,13 @@ class GameManager(QObject):
             self.quest_tracker.activate_quest("Read Email") 
 
     def update_inventory_ui(self):
-        pass  # Update inventory UI here
+        pass  
 
     def update_fast_travel_ui(self):
-        pass  # Update fast travel UI here
+        pass  
 
     def update_notes_ui(self):
-        pass  # Update notes UI here
+        pass  
 
     def update_quests_ui(self):
         ic("Updating quests UI")
