@@ -5,7 +5,7 @@ Certainly, I can merge the details from your provided `README.md` into the one I
 # Text Adventure Game - Project README
 
 ## Introduction
-Welcome to our Text-Based Adventure Game, an engaging and interactive experience where your choices shape the narrative. Enhanced with AI, this game offers a unique journey through a world of mystery and challenges, featuring exploration, interaction with objects and NPCs, and solving puzzles or completing quests.
+Welcome to my Text-Based Adventure Game, an engaging and interactive experience where your choices shape the narrative. Enhanced with AI, this game offers a unique journey through a world of mystery and challenges, featuring exploration, interaction with objects and NPCs, and solving puzzles or completing quests.
 
 ## Features
 - **AI-Enhanced Gameplay:** Dynamic storylines and reactive game environments powered by OpenAI's GPT model, allowing for natural language understanding and creative storytelling.
@@ -27,6 +27,10 @@ Welcome to our Text-Based Adventure Game, an engaging and interactive experience
 Begin by creating your character, select a world to start in, and navigate the game using intuitive text commands. Engage with the game using text commands, with the AI assistant interpreting your inputs for immersive interactions.
 
 ## Game Components
+
+## data/docs/
+- Contains documentation for the game's data files, including JSON references and AI Assist class reference.
+
 ### main.py
 - Entry point of the application, initializing the game and managing the main loop.
 
