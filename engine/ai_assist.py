@@ -11,6 +11,7 @@ class AIAssist:
         self.world_builder = world_builder
 
         # Load API key from engine/secrets.json
+        # You can get your API key from https://beta.openai.com/
         secrets_file = os.path.join(os.path.dirname(__file__), 'secrets.json')
         with open(secrets_file, 'r') as file:
             secrets = json.load(file)
