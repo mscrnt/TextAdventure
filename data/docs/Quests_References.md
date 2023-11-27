@@ -107,4 +107,4 @@ def quest_class_for_slug(self, quest_slug):
     return quest_classes.get(quest_slug)
 ```
 
-This reference should provide a clear framework for adding and managing quests in the Avalonia game world.
+This reference should provide a clear framework for adding and managing quests in the game world.
