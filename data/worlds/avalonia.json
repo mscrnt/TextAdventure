@@ -5,6 +5,7 @@
         {
             "name": "Central Avalonia",
             "description": "The heart of Avalonia, home to the Grand Castle and bustling markets.",
+            "main-entry": true,
             "paths": {
                 "east": "The Shattered Road",
                 "north": "Frostwing Mountains",
@@ -34,6 +35,7 @@
                                 "close": "The Great Bazaar"
                             },
                             "type": "Container",
+                            "isOpen": false,
                             "collectable": false,
                             "contains": [
                                 {
@@ -101,6 +103,7 @@
                             "name": "Worn Trunk",
                             "description": "An old trunk containing various trinkets left behind by travelers.",
                             "type": "Container",
+                            "isOpen": false,
                             "collectable": false,
                             "contains": [
                                 {
@@ -147,6 +150,7 @@
                                 "close": "Innkeeper's Desk"
                             },
                             "type": "Container",
+                            "isOpen": false,
                             "collectable": false,
                             "contains": [
                                 {
@@ -183,6 +187,7 @@
                                 "close": "Village Market"
                             },
                             "type": "Container",
+                            "isOpen": false,
                             "collectable": false,
                             "contains": [
                                 {
@@ -222,6 +227,7 @@
                                     "name": "Frozen Chest",
                                     "description": "A chest encased in ice, holding secrets of the past.",
                                     "type": "Container",
+                                    "isOpen": false,
                                     "collectable": false,
                                     "contains": [
                                         {
@@ -297,6 +303,7 @@
                                     "name": "Sealed Coral Chest",
                                     "description": "A chest guarded by ancient sea creatures, filled with sunken riches.",
                                     "type": "Container",
+                                    "isOpen": false,
                                     "collectable": false,
                                     "contains": [
                                         {

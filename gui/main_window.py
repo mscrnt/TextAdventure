@@ -165,12 +165,19 @@ class MainWindow(QMainWindow):
     def start_new_game(self):
         player_name = self.prompt_for_player_name()  # Get the player's name
         if player_name:
-            self.game_ui = GameUI(player_name)  # Pass the name to GameUI
+            # Create a working copy of the world data for this game session
+            starting_world = "Avalonia"
+            utilities.create_working_world_data(starting_world)
+            
+            # Create the GameUI with the player's name
+            self.game_ui = GameUI(player_name)
+            
+            # Start the intro animation and connect the completion signal to show the game UI
             self.introAnimation = IntroAnimation(self)
             self.introAnimation.animationComplete.connect(self.on_intro_animation_complete)
             self.setCentralWidget(self.introAnimation)
         else:
-            # Optionally, handle the case where no name was entered, such as showing a message to the user
+            # Handle the case where no name was entered
             print("No player name entered, new game not started.")
 
     # Method to save the game

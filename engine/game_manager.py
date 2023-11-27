@@ -16,13 +16,15 @@ class GameManager(QObject):
         self.player_sheet = PlayerSheet(player_name)
         self.quest_tracker = QuestTracker(self)
         self.ui = ui
+        self.world_data = utilities.load_working_world_data(self.player_sheet.location['world'])
 
         self.populate_initial_game_state()
         self.update_quests_ui()
         
         # Initialize the game state with initial items, locations, etc.
+        self.world_builder = WorldBuilder(self, self.world_data)
+
         ic("GameManager initialized")   
-        self.world_builder = WorldBuilder(self)
 
     def load_global_inventory(self):
         ic("Loading global inventory")
@@ -205,12 +207,16 @@ class GameManager(QObject):
                 break
 
     def save_game(self):
-        # Create a state dictionary to save player data and any other game state information
+        # Close all open containers before saving
+        self.world_builder.close_all_containers()
+
+        # Extend the game state dictionary with the world data
         state = {
             'player_sheet': self.player_sheet,
-            # Add other game state information as needed
+            'world_data': self.world_data  # Include the in-memory world data
         }
         utilities.save_game(state, f"{self.player_sheet.name}_savegame.pkl")
+        ic(f"State Saved: {state}")
 
     def load_game(self, filename):
         if filename:
@@ -219,12 +225,14 @@ class GameManager(QObject):
             if state:
                 # Update the game manager's state with the loaded data
                 self.player_sheet.__dict__.update(state['player_sheet'].__dict__)
+                self.world_data = state['world_data']  # Load the world data into memory
                 self.gameLoaded.emit()
+                ic(f"Game loaded. Player: {self.player_sheet.name}, Filename: {filename}")
                 return True
             else:
-                print(f"Failed to load game from {filename}.")
+                ic(f"Failed to load game from {filename}.")
         else:
-            print("No filename provided for loading the game.")
+            ic("No filename provided for loading the game.")
         return False
     
     def update_location(self, new_location):

@@ -10,16 +10,25 @@ class PlayerSheet:
         self.health = 100
         self.action_points = 10
         self.inventory = []
-        self.location = "Central Avalonia"
+        self._location = {"world": "Avalonia", "location/sublocation": "Central Avalonia"}
         self.fast_travel_locations = []
         self.quests = []
         self.notes = []
         self.emails = []
         ic("Player sheet initialized")
 
+    @property
+    def location(self):
+        return self._location
+
+    @location.setter
+    def location(self, value):
+        if not isinstance(value, dict) or "world" not in value:
+            raise ValueError("Location must be a dictionary with a 'world' key.")
+        self._location = value
+
     def add_item(self, item):
-        ic("Adding item to inventory")
-        ic(item)
+        ic(f"Item added to inventory: {item['name']}, Quantity: {item.get('quantity', 1)}")
         # Check if the item already exists in the inventory
         for existing_item in self.inventory:
             if existing_item['name'] == item['name']:
@@ -33,8 +42,7 @@ class PlayerSheet:
             self.inventory.append(item)
 
     def remove_item(self, item_name):
-        ic("Removing item from inventory")
-        ic(item_name)
+        ic(f"Item removed from inventory: {item_name}")
         # Remove an item from the inventory by its name
         self.inventory = [item for item in self.inventory if item["name"] != item_name]
 

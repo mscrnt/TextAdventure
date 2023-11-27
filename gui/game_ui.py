@@ -16,7 +16,7 @@ class GameUI(QWidget):
         self.init_ui()
         self.game_manager = GameManager(player_name, self)
         self.game_manager.gameLoaded.connect(self.on_game_loaded)
-        self.world_builder = WorldBuilder(self.game_manager) 
+        self.world_builder = WorldBuilder(self.game_manager, self.game_manager.world_data) 
         ic("GameUI initialized")
         self.initialize_drop_down_menu() 
 
@@ -199,29 +199,18 @@ class GameUI(QWidget):
             self.inventory_list.addItem(item)
 
     def process_command(self):
-        command = self.command_input.text().strip().lower()
-        self.command_input.clear()
 
-        response = ""  # Variable to store response from WorldBuilder
-        if command.startswith("take"):
-            item_name = command[len("take"):].strip()
-            response = self.world_builder.take_item(item_name)
-        elif command.startswith("move to"):
-            location_name = command[len("move to"):].strip()
-            response = self.world_builder.move_player(location_name)
-        elif command.startswith("examine"):
-            item_name = command[len("examine"):].strip()
-            response = self.world_builder.examine_item(item_name)
-        elif command.startswith("whereami"):
-            response = self.world_builder.where_am_i()
-        elif command.startswith("look around"):
-            response = self.world_builder.look_around()
-        elif command.startswith("help"):
-            response = self.world_builder.display_help()
+        # Placeholder conditional in case I want to add other command interpretations
+        if_not_dummy = False # Remove this line when you start implementing commands
+        if if_not_dummy: # Revise this line when you start implementing commands
+            pass
         else:
-            response = f"Unrecognized command: {command}"
+            command_text = self.command_input.text().strip().lower()
+            self.command_input.clear()
 
+        response = self.world_builder.incoming_command(command_text)
         self.display_text(response)
+
 
     def display_item_information(self, item_widget):
         ic("Displaying item information")
