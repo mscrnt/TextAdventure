@@ -1,321 +1,369 @@
 {
     "name": "Avalonia",
-    "description": "A mystical land brimming with ancient magic and diverse biomes.",
+    "description": "A mystical land in the 'Odyssey' VR universe, filled with ancient magic, diverse biomes, and mysterious adventures.",
     "locations": [
         {
             "name": "Central Avalonia",
-            "description": "The heart of Avalonia, home to the Grand Castle and bustling markets.",
+            "description": "Central Avalonia stands as the bustling nexus of the mystical land of Avalonia, teeming with life and activity. It's a place where the old meets the new, with ancient architecture seamlessly blending with vibrant marketplaces. The Grand Castle, visible from miles away, dominates the skyline, symbolizing strength and wisdom. The crossroads of various paths lead to different biomes: the mystical Ethereal Plains to the east, the towering Frostwing Mountains to the north, the mysterious Whispering Forest to the west, and the mysterious Sunken Shores to the south. Central Avalonia serves as a hub for adventurers and travelers, offering a diverse range of experiences from shopping at the Mystic Market to seeking wisdom at the Hall of Elders.",
+            "keywords": ["hub", "Grand Castle", "marketplace", "crossroads", "diverse biomes", "adventurers", "travelers"],
             "main-entry": true,
             "paths": {
-                "east": "The Shattered Road",
+                "east": "Ethereal Plains",
                 "north": "Frostwing Mountains",
-                "west": "Whispering Forest"
+                "west": "Whispering Forest",
+                "south": "Sunken Shores"
             },
             "sublocations": [
                 {
-                    "name": "The Great Bazaar",
-                    "description": "A lively marketplace filled with exotic goods and intriguing characters.",
-                    "paths": {
-                        "exit": "Central Avalonia"
-                    },
+                    "name": "Grand Castle",
+                    "description": "Dominating the skyline of Central Avalonia, the Grand Castle is a beacon of power and history. Its towering spires and fortified walls are a testament to the ancient magic and architecture of Avalonia. The castle is a labyrinth of grand halls and secret passages, each echoing with tales of yore.",
+                    "keywords": ["towering spires", "fortified walls", "labyrinth", "grand halls", "ancient magic"],
                     "items": [
                         {
-                            "name": "Mystical Amulet",
-                            "description": "An amulet said to grant protection to its wearer.",
-                            "type": "Accessory",
-                            "collectable": true,
-                            "quantity": 2
-                        }
-                    ],
-                    "containers": [
-                        {
-                            "name": "Merchant's Chest",
-                            "description": "A chest belonging to a seasoned merchant, containing various goods.",
-                            "paths": {
-                                "close": "The Great Bazaar"
-                            },
-                            "type": "Container",
-                            "isOpen": false,
-                            "collectable": false,
-                            "contains": [
-                                {
-                                    "name": "Spices",
-                                    "description": "Rare spices from distant lands.",
-                                    "type": "Goods",
-                                    "collectable": true,
-                                    "quantity": 5
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "The Great Arena",
-                    "description": "An arena where warriors and adventurers clash in epic battles.",
-                    "paths": {
-                        "exit": "Central Avalonia"
-                    },
-                    "items": [
-                        {
-                            "name": "Champion's Sword",
-                            "description": "A sword once wielded by the arena's greatest champion.",
-                            "type": "Weapon",
+                            "name": "Ancient Artifact",
+                            "description": "A mysterious relic from a bygone era, found in the castle's deepest hall.",
+                            "type": "Artifact",
                             "collectable": true,
                             "quantity": 1
-                        }
-                    ],
-                    "interactables": [
+                        },
                         {
-                            "name": "Hall of Fame",
-                            "description": "Walls adorned with the names of past champions.",
+                            "name": "Royal Banner",
+                            "description": "A banner representing the heritage of Avalonia, adorning the castle walls.",
                             "type": "Decor",
-                            "collectable": false
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "The Shattered Road",
-            "description": "A once majestic road now fractured and worn, winding towards Crystal Lake Village.",
-            "paths": {
-                "west": "Central Avalonia",
-                "east": "Crystal Lake Village"
-            },
-            "sublocations": [
-                {
-                    "name": "Wayfarer's Inn",
-                    "description": "A modest inn offering shelter to travelers on the Shattered Road.",
-                    "paths": {
-                        "exit": "The Shattered Road"
-                    },
-                    "items": [
-                        {
-                            "name": "Traveler's Cloak",
-                            "description": "A durable cloak for protection against the elements.",
-                            "type": "Clothing",
-                            "collectable": true,
-                            "quantity": 2
+                            "collectable": false,
+                            "quantity": 4
                         }
                     ],
-                    "containers": [
+                    "npcs": [
                         {
-                            "name": "Worn Trunk",
-                            "description": "An old trunk containing various trinkets left behind by travelers.",
-                            "type": "Container",
-                            "isOpen": false,
-                            "collectable": false,
-                            "contains": [
+                            "name": "Monk Jaron",
+                            "description": "Monk Jaron is a serene and contemplative figure, often seen in the quieter parts of the Grand Castle. Cloaked in simple, unadorned robes, he carries an air of tranquility and wisdom. His eyes, gentle yet perceptive, seem to reflect a deep understanding of the mystical and the historical. He is a guardian of ancient knowledge, often found meditating or studying the arcane texts within the castle's walls.",
+                            "dialog": [
+                                "Welcome, traveler, to the Grand Castle. May clarity guide your path.",
+                                "The ancients left many secrets within these walls.",
+                                "Seek wisdom, but beware the shadows that lurk in forgotten corners."
+                            ],
+                            "interactions": [
                                 {
-                                    "name": "Antique Locket",
-                                    "description": "An old locket with a faded portrait inside.",
-                                    "type": "Jewelry",
-                                    "collectable": true,
-                                    "quantity": 1
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Crystal Lake Village",
-            "description": "A charming village by a crystal-clear lake, known for its serene beauty.",
-            "paths": {
-                "west": "The Shattered Road",
-                "down": "Sunken City of Zephyra"
-            },
-            "sublocations": [
-                {
-                    "name": "Lakeside Inn",
-                    "description": "A cozy inn offering respite to weary travelers.",
-                    "paths": {
-                        "exit": "Crystal Lake Village"
-                    },
-                    "items": [
-                        {
-                            "name": "Lake Fish",
-                            "description": "Fresh fish caught from the crystal lake.",
-                            "type": "Food",
-                            "collectable": true,
-                            "quantity": 10
-                        }
-                    ],
-                    "containers": [
-                        {
-                            "name": "Innkeeper's Desk",
-                            "description": "A well-kept desk with various items of interest.",
-                            "paths": {
-                                "close": "Innkeeper's Desk"
-                            },
-                            "type": "Container",
-                            "isOpen": false,
-                            "collectable": false,
-                            "contains": [
+                                    "type": "quest",
+                                    "description": "Retrieve the Lost Tome from the Royal Library."
+                                },
                                 {
-                                    "name": "Old Key",
-                                    "description": "An old rusty key, purpose unknown.",
-                                    "type": "Key",
-                                    "collectable": true,
-                                    "quantity": 1
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "Village Market",
-                    "description": "A bustling market where villagers and travelers barter and trade.",
-                    "paths": {
-                        "exit": "Crystal Lake Village"
-                    },
-                    "items": [
-                        {
-                            "name": "Woven Basket",
-                            "description": "A handcrafted basket, perfect for carrying goods.",
-                            "type": "Utility",
-                            "collectable": true,
-                            "quantity": 3
-                        }
-                    ],
-                    "containers": [
-                        {
-                            "name": "Hidden Compartment",
-                            "description": "A secret compartment found under a market stall.",
-                            "paths": {
-                                "close": "Village Market"
-                            },
-                            "type": "Container",
-                            "isOpen": false,
-                            "collectable": false,
-                            "contains": [
-                                {
-                                    "name": "Secret Letter",
-                                    "description": "A letter containing mysterious instructions.",
-                                    "type": "Document",
-                                    "collectable": true,
-                                    "quantity": 1
-                                }
-                            ]
-                        }
-                    ]
-                },        {
-                    "name": "Frostwing Mountains",
-                    "description": "A range of snow-capped mountains to the north of Avalonia, known for its treacherous paths and hidden ancient ruins.",
-                    "paths": {
-                        "south": "Central Avalonia"
-                    },
-                    "sublocations": [
-                        {
-                            "name": "Icebound Cave",
-                            "description": "A mysterious cave known to house ancient artifacts and dangerous creatures.",
-                            "paths": {
-                                "exit": "Frostwing Mountains"
-                            },
-                            "items": [
-                                {
-                                    "name": "Frost Shard",
-                                    "description": "A shard of ice that never melts, radiating a strange energy.",
-                                    "type": "Artifact",
-                                    "collectable": true,
-                                    "quantity": 1
+                                    "type": "trade",
+                                    "description": "Exchange herbs for potions."
                                 }
                             ],
-                            "containers": [
+                            "inventory": [
                                 {
-                                    "name": "Frozen Chest",
-                                    "description": "A chest encased in ice, holding secrets of the past.",
-                                    "type": "Container",
-                                    "isOpen": false,
-                                    "collectable": false,
-                                    "contains": [
-                                        {
-                                            "name": "Ancient Scroll",
-                                            "description": "A scroll detailing forgotten magic spells.",
-                                            "type": "Magic Item",
-                                            "collectable": true,
-                                            "quantity": 1
-                                        }
-                                    ]
+                                    "name": "Potion of Clarity",
+                                    "description": "A potion brewed by Monk Jaron that clears the mind and sharpens focus.",
+                                    "type": "Herbal Potion",
+                                    "collectable": true,
+                                    "quantity": 3
                                 }
                             ]
                         }
-                    ]
-                },
-                {
-                    "name": "Whispering Forest",
-                    "description": "A dense forest to the West, filled with ancient trees and rumored to be enchanted.",
+                    ],
                     "paths": {
-                        "east": "Central Avalonia"
+                        "exit": "Central Avalonia"
                     },
-                    "sublocations": [
+                    "rooms": [
                         {
-                            "name": "Elven Sanctuary",
-                            "description": "A hidden sanctuary of the elves, full of ancient knowledge and powerful allies.",
-                            "paths": {
-                                "exit": "Whispering Forest"
-                            },
+                            "name": "Throne Room",
+                            "description": "The heart of the Grand Castle, the Throne Room is a grandiose hall adorned with ornate tapestries and gleaming armor. The throne itself, a masterpiece of craftsmanship, sits majestically at the far end, a symbol of the kingdom's enduring legacy.",
+                            "keywords": ["throne", "tapestries", "armors", "legacy"],
                             "items": [
                                 {
-                                    "name": "Elven Bow",
-                                    "description": "A finely crafted bow from the elder trees, imbued with elven magic.",
+                                    "name": "Ceremonial Sword",
+                                    "description": "A beautifully crafted sword used in royal ceremonies, displayed prominently in the room.",
                                     "type": "Weapon",
-                                    "collectable": true,
+                                    "collectable": false,
                                     "quantity": 1
+                                },
+                                {
+                                    "name": "Historic Tapestry",
+                                    "description": "An elaborate tapestry depicting the history of Avalonia, hanging on the walls of the Throne Room.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
                                 }
                             ],
-                            "interactables": [
+                            "npcs": [
                                 {
-                                    "name": "Ancient Tree of Wisdom",
-                                    "description": "An ancient tree that whispers secrets of the forest to those who listen.",
-                                    "type": "Tree",
-                                    "collectable": false
+                                    "name": "King Aldor",
+                                    "description": "King Aldor is a dignified and commanding figure, exuding the authority and responsibility of a ruler. His regal attire and kingly demeanor reflect his dedication to the welfare of Avalonia. He is a wise and just monarch, deeply respected by his subjects.",
+                                    "dialog": [
+                                        "As ruler of Avalonia, I welcome you to our grand kingdom.",
+                                        "Our land is ancient, and its secrets are many.",
+                                        "Maintaining peace in Avalonia is my solemn duty."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "quest",
+                                            "description": "Defend the realm from the encroaching darkness."
+                                        }
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "type": "Royal Decree",
+                                            "name": "Decree of the Realm",
+                                            "description": "An official decree issued by King Aldor, bearing the seal of the kingdom.",
+                                            "collectable": false
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Elder Orin",
+                                    "description": "Elder Orin is an aged sage, his face lined with wisdom gained over a lifetime of study. His eyes sparkle with intelligence, and his voice carries the weight of knowledge. Known for his deep understanding of history and magic, he is a revered figure in the castle.",
+                                    "dialog": [
+                                        "Knowledge and wisdom are the true foundations of power.",
+                                        "In these ancient scrolls lie the secrets of the past."
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "type": "Scroll",
+                                            "name": "Ancient Scroll of Wisdom",
+                                            "description": "A scroll containing ancient wisdom, preserved by Elder Orin.",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Queen Mirabelle",
+                                    "description": "Queen Mirabelle is the epitome of grace and benevolence. Her presence is both comforting and inspiring, and she carries an air of serene confidence. Her love for her people and the kingdom is evident in her every action, making her a beloved figure in Avalonia.",
+                                    "dialog": [
+                                        "Avalonia thrives under our care and flourishes in peace.",
+                                        "My heart holds deep love for our people and our land."
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "type": "Amulet",
+                                            "name": "Amulet of the Ages",
+                                            "description": "A mystical amulet worn by Queen Mirabelle, radiant with ancient energy.",
+                                            "collectable": false
+                                        }
+                                    ]
                                 }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "name": "Sunken City of Zephyra",
-                    "description": "An ancient city submerged under Crystal Lake, accessible through hidden underwater paths.",
-                    "paths": {
-                        "up": "Crystal Lake Village"
-                    },
-                    "sublocations": [
-                        {
-                            "name": "Coral Throne Room",
-                            "description": "The heart of the Sunken City, where the lost treasures of Zephyra lie.",
+                            ],
                             "paths": {
-                                "exit": "Sunken City of Zephyra"
-                            },
+                                "entrance": "Grand Castle",
+                                "exit": "Royal Library"
+                            }
+                        },                                     
+                        {
+                            "name": "Royal Library",
+                            "description": "A sanctum of knowledge, the Royal Library houses towering shelves filled with ancient scrolls and books. Soft candlelight flickers across the room, illuminating the wisdom preserved for generations. It's a place of study and discovery, where the past speaks to those who listen.",
+                            "keywords": ["knowledge", "scrolls", "books", "discovery"],
                             "items": [
                                 {
-                                    "name": "Pearl of the Depths",
-                                    "description": "A luminescent pearl said to control the waters.",
-                                    "type": "Treasure",
-                                    "collectable": true,
+                                    "name": "Ancient Tome",
+                                    "description": "A rare and valuable book containing the histories of Avalonia.",
+                                    "type": "Book",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Celestial Globe",
+                                    "description": "An ornate globe depicting the constellations and celestial bodies, used for astronomical studies.",
+                                    "type": "Astrological Tool",
+                                    "collectable": false,
                                     "quantity": 1
                                 }
                             ],
-                            "containers": [
+                            "npcs": [
                                 {
-                                    "name": "Sealed Coral Chest",
-                                    "description": "A chest guarded by ancient sea creatures, filled with sunken riches.",
-                                    "type": "Container",
-                                    "isOpen": false,
-                                    "collectable": false,
-                                    "contains": [
+                                    "name": "Lady Elara",
+                                    "description": "Lady Elara is a scholar of ancient history and arcane mysteries. She is often found deep in thought, surrounded by piles of dusty tomes and scrolls.",
+                                    "dialog": [
+                                        "In these halls of knowledge, the wisdom of ages is at your fingertips.",
+                                        "Seek and you shall find; the library holds many secrets."
+                                    ],
+                                    "inventory": [
                                         {
-                                            "name": "Enchanted Trident",
-                                            "description": "A powerful trident once wielded by a sea king.",
-                                            "type": "Weapon",
+                                            "type": "Ancient Manuscript",
+                                            "name": "Manuscript of Lost Spells",
+                                            "description": "A manuscript containing forgotten spells and arcane knowledge.",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Sir Lorian",
+                                    "description": "Sir Lorian, a knight with a keen interest in historical cartography, often explores the library for ancient maps and legends.",
+                                    "dialog": [
+                                        "Maps and scrolls tell of places far beyond these castle walls.",
+                                        "A true knight seeks not only strength but wisdom."
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "type": "Map",
+                                            "name": "Map to Hidden Treasures",
+                                            "description": "A detailed map leading to hidden treasures across Avalonia.",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "Scribe Lyra",
+                                    "description": "Scribe Lyra is dedicated to preserving the kingdom's history, always seen with her enchanted quill in hand, transcribing important events and knowledge.",
+                                    "dialog": [
+                                        "Every quill stroke is a step towards immortality.",
+                                        "The written word is a powerful tool in discerning hands."
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "type": "Quill",
+                                            "name": "Enchanted Quill",
+                                            "description": "A magical quill that never runs out of ink, used for transcribing important texts.",
                                             "collectable": true,
                                             "quantity": 1
                                         }
                                     ]
                                 }
-                            ]
+                            ],
+                            "paths": {
+                                "entrance": "Throne Room",
+                                "exit": "Secret Chamber"
+                            }
+                        },                        
+                        {
+                            "name": "Secret Chamber",
+                            "description": "Concealed behind a hidden door in the Royal Library, the Secret Chamber holds the most confidential archives and artifacts of the kingdom. The chamber, shrouded in mystery, is said to contain powerful relics and forbidden knowledge.",
+                            "keywords": ["hidden", "archives", "relics", "forbidden knowledge"],
+                            "items": [
+                                {
+                                    "name": "Enchanted Grimoire",
+                                    "description": "An ancient book of spells bound in shadows, said to hold unimaginable magical powers.",
+                                    "type": "Magic Book",
+                                    "collectable": true,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Orb of Prophecy",
+                                    "description": "A mysterious crystal orb, pulsating with an inner light, rumored to reveal visions of the future.",
+                                    "type": "Mystical Object",
+                                    "collectable": true,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Mystical Tapestry",
+                                    "description": "A tapestry depicting ancient magical symbols and constellations, adding to the mystical aura of the chamber.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Alchemist's Set",
+                                    "description": "An array of alchemical tools and vials, hinting at the experimental nature of the room's previous occupants.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ],
+                            "containers": [
+                                {
+                                    "name": "Ancient Vault",
+                                    "description": "An old, dust-covered vault, rumored to hold items of significant power and mystery.",
+                                    "type": "Container",
+                                    "isOpen": false,
+                                    "collectable": false,
+                                    "contains": [
+                                        {
+                                            "name": "Rune of Shadows",
+                                            "description": "A dark rune that holds the essence of shadow magic.",
+                                            "type": "Rune",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        },
+                                        {
+                                            "name": "Timekeeper's Hourglass",
+                                            "description": "An hourglass said to measure more than mere time, potentially connected to ancient time magic.",
+                                            "type": "Artifact",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Royal Library",
+                                "exit": "Grand Castle"
+                            }
+                        }                        
+                    ]
+                },                                
+                {
+                    "name": "Mystic Market",
+                    "description": "A vibrant market selling magical artifacts and exotic goods.",
+                    "paths": {
+                        "exit": "Central Avalonia"
+                    },
+                    "shops": [
+                        {
+                            "name": "Enchanted Emporium",
+                            "description": "Sells magical artifacts and potions.",
+                            "paths": {
+                                "entrance": "Mystic Market",
+                                "exit": "Mystic Market"
+                            },
+                            "npcs": ["Mirabelle"]
+                        },
+                        {
+                            "name": "The Mystic's Corner",
+                            "description": "Offers fortune-telling and mystical charms.",
+                            "paths": {
+                                "entrance": "Mystic Market",
+                                "exit": "Mystic Market"
+                            },
+                            "npcs": ["Faelan"]
+                        },
+                        {
+                            "name": "The Armorer's Forge",
+                            "description": "Crafts and sells weapons and armor.",
+                            "paths": {
+                                "entrance": "Mystic Market",
+                                "exit": "Mystic Market"
+                            },
+                            "npcs": ["Gavriel"]
+                        }
+                    ]
+                },
+                {
+                    "name": "Hall of Elders",
+                    "description": "A place of wisdom where ancient knowledge is preserved.",
+                    "paths": {
+                        "exit": "Central Avalonia"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Council Chamber",
+                            "description": "Where the Elders meet to discuss important matters.",
+                            "paths": {
+                                "entrance": "Hall of Elders",
+                                "exit": "Hall of Elders"
+                            },
+                            "npcs": ["Elder Orin"]
+                        },
+                        {
+                            "name": "Archive of Ages",
+                            "description": "An archive holding the records of Avalonia's history.",
+                            "paths": {
+                                "entrance": "Hall of Elders",
+                                "exit": "Hall of Elders"
+                            },
+                            "npcs": ["Scribe Lyra"]
+                        },
+                        {
+                            "name": "Meditation Hall",
+                            "description": "A tranquil space for reflection and meditation.",
+                            "paths": {
+                                "entrance": "Hall of Elders",
+                                "exit": "Hall of Elders"
+                            },
+                            "npcs": ["Monk Jaron"]
                         }
                     ]
                 }
