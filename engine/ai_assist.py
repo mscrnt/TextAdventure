@@ -2,7 +2,7 @@
 
 from openai import OpenAI
 from icecream import ic
-import json
+from utilities import load_json
 import os
 import re
 
@@ -13,13 +13,10 @@ class AIAssist:
 
         # Load API key from engine/secrets.json
         # You can get your API key from https://beta.openai.com/
-        secrets_file = os.path.join(os.path.dirname(__file__), 'secrets.json')
-        with open(secrets_file, 'r') as file:
-            secrets = json.load(file)
-        self.api_key = secrets.get('openai_api_key', '')
+        secrets_file = load_json('secrets', 'openai_api_key')
+        self.api_key = secrets_file.get('openai_api_key', '')
 
         self.client = OpenAI(api_key=self.api_key)
-
 
     def generate_ai_response(self, prompt, max_tokens=250):
         try:
