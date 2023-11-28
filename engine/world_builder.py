@@ -35,6 +35,12 @@ class WorldBuilder:
                 return self.where_am_i()
             elif command.startswith("look around") or command.startswith("look"):
                 return self.look_around()
+            elif command.startswith("talk to"):
+                npc_name = command[len("talk to"):].strip()
+                return self.talk_to_npc(npc_name)
+            elif command.startswith("interact with"):
+                interactable_name = command[len("interact with"):].strip()
+                return self.interact_with(interactable_name)
             elif command.startswith("open"):
                 container_name = command[len("open"):].strip()
                 return self.open_container(container_name)
@@ -62,7 +68,76 @@ class WorldBuilder:
                         print(f"Found sublocation: {location_name}")
                         return sublocation
         return None
+    
+    def get_current_location_data(self):
+        # Get the current location data
+        current_location = self.game_manager.player_sheet.location
+        current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
+        location_data = self.find_location_data(current_location_str)
+        return location_data
 
+    def talk_to_npc(self, npc_name):
+        # Normalize the NPC name for comparison
+        normalized_npc_name = self.normalize_name(npc_name)
+
+        # Get the current location data
+        current_location = self.game_manager.player_sheet.location
+        current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
+        location_data = self.find_location_data(current_location_str)
+
+        if 'npcs' in location_data:
+            for npc in location_data['npcs']:
+                if self.normalize_name(npc['name']) == normalized_npc_name:
+                    # Found the NPC, now handle the dialogue
+                    return self.handle_npc_dialogue(npc)
+
+        return f"No one named '{npc_name}' found here."
+
+    def handle_npc_dialogue(self, npc):
+        dialogue_text = "\n".join(npc['dialog']) if 'dialog' in npc else ""
+        interactions_text = ""
+        if 'interactions' in npc:
+            for interaction in npc['interactions']:
+                interactions_text += f"- {interaction['type']}: {interaction['description']}\n"
+        return f"{npc['name']} says: \"{dialogue_text}\"\nInteractions: {interactions_text}"
+
+
+
+    def interact_with(self, interactable_name):
+        # Normalize the interactable name for comparison
+        normalized_interactable_name = self.normalize_name(interactable_name)
+
+        # Get the current location data using the new method
+        location_data = self.get_current_location_data()
+
+        if 'interactables' in location_data:
+            for interactable in location_data['interactables']:
+                if self.normalize_name(interactable['name']) == normalized_interactable_name:
+                    # Found the interactable, now handle the specific interaction
+                    return self.handle_interactable_interaction(interactable)
+
+        return f"There is nothing to interact with named '{interactable_name}' here."
+
+
+    def handle_interactable_interaction(self, interactable):
+        # Check the type of interaction and perform the corresponding action
+        interaction_type = interactable.get('type', 'generic')
+
+        if interaction_type == 'puzzle':
+            return self.solve_puzzle(interactable)
+        elif interaction_type == 'machine':
+            return self.operate_machine(interactable)
+        else:
+            # Handle generic or other types of interactions
+            return f"You interact with {interactable['name']}. {interactable.get('description', 'It seems interesting.')}"
+
+    def solve_puzzle(self, puzzle):
+        # Add logic for solving puzzles
+        return f"You attempt to solve the puzzle: {puzzle['name']}."
+
+    def operate_machine(self, machine):
+        # Add logic for operating machines
+        return f"You operate the machine: {machine['name']}."
 
 
     def load_world_data(self):
@@ -87,18 +162,38 @@ class WorldBuilder:
         if location_data:
             scene_text += self.describe_location(location_data) + "\n"
             scene_text += self.list_items(location_data) + "\n" if location_data.get('items', []) else ""
-            scene_text += self.list_interactables(location_data) + "\n" if location_data.get('interactables', []) else "\n"
             scene_text += self.list_containers(location_data) + "\n" if location_data.get('containers', []) else "\n"
+            scene_text += self.list_npcs(location_data) + "\n" if location_data.get('npcs', []) else "\n"
             scene_text += self.show_paths(location_data) + "\n" if location_data.get('paths', {}) else "\n"
             scene_text += self.show_sublocations(location_data) + "\n" if location_data.get('sublocations', []) else "\n"
-            scene_text += self.show_transport_options(location_data) if location_data.get('transport', []) else ""
+            if 'rooms' in location_data:
+                scene_text += self.list_rooms(location_data) + "\n"
         print(f"Scene text: {scene_text}")
         return scene_text.strip() 
 
+    def list_npcs(self, location_data):
+        npcs_text = "People here:\n"
+        for npc in location_data.get('npcs', []):
+            npc_description = npc.get('description', 'An interesting character.')
+            npcs_text += f"- {npc['name']}: {npc_description}\n"
+        return npcs_text
+
     def describe_location(self, location_data):
-        print(f"Location data: {location_data}")
-        print(f"Location name: {location_data['name']}")
-        return f"You are at {location_data['name']}. {location_data['description']}"
+        description = f"You are at {location_data['name']}. {location_data['description']}"
+        if 'keywords' in location_data:
+            keywords_text = ", ".join(location_data['keywords'])
+            description += f" Keywords: {keywords_text}"
+        print(f"Location description: {description}")
+        return description
+    
+    def list_rooms(self, location_data):
+        rooms_text = "Rooms here:\n"
+        for room in location_data.get('rooms', []):
+            rooms_text += f"- {room['name']}: {room['description']}\n"
+            rooms_text += self.list_items(room) + "\n" if room.get('items', []) else ""
+            rooms_text += self.list_npcs(room) + "\n" if room.get('npcs', []) else "\n"
+        print(f"Rooms text: {rooms_text}")
+        return rooms_text
 
     def list_items(self, location_data):
         items_text = "Items here:\n"

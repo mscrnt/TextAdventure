@@ -7,6 +7,16 @@
             "description": "Central Avalonia stands as the bustling nexus of the mystical land of Avalonia, teeming with life and activity. It's a place where the old meets the new, with ancient architecture seamlessly blending with vibrant marketplaces. The Grand Castle, visible from miles away, dominates the skyline, symbolizing strength and wisdom. The crossroads of various paths lead to different biomes: the mystical Ethereal Plains to the east, the towering Frostwing Mountains to the north, the mysterious Whispering Forest to the west, and the mysterious Sunken Shores to the south. Central Avalonia serves as a hub for adventurers and travelers, offering a diverse range of experiences from shopping at the Mystic Market to seeking wisdom at the Hall of Elders.",
             "keywords": ["hub", "Grand Castle", "marketplace", "crossroads", "diverse biomes", "adventurers", "travelers"],
             "main-entry": true,
+            "npcs": [
+                {
+                    "name": "Lost Player",
+                    "description": "A lost player from real life, wandering aimlessly in Central Avalonia.",
+                    "dialog": [
+                        "Where am I? How did I get here?",
+                        "I'm so lost. I need to find the way to log out."
+                    ]
+                }
+            ],
             "paths": {
                 "east": "Ethereal Plains",
                 "north": "Frostwing Mountains",
