@@ -3,6 +3,11 @@
 # Text Adventure Game - Project README
 
 ## Introduction
+
+### Warning!!!
+
+This project is in early alpha. Quests have not been implemented. Player can move around and interact with environment in limited ways.
+
 Welcome to my Text-Based Adventure Game, an engaging and interactive experience where your choices shape the narrative. Enhanced with AI, this game offers a unique journey through a world of mystery and challenges, featuring exploration, interaction with objects and NPCs, and solving puzzles or completing quests.
 
 ## Features
