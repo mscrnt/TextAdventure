@@ -1,7 +1,3 @@
-Certainly! Here's a revised version of your `worlds_references.md` document, updated to reflect the latest structure and examples from the Grand Castle in Avalonia:
-
----
-
 # World JSON Structure Reference
 
 ## Overview
