@@ -13,7 +13,8 @@
                     "description": "A lost player from real life, wandering aimlessly in Central Avalonia.",
                     "dialog": [
                         "Where am I? How did I get here?",
-                        "I'm so lost. I need to find the way to log out."
+                        "I'm so lost. I need to find the way to log out.",
+                        "Why doesn't my logout button work?!"
                     ]
                 }
             ],
@@ -307,73 +308,526 @@
                 },                                
                 {
                     "name": "Mystic Market",
-                    "description": "A vibrant market selling magical artifacts and exotic goods.",
-                    "paths": {
-                        "exit": "Central Avalonia"
-                    },
-                    "shops": [
+                    "description": "A bustling hub in the heart of Avalonia, the Mystic Market is a sensory overload of sights, sounds, and scents. Stalls and shops line the crowded streets, offering a plethora of magical artifacts and exotic goods. The air is filled with the aroma of mystical incense, the chatter of bargaining customers, and the occasional sparkle of a newly cast spell.",
+                    "keywords": ["bustling", "magical artifacts", "exotic goods", "incense", "spells"],
+                    "main-entry": false,
+                    "npcs": [
                         {
-                            "name": "Enchanted Emporium",
-                            "description": "Sells magical artifacts and potions.",
-                            "paths": {
-                                "entrance": "Mystic Market",
-                                "exit": "Mystic Market"
-                            },
-                            "npcs": ["Mirabelle"]
-                        },
-                        {
-                            "name": "The Mystic's Corner",
-                            "description": "Offers fortune-telling and mystical charms.",
-                            "paths": {
-                                "entrance": "Mystic Market",
-                                "exit": "Mystic Market"
-                            },
-                            "npcs": ["Faelan"]
-                        },
-                        {
-                            "name": "The Armorer's Forge",
-                            "description": "Crafts and sells weapons and armor.",
-                            "paths": {
-                                "entrance": "Mystic Market",
-                                "exit": "Mystic Market"
-                            },
-                            "npcs": ["Gavriel"]
+                            "name": "Shoe Shine Boy",
+                            "description": "A young boy who shines shoes for a living, often seen in the market. He is a cheerful and friendly figure, always ready to strike up a conversation with passersby. He is a hard worker, and his dedication to his craft is evident in the gleaming shoes he produces. Despite his youth, he seems to know much about the market and its visitors.",
+                            "dialog": [
+                                "Shiny shoes for a shiny day! Need a polish, traveler?",
+                                "I've seen all sorts walk through this market. Got any stories to share?",
+                                "Careful with those magical boots. They need a special touch!"
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "service",
+                                    "description": "Shoe shining for a small fee."
+                                },
+                                {
+                                    "type": "information",
+                                    "description": "Tips about the market and its hidden treasures."
+                                }
+                            ],
+                            "inventory": [
+                                {
+                                    "name": "Magical Polish",
+                                    "description": "A rare shoe polish that not only cleans but also temporarily enchants footwear.",
+                                    "type": "Utility",
+                                    "collectable": true,
+                                    "quantity": 5
+                                }
+                            ]
                         }
-                    ]
-                },
-                {
-                    "name": "Hall of Elders",
-                    "description": "A place of wisdom where ancient knowledge is preserved.",
+                    ],
+                    "items": [
+                        {
+                            "name": "Glowing Orb",
+                            "description": "A small orb that emits a soft, soothing light, used to illuminate market stalls.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 10
+                        },
+                        {
+                            "name": "Enchanted Tapestry",
+                            "description": "A large, beautifully woven tapestry depicting scenes of Avalonian lore, hanging in various stalls.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 3
+                        },
+                        {
+                            "name": "Magical Wind Chimes",
+                            "description": "Delicate wind chimes that play a mystical melody, believed to attract good fortune.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        },
+                        {
+                            "name": "Crystal Display",
+                            "description": "An array of colorful crystals, each shimmering with internal light, used as a centerpiece in several shops.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 7
+                        }
+                    ],
                     "paths": {
                         "exit": "Central Avalonia"
                     },
                     "rooms": [
                         {
-                            "name": "Council Chamber",
-                            "description": "Where the Elders meet to discuss important matters.",
+                            "name": "Enchanted Emporium",
+                            "description": "The Enchanted Emporium is a wonder to behold, with shelves lined with glowing potions, mystical artifacts, and ancient scrolls. The air is tinged with the scent of magical herbs and the faint hum of enchanted objects. Soft, ethereal light fills the room, casting a magical glow on every surface.",
+                            "keywords": ["glowing potions", "mystical artifacts", "enchanted objects", "magical herbs", "ethereal light"],
                             "paths": {
-                                "entrance": "Hall of Elders",
-                                "exit": "Hall of Elders"
+                                "entrance": "Mystic Market",
+                                "exit": "Mystic Market"
                             },
-                            "npcs": ["Elder Orin"]
+                            "npcs": [
+                                {
+                                    "name": "Mirabelle",
+                                    "description": "Mirabelle, the proprietor of the Enchanted Emporium, is a knowledgeable and mysterious figure. She moves gracefully around her shop, her robes trailing behind her. Her eyes sparkle with arcane knowledge, and she always seems to have just the right item for any magical need.",
+                                    "dialog": [
+                                        "Ah, a discerning customer! Welcome to the Enchanted Emporium.",
+                                        "You seek something special? Perhaps I can help you find it.",
+                                        "Be careful with that! It's more powerful than it looks."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "trade",
+                                            "description": "Trade coins or other valuables for magical items."
+                                        },
+                                        {
+                                            "type": "quest",
+                                            "description": "Retrieve a rare ingredient for a powerful potion."
+                                        }
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "name": "Elixir of Wisdom",
+                                            "description": "A potion that temporarily enhances the drinker's intellect and perception.",
+                                            "type": "Potion",
+                                            "collectable": true,
+                                            "quantity": 2
+                                        },
+                                        {
+                                            "name": "Shadow Cloak",
+                                            "description": "A cloak that grants the wearer near invisibility in low light.",
+                                            "type": "Clothing",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "name": "Crystal Ball",
+                                    "description": "A large, clear crystal ball that shimmers with a mysterious inner light.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Enchanted Lantern",
+                                    "description": "A lantern that never goes out, illuminating the shop with a soft, magical light.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Magical Tomes",
+                                    "description": "Ancient books filled with arcane knowledge, safely kept behind a protective glass case.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Potion Ingredients",
+                                    "description": "Various rare and exotic ingredients used in potion-making, displayed in neatly labeled jars.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                }
+                            ]
                         },
                         {
-                            "name": "Archive of Ages",
-                            "description": "An archive holding the records of Avalonia's history.",
+                            "name": "The Mystic's Corner",
+                            "description": "Tucked away in a quieter corner of the market, The Mystic's Corner is a haven for those seeking insight into the unknown. Dimly lit by flickering candles and filled with the scent of incense, the room is adorned with symbols of divination and mysticism. Crystal balls, tarot cards, and runic stones are arranged meticulously on draped tables, inviting curiosity and wonder.",
+                            "keywords": ["divination", "mysticism", "crystal balls", "tarot cards", "runic stones"],
                             "paths": {
-                                "entrance": "Hall of Elders",
-                                "exit": "Hall of Elders"
+                                "entrance": "Mystic Market",
+                                "exit": "Mystic Market"
                             },
-                            "npcs": ["Scribe Lyra"]
+                            "npcs": [
+                                {
+                                    "name": "Faelan",
+                                    "description": "Faelan, the enigmatic fortune-teller of The Mystic's Corner, is a figure shrouded in mystery. Clad in robes adorned with celestial patterns, he possesses a calm, knowing gaze that seems to pierce through veils of reality. His voice is soft yet captivating, drawing visitors into a world of prophecy and foresight.",
+                                    "dialog": [
+                                        "Seeking knowledge of the future? Step forward and be enlightened.",
+                                        "The cards do not lie, but they do not tell the whole truth either.",
+                                        "Your fate is a path yet unwritten. Shall we discover its course together?"
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "fortune-telling",
+                                            "description": "Receive a glimpse of possible future events or guidance on a current dilemma."
+                                        },
+                                        {
+                                            "type": "purchase",
+                                            "description": "Buy mystical charms and protective amulets."
+                                        }
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "name": "Tarot Deck",
+                                            "description": "A beautifully illustrated deck of tarot cards, each imbued with magical properties.",
+                                            "type": "Tool",
+                                            "collectable": true,
+                                            "quantity": 3
+                                        },
+                                        {
+                                            "name": "Protective Amulet",
+                                            "description": "A small amulet designed to ward off negative energies and bring good fortune.",
+                                            "type": "Accessory",
+                                            "collectable": true,
+                                            "quantity": 5
+                                        }
+                                    ]
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "name": "Ornate Divination Table",
+                                    "description": "A table covered with a star-patterned cloth, used for tarot readings and other divinatory practices.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Incense Burner",
+                                    "description": "An intricately carved incense burner, filling the room with soothing, mystical scents.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                },
+                                {
+                                    "name": "Mystical Candles",
+                                    "description": "Candles that burn with an ethereal flame, providing a mystical ambiance to the corner.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Runes Set",
+                                    "description": "A set of ancient runic stones, used for divination and foresight, displayed in a glass case.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ]
                         },
                         {
-                            "name": "Meditation Hall",
-                            "description": "A tranquil space for reflection and meditation.",
+                            "name": "The Armorer's Forge",
+                            "description": "The Armorer's Forge is a place of heat, metal, and craftsmanship. The sound of hammering echoes through the air, mingling with the roar of the furnace. Weapons of various shapes and sizes, some glowing with enchantments, line the walls. Armor stands display masterfully crafted suits, each piece a testament to the skill of the armorer. The forge is a blend of traditional blacksmithing and magical enhancement, creating items both sturdy and mystical.",
+                            "keywords": ["blacksmithing", "enchanted weapons", "crafted armor", "masterful craftsmanship", "magical enhancement"],
+                            "paths": {
+                                "entrance": "Mystic Market",
+                                "exit": "Mystic Market"
+                            },
+                            "npcs": [
+                                {
+                                    "name": "Gavriel",
+                                    "description": "Gavriel, the master armorer, is a figure of strength and precision. His muscular arms bear the marks of his trade, and his eyes reflect the intense focus of a seasoned craftsman. He is proud of his work and eager to share his expertise in both traditional and magical armory.",
+                                    "dialog": [
+                                        "Welcome to my forge. What kind of protection are you seeking today?",
+                                        "Each piece I create has its own story and strength. Choose wisely.",
+                                        "Ah, interested in enchanted armor? You have an eye for quality."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "trade",
+                                            "description": "Purchase weapons, armor, and custom enhancements."
+                                        },
+                                        {
+                                            "type": "customization",
+                                            "description": "Modify or enchant existing equipment."
+                                        }
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "name": "Flame-Enchanted Sword",
+                                            "description": "A sword imbued with a magical flame, capable of igniting upon command.",
+                                            "type": "Weapon",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        },
+                                        {
+                                            "name": "Shadow Mail Armor",
+                                            "description": "A lightweight armor that blends with shadows, providing enhanced stealth.",
+                                            "type": "Armor",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "name": "Forged Weapons Display",
+                                    "description": "A variety of weapons, each showcasing the skill and creativity of the forge.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Armor Mannequins",
+                                    "description": "Mannequins wearing various styles of armor, from heavy plate to flexible leather.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Enchantment Anvils",
+                                    "description": "Anvils used specifically for enchanting weapons and armor, glowing with residual magic.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                },
+                                {
+                                    "name": "Crafting Tools",
+                                    "description": "An array of blacksmithing tools, well-maintained and organized, essential for the forge's daily operations.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                }
+                            ]
+                        }                        
+                    ]
+                },
+                {
+                    "name": "Hall of Elders",
+                    "description": "The Hall of Elders is a sanctum of ancient wisdom and revered traditions. Majestic in its design, the hall features towering columns, intricate murals depicting the history of Avalonia, and shelves lined with age-old tomes and artifacts. The air is filled with a serene silence, occasionally broken by the soft murmur of scholars and the rustling of parchment. This revered place serves as a meeting ground for the wisest elders of Avalonia and as a repository of knowledge gathered over centuries.",
+                    "keywords": ["ancient wisdom", "majestic design", "history", "scholars", "repository of knowledge"],
+                    "paths": {
+                        "exit": "Central Avalonia"
+                    },
+                    "npcs": [
+                        {
+                            "name": "Elder Arin",
+                            "description": "Elder Arin is a venerable figure in the Hall of Elders, known for his deep knowledge and gentle demeanor. His eyes, though aged, sparkle with intelligence and curiosity. He is often found perusing ancient scrolls or engaged in thoughtful discussions with visitors and fellow scholars.",
+                            "dialog": [
+                                "Welcome, seeker of knowledge. What wisdom do you pursue today?",
+                                "The annals of history hold many lessons, if one knows where to look.",
+                                "Patience and understanding are the keys to unlocking the secrets of the past."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "guidance",
+                                    "description": "Offer insights or help in understanding complex historical or magical concepts."
+                                },
+                                {
+                                    "type": "quest",
+                                    "description": "Assign tasks related to the recovery or preservation of ancient knowledge."
+                                }
+                            ],
+                            "inventory": [
+                                {
+                                    "name": "Scroll of Ancient Lore",
+                                    "description": "A delicate scroll containing valuable information about Avalonia's distant past.",
+                                    "type": "Scroll",
+                                    "collectable": true,
+                                    "quantity": 1
+                                }
+                            ]
+                        }
+                    ],
+                    "items": [
+                        {
+                            "name": "Historic Artifacts",
+                            "description": "Artifacts of significant historical value, displayed in protective casings.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 4
+                        },
+                        {
+                            "name": "Ancient Manuscripts",
+                            "description": "Manuscripts detailing the lore and legends of Avalonia, carefully preserved under glass.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 2
+                        },
+                        {
+                            "name": "Wisdom Statues",
+                            "description": "Statues of past elders, each carved with intricate detail, standing as guardians of knowledge.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 4
+                        },
+                        {
+                            "name": "Mural of Ages",
+                            "description": "A large mural covering the walls of the hall, depicting the chronological history of Avalonia.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 1
+                        }
+                    ],
+                    "rooms": [
+                        {
+                            "name": "The Archives",
+                            "description": "The Archives is a vast repository of ancient knowledge, containing scrolls, books, and artifacts from Avalonia's distant past. The shelves are lined with meticulously labeled tomes, and the air is filled with the scent of old parchment. Scholars and visitors alike can be found perusing the shelves, seeking wisdom from the annals of history.",
+                            "keywords": ["repository of knowledge", "ancient scrolls", "meticulously labeled tomes", "old parchment"],
                             "paths": {
                                 "entrance": "Hall of Elders",
                                 "exit": "Hall of Elders"
                             },
-                            "npcs": ["Monk Jaron"]
+                            "npcs": [
+                                {
+                                    "name": "Scholar Aria",
+                                    "description": "Scholar Aria is a dedicated student of history, often found in the Archives, poring over ancient texts. Her eyes, though young, reflect a deep understanding of the past, and her voice carries the weight of knowledge. She is a diligent scholar, always eager to learn and share her wisdom.",
+                                    "dialog": [
+                                        "The past holds many secrets, waiting to be discovered.",
+                                        "The Archives are a treasure trove of knowledge, if one knows where to look.",
+                                        "The annals of history are a guide to the future."
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "name": "Ancient Scroll",
+                                            "description": "A scroll containing ancient wisdom, preserved by Scholar Aria.",
+                                            "type": "Scroll",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "name": "Ancient Scrolls",
+                                    "description": "Scrolls containing ancient wisdom, carefully preserved in protective casings.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                },
+                                {
+                                    "name": "Historic Tomes",
+                                    "description": "Tomes detailing the lore and legends of Avalonia, carefully preserved under glass.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                },
+                                {
+                                    "name": "Historic Artifacts",
+                                    "description": "Artifacts of significant historical value, displayed in protective casings.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                }
+                            ]
+                        },
+                        {
+                            "name": "The Study",
+                            "description": "The Study is a place of quiet contemplation, where scholars can reflect on the knowledge they've gained. The room is filled with comfortable chairs and tables, each adorned with a small lamp. The walls are lined with bookshelves, and the air is filled with the scent of old parchment. It's a place of serenity and reflection, where the past speaks to those who listen.",
+                            "keywords": ["quiet contemplation", "comfortable chairs", "bookshelves", "old parchment"],
+                            "paths": {
+                                "entrance": "Hall of Elders",
+                                "exit": "Hall of Elders"
+                            },
+                            "npcs": [
+                                {
+                                    "name": "Scholar Elyse",
+                                    "description": "Scholar Elyse is a seasoned historian, her face lined with wisdom gained over a lifetime of study. Her eyes sparkle with intelligence, and her voice carries the weight of knowledge. She is a revered figure in the Hall of Elders, known for her deep understanding of history and magic.",
+                                    "dialog": [
+                                        "The past is a guide to the future, if one knows where to look.",
+                                        "The annals of history hold many lessons, if one knows where to look.",
+                                        "Patience and understanding are the keys to unlocking the secrets of the past."
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "name": "Ancient Manuscript",
+                                            "description": "A manuscript containing forgotten spells and arcane knowledge.",
+                                            "type": "Scroll",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "name": "Historic Tomes",
+                                    "description": "Tomes detailing the lore and legends of Avalonia, carefully preserved under glass.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Historic Artifacts",
+                                    "description": "Artifacts of significant historical value, displayed in protective casings.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Historic Scrolls",
+                                    "description": "Scrolls containing ancient wisdom, carefully preserved in protective casings.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                }
+                            ]
+                        },
+                        {
+                            "name": "The Library",
+                            "description": "The Library is a place of study and discovery, where the past speaks to those who listen. The shelves are lined with ancient scrolls and books, and the air is filled with the scent of old parchment. Scholars and visitors alike can be found perusing the shelves, seeking wisdom from the annals of history.",
+                            "keywords": ["place of study", "ancient scrolls", "old parchment"],
+                            "paths": {
+                                "entrance": "Hall of Elders",
+                                "exit": "Hall of Elders"
+                            },
+                            "npcs": [
+                                {
+                                    "name": "Scholar Elyse",
+                                    "description": "Scholar Elyse is a seasoned historian, her face lined with wisdom gained over a lifetime of study. Her eyes sparkle with intelligence, and her voice carries the weight of knowledge. She is a revered figure in the Hall of Elders, known for her deep understanding of history and magic.",
+                                    "dialog": [
+                                        "The past is a guide to the future, if one knows where to look.",
+                                        "The annals of history hold many lessons, if one knows where to look.",
+                                        "Patience and understanding are the keys to unlocking the secrets of the past."
+                                    ],
+                                    "inventory": [
+                                        {
+                                            "name": "Ancient Manuscript",
+                                            "description": "A manuscript containing forgotten spells and arcane knowledge.",
+                                            "type": "Scroll",
+                                            "collectable": true,
+                                            "quantity": 1
+                                        }
+                                    ]
+                                }
+                            ],
+                            "items": [
+                                {
+                                    "name": "Historic Tomes",
+                                    "description": "Tomes detailing the lore and legends of Avalonia, carefully preserved under glass.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Historic Artifacts",
+                                    "description": "Artifacts of significant historical value, displayed in protective casings.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Historic Scrolls",
+                                    "description": "Scrolls containing ancient wisdom, carefully preserved in protective casings.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                }
+                            ]
                         }
                     ]
                 }
