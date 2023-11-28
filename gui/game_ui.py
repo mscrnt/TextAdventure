@@ -292,7 +292,7 @@ class GameUI(QWidget):
                 # Process events to update the text area immediately
                 QApplication.processEvents()
                 # Sleep for a short duration to create the typing effect
-                time.sleep(0.025)
+                time.sleep(0.01)
 
             # Wait for a moment after each chunk
             time.sleep(1)
