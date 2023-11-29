@@ -45,11 +45,6 @@ class PlayerSheet:
         # Remove an item from the inventory by its name
         self.inventory = [item for item in self.inventory if item["name"] != item_name]
 
-    def add_fast_travel_location(self, location):
-        ic("Adding fast travel location")
-        ic(location)
-        self.fast_travel_locations.append(location)
-
     def remove_fast_travel_location(self, location_name):
         ic("Removing fast travel location")
         ic(location_name)
@@ -110,11 +105,29 @@ class PlayerSheet:
         if note in self.notes:
             self.notes.remove(note)
 
-    def add_fast_travel_location(self, location):
+    def add_fast_travel_location(self, location, world_name=None):
         ic("Adding fast travel location")
         ic(location)
-        if location not in self.fast_travel_locations:
-            self.fast_travel_locations.append(location)
+        # If world_name is provided, use it; otherwise, try to get it from the location
+        world_name = world_name or location.get('world_name')
+        print(f'location: {location}, world_name: {world_name}')
+        # Store both the location and world name in a new dictionary
+        location_with_world = {
+            'location': location,
+            'world_name': world_name
+        }
+        # Ensure we're not adding duplicates
+        if location_with_world not in self.fast_travel_locations:
+            print(f"Adding fast travel location: {location['name']} (Main Area of {world_name})")
+            self.fast_travel_locations.append(location_with_world)
+
+
+
+    def get_fast_travel_worlds(self):
+        """Return a list of unique world names from the fast travel locations."""
+        return list({location['world_name'] for location in self.fast_travel_locations})
+
+
 
     def remove_fast_travel_location(self, location):
         ic("Removing fast travel location")

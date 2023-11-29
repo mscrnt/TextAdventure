@@ -152,9 +152,14 @@ class GameUI(QWidget):
         ic("Populating fast travel locations")
         # Get fast travel locations from the game manager
         locations = self.game_manager.get_fast_travel_locations()
-        for location in locations:
-            # Add each location's name to the inventory list
-            self.inventory_list.addItem(location['name'])  
+        for location_with_world in locations:
+            # Extract 'location' and 'world_name' from each dictionary
+            location_name = location_with_world['location']['name']
+            world_name = location_with_world['world_name']
+            # Adjust format to "Location Name (Main Area of World Name)"
+            display_text = f"{location_name} ({world_name})"
+            self.inventory_list.addItem(display_text)
+
 
     def populate_notes(self):
         ic("Populating notes")
@@ -197,31 +202,36 @@ class GameUI(QWidget):
             self.inventory_list.addItem(item)
 
     def process_command(self):
-
         # Placeholder conditional in case I want to add other command interpretations
-        if_not_dummy = False # Remove this line when you start implementing commands
-        if if_not_dummy: # Revise this line when you start implementing commands
-            pass
+        if_not_dummy = False 
+        if if_not_dummy:
+            pass  # This will be replaced with actual command handling logic later
         else:
             command_text = self.command_input.text().strip().lower()
             self.command_input.clear()
 
         response = self.world_builder.incoming_command(command_text)
-        self.display_text(response)
 
+        # Check if the response is a boolean and convert it to a string message
+        if isinstance(response, bool):
+            # Convert the boolean response to a user-friendly message
+            response = "Command executed successfully." if response else "Command execution failed. Please try again."
+
+        self.display_text(response)  # Display the response in the UI
 
     def display_item_information(self, item_widget):
         ic("Displaying item information")
         # Retrieve the selected item's text
         selected_text = item_widget.text()
 
-        # If the current category is "Quest Log", strip out the status from the item text
+        # Determine the selected name based on the current category
         if self.current_category == "Quest Log":
-            selected_name = selected_text.split(":")[0].strip()  # Get the name part only before the colon
+            selected_name = selected_text.split(":")[0].strip()
         else:
-            selected_name = selected_text.split(' (')[0].strip()  # Removes the quantity, assuming it's in the format "Name (xQuantity)"
+            selected_name = selected_text.split(' (')[0].strip()
 
         item_details = None
+        # Retrieve the appropriate item details based on the current category
         if self.current_category == "Inventory":
             item_details = self.game_manager.get_inventory_item_details(selected_name)
         elif self.current_category == "Fast Travel":
@@ -234,14 +244,18 @@ class GameUI(QWidget):
             item_details = self.game_manager.get_player_email_details(selected_name)
             self.game_manager.mark_email_as_read(selected_name)
 
+        # Check for item details and format appropriately
         if item_details:
-            # For quests, you want to display the status as well, so append it if it's a quest
-            if self.current_category == "Quest Log":
-                formatted_details = f"{selected_name}:\n{'Completed' if item_details['completed'] else 'In Progress'}\n\n{item_details['description']}"
-            elif self.current_category == "Emails":
-                formatted_details = f"{selected_name}:\nFrom: {item_details['sender']}\n\n {item_details['description']}"
+            if self.current_category == "Emails":
+                # For emails, include sender information
+                formatted_details = f"{selected_name}:\nFrom: {item_details.get('sender', 'Unknown Sender')}\n\n{item_details.get('description', 'No description available.')}"
+            elif self.current_category == "Quest Log":
+                # For quests, include completion status
+                status = 'Completed' if item_details.get('completed', False) else 'In Progress'
+                formatted_details = f"{selected_name}:\n{status}\n\n{item_details.get('description', 'No description available.')}"
             else:
-                formatted_details = f"{selected_name}:\n\n{item_details['description']}"
+                # For other categories, just display the name and description
+                formatted_details = f"{selected_name}:\n\n{item_details.get('description', 'No description available.')}"
             self.display_text(formatted_details)
         else:
             self.display_text("Item details not found.")

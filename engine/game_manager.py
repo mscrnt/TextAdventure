@@ -74,26 +74,24 @@ class GameManager(QObject):
             self.player_sheet.add_item(health_potion)
             ic("Health potion added to inventory")
 
-        # Load the worlds data
-        worlds_data = self.load_worlds_data()
-        ic("Worlds data loaded")
+        # Names of the worlds you want to include
+        world_full_names = {
+            "Avalonia": "Avalonia",
+            "BlizzardWorld": "BlizzardWorld",
+            "Home": "Odyssey VR"  # Full name for display
+        }
 
-        # Find Avalonia world
-        avalonia = next((world for world in worlds_data if world['name'] == "Avalonia"), None)
-        if avalonia:
-            # Add the main area of Avalonia to fast travel locations if it's marked as main_area
-            main_area = next((location for location in avalonia['locations'] if location.get('main_area', False)), None)
+        # Loop through each world name
+        for world_key, world_display_name in world_full_names.items():
+            world_data = utilities.load_working_world_data(world_key)
+            main_area = next((location for location in world_data['locations'] if location.get('main-entry', False)), None)
             if main_area:
-                self.player_sheet.add_fast_travel_location(main_area)
-                ic(f"{main_area['name']} (Main Area) added to fast travel locations")
-
-            # Add Eldergrove Forest to fast travel locations
-            eldergrove_forest = next((location for location in avalonia['locations'] if location['name'] == "Eldergrove Forest"), None)
-            if eldergrove_forest:
-                self.player_sheet.add_fast_travel_location(eldergrove_forest)
-                ic(f"{eldergrove_forest['name']} added to fast travel locations")
-        else:
-            ic("Avalonia not found in worlds data")
+                self.player_sheet.add_fast_travel_location(main_area, world_display_name)
+                ic(f"{main_area['name']} (Main Area of {world_display_name}) added to fast travel locations")
+                print(f"{main_area['name']} (Main Area of {world_display_name}) added to fast travel locations")
+            else:
+                ic(f"Main entry not found for {world_key}")
+                print(f"Main entry not found for {world_key}")
 
         # Load the notes
         notes = self.load_notes()
@@ -174,8 +172,20 @@ class GameManager(QObject):
         return next((item for item in self.player_sheet.inventory if item['name'] == item_name), None)
 
     def get_fast_travel_location_details(self, location_name):
-        # Return the details of a fast travel location
-        return next((location for location in self.player_sheet.fast_travel_locations if location['name'] == location_name), None)
+        print(f"Getting fast travel location details for {location_name}")
+
+        # Check if the location name is in the expected format with a separator
+        if ' - ' in location_name:
+            loc_name, world = location_name.split(' - ')
+        else:
+            loc_name = location_name
+            world = None  # or a default value
+
+        for location_with_world in self.player_sheet.fast_travel_locations:
+            if location_with_world['location']['name'] == location_name:
+                return location_with_world['location']
+        return None
+
 
     def get_note_details(self, note_name):
         # Return the details of a note

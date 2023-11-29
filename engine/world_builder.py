@@ -4,6 +4,7 @@ import json
 from icecream import ic
 import re
 from engine.ai_assist import AIAssist 
+import utilities
 
 class WorldBuilder:
     def __init__(self, game_manager, world_data, use_ai_assist=True):
@@ -46,6 +47,9 @@ class WorldBuilder:
                 return self.open_container(container_name)
             elif command.startswith("close"):
                 return self.close_container()
+            elif command.startswith("fast travel to"):
+                world_name = command[len("fast travel to"):].strip()
+                return self.fast_travel_to_world(world_name)
             elif command.startswith("give"):
                 item_name = command[len("give"):].strip()
                 return self.give_item(item_name)
@@ -54,31 +58,64 @@ class WorldBuilder:
             else:
                 return f"Unrecognized command: {command}"
 
-    # def find_location_data(self, location_name):
-    #     def search_in_collection(collection, name):
-    #         for item in collection:
-    #             if self.normalize_name(item['name']) == name:  # Normalize names for comparison
-    #                 return item
-    #             if 'rooms' in item:  # Check if the item has rooms (for sublocations)
-    #                 room = search_in_collection(item['rooms'], name)
-    #                 if room:
-    #                     return room
-    #         return None
+    def fast_travel_to_world(self, world_name):
+        # Convert both strings to lowercase for a case-insensitive comparison
+        available_worlds = [world.lower() for world in self.game_manager.player_sheet.get_fast_travel_worlds()]
+        
+        if world_name.lower() not in available_worlds:
+            print(f"{world_name} is not available for fast travel.")
+            return f"{world_name} is not available for fast travel."
+    
 
-    #     normalized_location_name = self.normalize_name(location_name)  # Normalize the input location name
+        try:
+            # Load the working world data
+            new_world_data = utilities.load_working_world_data(world_name)
 
-    #     if isinstance(location_name, dict):
-    #         location_name = location_name.get("location/sublocation", "Unknown Location")
-    #         normalized_location_name = self.normalize_name(location_name)
+            # Find the main entry location in the new world
+            main_entry_location = next((loc for loc in new_world_data['locations'] if loc.get('main-entry', False)), None)
 
-    #     # Search in top-level locations
-    #     location = search_in_collection(self.world_data.get('locations', []), normalized_location_name)
-    #     if location:
-    #         print(f"Found location or room: {normalized_location_name}")
-    #         return location
+            if main_entry_location:
+                # Update the world data and the player's location
+                self.world_data = new_world_data
+                self.game_manager.player_sheet.location = {"world": world_name, "location/sublocation": main_entry_location['name']}
 
-    #     print(f"Location or room not found: {normalized_location_name}")
-    #     return None
+                # Perform additional updates as needed
+                self.update_game_state_for_fast_travel(world_name)  # Pass the world_name as an argument
+
+                print(f"Fast traveled to {world_name}, location: {main_entry_location['name']}")
+                return True
+            else:
+                print(f"No main entry location found in {world_name}.")
+                return False
+        except Exception as e:
+            print(f"Error loading world data for {world_name}: {e}")
+            return False
+
+
+    def update_game_state_for_fast_travel(self, new_world_name):
+        # Update player's current location
+        self.game_manager.player_sheet.update_location({"world": new_world_name, "location/sublocation": "Main Entry"})  
+
+        # Update the world data in WorldBuilder
+        if self.update_world_data(new_world_name):
+            # Update the UI to reflect the new world state
+            self.game_manager.ui.update_ui()  # Assuming update_ui() method updates the entire UI
+
+            # Get a description of the new location
+            new_location_description = self.where_am_i()
+
+            # Display the description of the new location
+            self.game_manager.ui.display_text(new_location_description)  
+
+            # Handle any specific events or changes for the new location
+            # self.world_builder.handle_location_specific_events(new_world_name) (if needed)
+
+            # Notify player of the travel
+            self.game_manager.ui.display_text(f"Fast traveled to {new_world_name}.")
+        else:
+            self.game_manager.ui.display_text(f"Failed to update world data for {new_world_name}.")
+
+
 
     def find_location_data(self, location_name):
         if isinstance(location_name, dict):
@@ -551,22 +588,36 @@ class WorldBuilder:
         )
         return help_text
     
-    def update_world_data(self, location_name, update_dict):
+    def update_world_data(self, location_name, update_dict=None, new_world_name=None):
         """
-        Update the world_data based on the provided location and update dictionary.
+        Update the world_data based on the provided location and update dictionary or load a new world.
 
         Args:
         location_name (str): The name of the location to update.
-        update_dict (dict): A dictionary containing the keys (such as 'containers', 'items', etc.) 
-                            and their new values to be updated in the world_data.
+        update_dict (dict, optional): A dictionary containing the keys to be updated.
+        new_world_name (str, optional): The name of the new world to load. If provided, 
+                                        it will update the entire world data.
         """
-        for location in self.world_data.get('locations', []):
-            # Check both top-level locations and sublocations
-            if location['name'].lower() == location_name.lower():
-                self._apply_updates(location, update_dict)
-            for sublocation in location.get('sublocations', []):
-                if sublocation['name'].lower() == location_name.lower():
-                    self._apply_updates(sublocation, update_dict)
+        if new_world_name:
+            # Load and update the world data for a new world
+            new_world_data = utilities.load_working_world_data(new_world_name)
+            if new_world_data:
+                self.world_data = new_world_data
+                print(f"World data updated to {new_world_name}")
+                return True
+            else:
+                print(f"Failed to load world data for {new_world_name}")
+                return False
+        else:
+            # Update specific location in the current world data
+            for location in self.world_data.get('locations', []):
+                if location['name'].lower() == location_name.lower():
+                    self._apply_updates(location, update_dict)
+                for sublocation in location.get('sublocations', []):
+                    if sublocation['name'].lower() == location_name.lower():
+                        self._apply_updates(sublocation, update_dict)
+            return True
+
 
     def _apply_updates(self, location_dict, update_dict):
         """
