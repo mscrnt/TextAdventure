@@ -9,14 +9,14 @@ from icecream import ic
 from engine.world_builder import WorldBuilder
 
 class GameUI(QWidget):
-    def __init__(self, player_name, parent=None):
+    def __init__(self, player_name, use_ai_assist=True, parent=None):
         super(GameUI, self).__init__(parent)
         self.is_item_clicked_connected = False  
         self.current_category = None 
         self.init_ui()
-        self.game_manager = GameManager(player_name, self)
+        self.game_manager = GameManager(player_name, self, use_ai_assist)
         self.game_manager.gameLoaded.connect(self.on_game_loaded)
-        self.world_builder = WorldBuilder(self.game_manager, self.game_manager.world_data) 
+        self.world_builder = WorldBuilder(self.game_manager, self.game_manager.world_data, use_ai_assist)
         ic("GameUI initialized")
         self.initialize_drop_down_menu() 
 

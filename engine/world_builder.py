@@ -6,11 +6,11 @@ import re
 from engine.ai_assist import AIAssist 
 
 class WorldBuilder:
-    def __init__(self, game_manager, world_data):
+    def __init__(self, game_manager, world_data, use_ai_assist=True):
         self.game_manager = game_manager
         self.world_data = world_data
 
-        self.use_ai_assist = True  
+        self.use_ai_assist = use_ai_assist
         if self.use_ai_assist:
             self.ai_assist = AIAssist(game_manager, self)
 

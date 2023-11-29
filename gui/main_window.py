@@ -12,7 +12,7 @@ import utilities
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, use_ai_assist=True):
         super().__init__()
 
         # Set the main window's properties
@@ -30,8 +30,7 @@ class MainWindow(QMainWindow):
         # Initialize Splash Screen
         self.init_splash_screen()
 
-        # Create the GameUI but don't display it yet
-        # self.game_ui = GameUI()
+        self.use_ai = use_ai_assist
 
         # Initialize Main Game Interface
         self.init_game_interface()
@@ -168,7 +167,7 @@ class MainWindow(QMainWindow):
             utilities.create_working_world_data(starting_world)
             
             # Create the GameUI with the player's name
-            self.game_ui = GameUI(player_name)
+            self.game_ui = GameUI(player_name, use_ai_assist=self.use_ai)
             
             # Start the intro animation and connect the completion signal to show the game UI
             self.introAnimation = IntroAnimation(self)

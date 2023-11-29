@@ -10,20 +10,14 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--debug', action='store_true')
+parser.add_argument('--use-ai', action='store_true', help='Enable AI assist feature')
 args = parser.parse_args()
 debug_on = args.debug
+use_ai = args.use_ai
+
 
 
 def main():
-    """
-    This function initializes the main application and sets up the debug mode and dark theme palette.
-
-    Args:
-        None
-
-    Returns:
-        None
-    """
     if not debug_on:
         ic.disable()
     else:
@@ -54,7 +48,7 @@ def main():
     app.setPalette(palette)
 
 
-    main_window = MainWindow()
+    main_window = MainWindow(use_ai_assist=use_ai)
     main_window.show()
     sys.exit(app.exec())
 

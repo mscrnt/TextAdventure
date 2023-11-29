@@ -11,7 +11,7 @@ from engine.world_builder import WorldBuilder
 class GameManager(QObject):
     gameLoaded = Signal()
 
-    def __init__(self, player_name, ui):
+    def __init__(self, player_name, ui, use_ai_assist=True):
         super().__init__() 
         self.player_sheet = PlayerSheet(player_name)
         self.quest_tracker = QuestTracker(self)
@@ -22,7 +22,7 @@ class GameManager(QObject):
         self.update_quests_ui()
         
         # Initialize the game state with initial items, locations, etc.
-        self.world_builder = WorldBuilder(self, self.world_data)
+        self.world_builder = WorldBuilder(self, self.world_data, use_ai_assist)
 
         ic("GameManager initialized")   
 
