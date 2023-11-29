@@ -10,7 +10,7 @@ class WorldBuilder:
         self.game_manager = game_manager
         self.world_data = world_data
 
-        self.use_ai_assist = False  
+        self.use_ai_assist = True  
         if self.use_ai_assist:
             self.ai_assist = AIAssist(game_manager, self)
 
@@ -84,16 +84,28 @@ class WorldBuilder:
         if isinstance(location_name, dict):
             location_name = location_name.get("location/sublocation", "Unknown Location")
 
+        # First, normalize the location_name for consistency in comparison
+        normalized_location_name = self.normalize_name(location_name)
+
         for location in self.world_data.get('locations', []):
             if isinstance(location, dict) and 'name' in location:
-                if location['name'].lower() == location_name.lower():
+                if self.normalize_name(location['name']) == normalized_location_name:
                     print(f"Found location: {location_name}")
                     return location
                 for sublocation in location.get('sublocations', []):
-                    if sublocation['name'].lower() == location_name.lower():
+                    if self.normalize_name(sublocation['name']) == normalized_location_name:
                         print(f"Found sublocation: {location_name}")
                         return sublocation
+                    # Now we also need to look for rooms within each sublocation
+                    for room in sublocation.get('rooms', []):
+                        if self.normalize_name(room['name']) == normalized_location_name:
+                            print(f"Found room: {location_name}")
+                            # Here we can either return the room or return the room with sublocation context
+                            room['parent_sublocation'] = sublocation['name']  # This is optional, for context
+                            return room
+        print(f"Location or room not found: {location_name}")
         return None
+
 
     def get_current_location_data(self):
         current_location = self.game_manager.player_sheet.location
@@ -178,7 +190,7 @@ class WorldBuilder:
             ic(f"Error loading world data: {e}")
             return {}
 
-    def build_scene_text(self):
+    def build_scene_text(self, location_data):
         location_data = self.get_current_location_data()  # Get the current location data
 
         if not location_data:
@@ -187,29 +199,35 @@ class WorldBuilder:
         scene_text = ""
         if 'type' in location_data and location_data['type'] == 'room':
             # If the player is in a room, prioritize room details
-            scene_text += self.describe_room(location_data)  # Assuming a method to describe a room
-            scene_text += self.list_items(location_data)  # Include items in the room
-            scene_text += self.list_npcs(location_data)  # NPCs in the room
-            scene_text += self.list_containers(location_data)  # Containers in the room
+            scene_text += self.describe_room(location_data) + "\n"
+            scene_text += self.list_items(location_data) + "\n" if 'items' in location_data else ""
+            scene_text += self.list_npcs(location_data) + "\n" if 'npcs' in location_data else ""
+            scene_text += self.list_containers(location_data) + "\n" if 'containers' in location_data else ""
         else:
             # If the player is not in a room, build the scene from the location or sublocation level
-            scene_text += self.describe_location(location_data)
-            scene_text += self.list_items(location_data)
-            scene_text += self.list_containers(location_data)
-            scene_text += self.list_npcs(location_data)
-            scene_text += self.show_paths(location_data)
-            scene_text += self.show_sublocations(location_data)
+            scene_text += self.describe_location(location_data) + "\n"
+            scene_text += self.list_items(location_data) + "\n" if 'items' in location_data else ""
+            scene_text += self.list_containers(location_data) + "\n" if 'containers' in location_data else ""
+            scene_text += self.list_npcs(location_data) + "\n" if 'npcs' in location_data else ""
+            scene_text += self.show_paths(location_data) + "\n" if 'paths' in location_data else ""
+            scene_text += self.show_sublocations(location_data) + "\n" if 'sublocations' in location_data else ""
             # Check for rooms only if in a sublocation
-            if 'rooms' in location_data:
-                scene_text += self.list_rooms(location_data)
+            scene_text += self.list_rooms(location_data) + "\n" if 'rooms' in location_data else ""
 
         return scene_text.strip()
+    
+    def build_room_scene_text(self, room_data):
+        # Build scene text specifically for rooms
+        scene_text = self.describe_room(room_data)
+        scene_text += self.list_items(room_data)
+        scene_text += self.list_npcs(room_data)
+        return scene_text
 
     def describe_room(self, room_data):
         description = f"You are in {room_data['name']}. {room_data['description']}"
         if 'keywords' in room_data:
             keywords_text = ", ".join(room_data['keywords'])
-            description += f" Keywords: {keywords_text}"
+            description += f" \n Keywords: {keywords_text}\n"
         print(f"Room description: {description}")
         return description
 
@@ -217,14 +235,14 @@ class WorldBuilder:
         npcs_text = "People here:\n"
         for npc in location_data.get('npcs', []):
             npc_description = npc.get('description', 'An interesting character.')
-            npcs_text += f"- {npc['name']}: {npc_description}\n"
+            npcs_text += f"- {npc['name']}: {npc_description}\n\n"
         return npcs_text
 
     def describe_location(self, location_data):
         description = f"You are at {location_data['name']}. {location_data['description']}"
         if 'keywords' in location_data:
             keywords_text = ", ".join(location_data['keywords'])
-            description += f" Keywords: {keywords_text}"
+            description += f" \n\n Keywords: {keywords_text}\n"
         print(f"Location description: {description}")
         return description
     
@@ -497,22 +515,19 @@ class WorldBuilder:
 
 
     def look_around(self):
-        # Check if the player is currently looking inside an open container
-        open_container_name = self.is_container_open()
-        if open_container_name:
-            current_location = self.game_manager.player_sheet.location
-            location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
-            location_data = self.find_location_data(location_str)
+        # Get the current location data
+        current_location_data = self.get_current_location_data()
 
-            if location_data and 'containers' in location_data:
-                for container in location_data['containers']:
-                    if container['name'] == open_container_name:
-                        # Display contents of the open container
-                        print(f"Looking inside '{open_container_name}':\n\n{self.list_container_contents(container)}")
-                        return f"You are looking into '{open_container_name}':\n\n{self.list_container_contents(container)}"
+        # Check if we're in a room within a sublocation
+        if current_location_data and 'type' in current_location_data and current_location_data['type'] == 'room':
+            # If in a room, build scene text for the room
+            return self.build_room_scene_text(current_location_data)
+        elif current_location_data:
+            # If not in a room, build the normal scene text
+            return self.build_scene_text(current_location_data)
+        else:
+            return "It's too dark to see anything."
 
-        # If no container is open, return the normal scene text
-        return self.build_scene_text()
     
     def show_sublocations(self, location_data):
         sublocations_text = "Sublocations here:\n"
