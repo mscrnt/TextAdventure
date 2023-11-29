@@ -10,7 +10,7 @@ class WorldBuilder:
         self.game_manager = game_manager
         self.world_data = world_data
 
-        self.use_ai_assist = True  
+        self.use_ai_assist = False  
         if self.use_ai_assist:
             self.ai_assist = AIAssist(game_manager, self)
 
@@ -54,6 +54,32 @@ class WorldBuilder:
             else:
                 return f"Unrecognized command: {command}"
 
+    # def find_location_data(self, location_name):
+    #     def search_in_collection(collection, name):
+    #         for item in collection:
+    #             if self.normalize_name(item['name']) == name:  # Normalize names for comparison
+    #                 return item
+    #             if 'rooms' in item:  # Check if the item has rooms (for sublocations)
+    #                 room = search_in_collection(item['rooms'], name)
+    #                 if room:
+    #                     return room
+    #         return None
+
+    #     normalized_location_name = self.normalize_name(location_name)  # Normalize the input location name
+
+    #     if isinstance(location_name, dict):
+    #         location_name = location_name.get("location/sublocation", "Unknown Location")
+    #         normalized_location_name = self.normalize_name(location_name)
+
+    #     # Search in top-level locations
+    #     location = search_in_collection(self.world_data.get('locations', []), normalized_location_name)
+    #     if location:
+    #         print(f"Found location or room: {normalized_location_name}")
+    #         return location
+
+    #     print(f"Location or room not found: {normalized_location_name}")
+    #     return None
+
     def find_location_data(self, location_name):
         if isinstance(location_name, dict):
             location_name = location_name.get("location/sublocation", "Unknown Location")
@@ -68,13 +94,17 @@ class WorldBuilder:
                         print(f"Found sublocation: {location_name}")
                         return sublocation
         return None
-    
+
     def get_current_location_data(self):
-        # Get the current location data
         current_location = self.game_manager.player_sheet.location
         current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
         location_data = self.find_location_data(current_location_str)
+        if location_data:
+            print(f"Current location data retrieved for: {current_location_str}")
+        else:
+            print(f"No data found for current location: {current_location_str}")
         return location_data
+
 
     def talk_to_npc(self, npc_name):
         # Normalize the NPC name for comparison
@@ -149,27 +179,39 @@ class WorldBuilder:
             return {}
 
     def build_scene_text(self):
-        player_location = self.game_manager.player_sheet.location
+        location_data = self.get_current_location_data()  # Get the current location data
 
-        # Check if player_location is a dictionary and extract the location name
-        if isinstance(player_location, dict):
-            location_name = player_location.get("location/sublocation", "Unknown Location")
-        else:
-            location_name = player_location
+        if not location_data:
+            return "You are in an unknown location."
 
-        location_data = self.find_location_data(location_name)
         scene_text = ""
-        if location_data:
-            scene_text += self.describe_location(location_data) + "\n"
-            scene_text += self.list_items(location_data) + "\n" if location_data.get('items', []) else ""
-            scene_text += self.list_containers(location_data) + "\n" if location_data.get('containers', []) else "\n"
-            scene_text += self.list_npcs(location_data) + "\n" if location_data.get('npcs', []) else "\n"
-            scene_text += self.show_paths(location_data) + "\n" if location_data.get('paths', {}) else "\n"
-            scene_text += self.show_sublocations(location_data) + "\n" if location_data.get('sublocations', []) else "\n"
+        if 'type' in location_data and location_data['type'] == 'room':
+            # If the player is in a room, prioritize room details
+            scene_text += self.describe_room(location_data)  # Assuming a method to describe a room
+            scene_text += self.list_items(location_data)  # Include items in the room
+            scene_text += self.list_npcs(location_data)  # NPCs in the room
+            scene_text += self.list_containers(location_data)  # Containers in the room
+        else:
+            # If the player is not in a room, build the scene from the location or sublocation level
+            scene_text += self.describe_location(location_data)
+            scene_text += self.list_items(location_data)
+            scene_text += self.list_containers(location_data)
+            scene_text += self.list_npcs(location_data)
+            scene_text += self.show_paths(location_data)
+            scene_text += self.show_sublocations(location_data)
+            # Check for rooms only if in a sublocation
             if 'rooms' in location_data:
-                scene_text += self.list_rooms(location_data) + "\n"
-        print(f"Scene text: {scene_text}")
-        return scene_text.strip() 
+                scene_text += self.list_rooms(location_data)
+
+        return scene_text.strip()
+
+    def describe_room(self, room_data):
+        description = f"You are in {room_data['name']}. {room_data['description']}"
+        if 'keywords' in room_data:
+            keywords_text = ", ".join(room_data['keywords'])
+            description += f" Keywords: {keywords_text}"
+        print(f"Room description: {description}")
+        return description
 
     def list_npcs(self, location_data):
         npcs_text = "People here:\n"
@@ -189,9 +231,9 @@ class WorldBuilder:
     def list_rooms(self, location_data):
         rooms_text = "Rooms here:\n"
         for room in location_data.get('rooms', []):
-            rooms_text += f"- {room['name']}: {room['description']}\n"
-            rooms_text += self.list_items(room) + "\n" if room.get('items', []) else ""
-            rooms_text += self.list_npcs(room) + "\n" if room.get('npcs', []) else "\n"
+            room_name = room.get('name', 'Unnamed Room')
+            room_description = room.get('description', 'No description available')
+            rooms_text += f"- {room_name}: {room_description}\n"
         print(f"Rooms text: {rooms_text}")
         return rooms_text
 
@@ -351,53 +393,52 @@ class WorldBuilder:
     def move_player(self, location_name):
         # Get the current location data from the player's current location
         current_location = self.game_manager.player_sheet.location
-
-        # We expect current_location to always be a dictionary now
         current_location_str = current_location.get("location/sublocation", "Unknown Location")
+        
+        print(f"Attempting to move. Current location: {current_location_str}, Destination: {location_name}")  # Debug print
 
         current_location_data = self.find_location_data(current_location_str)
-
-        # If current location is not found, return an error message
         if not current_location_data:
             return "You are in an unknown location and cannot move."
 
-        # Normalize the location name for comparison
         sanitized_location_name = self.normalize_name(location_name)
+        print(f"Sanitized destination name: {sanitized_location_name}")  # Debug print
 
-        # Check if the desired location is a direct path from the current location
-        if any(self.normalize_name(dest) == sanitized_location_name for dest in current_location_data.get('paths', {}).values()):
-            # Move to the new location
-            destination = next((dest for dest in current_location_data['paths'].values() if self.normalize_name(dest) == sanitized_location_name), None)
-            if destination:
-                new_location_dict = {
-                    "world": current_location['world'],  # keep the current world
-                    "location/sublocation": destination  # update sublocation
-                }
-                self.game_manager.player_sheet.location = new_location_dict
-                print(f"Player moved to {destination}.")
-                return f"You moved to {destination}."
-            else:
-                return f"No path to '{location_name}' found from your current location."
-        else:
-            # If the location is not directly accessible, check if it's a sublocation
-            if any(self.normalize_name(sub['name']) == sanitized_location_name for sub in current_location_data.get('sublocations', [])):
-                # Find the sublocation
-                sublocation = next((sub for sub in current_location_data.get('sublocations', []) if self.normalize_name(sub['name']) == sanitized_location_name), None)
-                if sublocation:
-                    # Set the new sublocation
-                    new_location_dict = {
-                        "world": current_location['world'],  # keep the current world
-                        "location/sublocation": sublocation['name']  # update sublocation
-                    }
+        if 'paths' in current_location_data:
+            for direction, destination in current_location_data['paths'].items():
+                normalized_destination = self.normalize_name(destination)
+                print(f"Checking path: {direction} to {normalized_destination}")  # Debug print
+                if normalized_destination == sanitized_location_name:
+                    self.game_manager.player_sheet.location = {"world": current_location['world'], "location/sublocation": destination}
+                    print(f"Player moved to {destination}.")
+                    return f"You moved to {destination}."
+
+        if 'sublocations' in current_location_data:
+            for sublocation in current_location_data['sublocations']:
+                normalized_sublocation_name = self.normalize_name(sublocation['name'])
+                print(f"Checking sublocation: {normalized_sublocation_name}")  # Debug print
+                if normalized_sublocation_name == sanitized_location_name:
+                    new_location_dict = {"world": current_location['world'], "location/sublocation": sublocation['name']}
                     self.game_manager.player_sheet.location = new_location_dict
                     print(f"Player moved to {sublocation['name']}.")
                     return f"You moved to {sublocation['name']}."
-                else:
-                    print(f"Cannot move to '{location_name}' from your current location.")
-                    return f"You cannot move to '{location_name}' from your current location."
+                if 'rooms' in sublocation:
+                    for room in sublocation['rooms']:
+                        normalized_room_name = self.normalize_name(room['name'])
+                        print(f"Checking room: {normalized_room_name} in sublocation: {normalized_sublocation_name}")  # Debug print
+                        if normalized_room_name == sanitized_location_name:
+                            new_location_dict = {
+                                "world": current_location['world'],
+                                "location/sublocation": f"{sublocation['name']}/{room['name']}"
+                            }
+                            self.game_manager.player_sheet.location = new_location_dict
+                            print(f"Player moved to {room['name']} within {sublocation['name']}.")
+                            return f"You moved to {room['name']}."
 
-        # If the code reaches here, it means the location was neither a direct path nor a sublocation
+        print(f"Could not find path to: {sanitized_location_name} from {current_location_str}")  # Debug print
         return f"Cannot determine how to move to '{location_name}'."
+
+
 
     def examine_item(self, item_name):
         # Normalize the item name for comparison

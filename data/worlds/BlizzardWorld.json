@@ -187,7 +187,10 @@
                     ],
                     "paths": {
                         "entrance": "Diablo Realm",
-                        "exit": "Caldeum Market"
+                        "exit": "Caldeum Market",
+                        "Chapel of the Damned": "Chapel of the Damned",
+                        "Sacristy of Shadows": "Sacristy of Shadows",
+                        "Crypt of Echoes": "Crypt of Echoes"
                     },
                     "rooms": [
                         {
@@ -415,7 +418,10 @@
                     ],
                     "paths": {
                         "entrance": "Diablo Realm",
-                        "exit": "Den of Evil"
+                        "exit": "Den of Evil",
+                        "Spice Bazaar": "Spice Bazaar",
+                        "Merchant's Alley": "Merchant's Alley",
+                        "Bazaar of the Arcane": "Bazaar of the Arcane"
                     },
                     "rooms": [
                         {
@@ -515,7 +521,71 @@
                                 "entrance": "Spice Bazaar",
                                 "exit": "Artisan's Corner"
                             }
-                        }                                                
+                        },
+                        {
+                            "name": "Bazaar of the Arcane",
+                            "description": "Nestled in a secluded corner of Caldeum Market, the Bazaar of the Arcane is a haven for those seeking mystical knowledge and magical wares. The air is filled with the scent of incense and the soft murmur of arcane chants. Tents and stalls, draped in vibrant silks and adorned with glowing runes, offer a variety of arcane goods - from ancient spellbooks and enchanted amulets to mysterious potions and artifacts. The bazaar's patrons include robed sorcerers, curious scholars, and adventurers, all browsing the stalls for magical treasures. Softly glowing lanterns and floating orbs provide a magical illumination, casting an enchanting glow over the entire area.",
+                            "keywords": ["mystical", "magical", "enchanting"],
+                            "items": [
+                                {
+                                    "name": "Enchanted Stalls",
+                                    "description": "Stalls and tents filled with a plethora of magical items, each emitting a soft, otherworldly glow.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 10
+                                },
+                                {
+                                    "name": "Mystical Orbs",
+                                    "description": "Orbs of light floating above the stalls, providing an ethereal illumination to the bazaar.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Arcane Artifacts",
+                                    "description": "Rare and powerful artifacts, each with a unique aura of magic, displayed prominently for the discerning eye.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Azar the Mystic",
+                                    "description": "A wise and enigmatic vendor, Azar specializes in arcane artifacts and ancient relics. He offers both items for sale and insights into their mystical properties.",
+                                    "dialog": [
+                                        "Welcome to the Bazaar of the Arcane. Here, magic from all corners of Sanctuary converges.",
+                                        "Each of these artifacts holds a story, a fragment of power from a bygone era."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "lore",
+                                            "description": "Share knowledge about the mystical items and their origins, enchanting visitors with tales of magic and mystery."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Sorcerer's Circle",
+                                    "description": "A group of robed sorcerers performing live demonstrations of spellcasting, enchanting items, and discussing arcane theories with visitors.",
+                                    "dialog": [
+                                        "Gather and witness the power of the arcane!",
+                                        "Let us show you the wonders of spellcraft and enchantment."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "demonstration",
+                                            "description": "Perform magical demonstrations and engage visitors in discussions about arcane lore and spellcraft."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Caldeum Market",
+                                "exit": "Mystic's Alley"
+                            }
+                        }                                                                        
                     ]
                 },
                 {
@@ -586,11 +656,204 @@
                     ],
                     "paths": {
                         "entrance": "Diablo Realm",
-                        "exit": "Tristram Cathedral"
+                        "exit": "Tristram Cathedral",
+                        "Chamber of Whispers": "Chamber of Whispers",
+                        "Hall of Shadows": "Hall of Shadows",
+                        "Cavern of Echoes": "Cavern of Echoes"
                     },
                     "rooms": [
-                        {    
-                        }
+                        {
+                            "name": "Chamber of Whispers",
+                            "description": "The Chamber of Whispers is the first ominous room encountered in the Den of Evil. Shrouded in darkness and echoing with faint, unsettling whispers, this chamber sets the tone for the horrors that lie ahead. The walls are adorned with faded murals depicting scenes of ancient rituals and unspeakable acts. The air is cold and heavy, and the dim light from torches casts eerie shadows that seem to dance and twist along the walls.",
+                            "keywords": ["ominous", "whispers", "dark"],
+                            "items": [
+                                {
+                                    "name": "Tormented Murals",
+                                    "description": "Ancient murals covering the walls, their images distorted and unsettling, showing scenes of darkness and despair.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Flickering Torches",
+                                    "description": "Sparsely placed torches providing minimal illumination, their flickering flames casting ghostly shadows.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Whispering Echoes Device",
+                                    "description": "A hidden sound system that emits soft, eerie whispers, adding to the chamber's unsettling atmosphere.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "The Shadow Guide",
+                                    "description": "A mysterious figure, half-seen in the flickering torchlight, The Shadow Guide beckons visitors deeper into the dungeon with cryptic gestures and silent stares.",
+                                    "dialog": [
+                                        "The path ahead is fraught with peril... follow if you dare.",
+                                        "Silence is your ally, whispers your only guide."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "mysterious guide",
+                                            "description": "Lead visitors deeper into the dungeon, providing enigmatic hints and disappearing into the shadows."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Ghostly Apparition",
+                                    "description": "A spectral figure that appears briefly before visitors, its form barely visible and its presence chilling to the bone.",
+                                    "dialog": [
+                                        "Lost souls linger in these halls... beware their touch.",
+                                        "Heed the whispers, for they speak truths long forgotten."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "haunting presence",
+                                            "description": "Appear and vanish mysteriously, creating an eerie and haunted atmosphere in the chamber."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Den of Evil",
+                                "exit": "Hall of Shadows"
+                            }
+                        },
+                        {
+                            "name": "Hall of Shadows",
+                            "description": "Beyond the Chamber of Whispers lies the Hall of Shadows, a long, narrow corridor shrouded in near-complete darkness. The only light comes from rare, glowing crystals embedded in the walls, casting a faint, ominous glow. The air is thick with a sense of lurking danger, and the floor is littered with remnants of ancient battles - broken weapons, rusted armor, and bones. The hall seems to stretch endlessly, with the distant sounds of chains and faint moans sending chills down the spine of visitors.",
+                            "keywords": ["dark", "oppressive", "foreboding"],
+                            "items": [
+                                {
+                                    "name": "Glowing Crystals",
+                                    "description": "Rare, luminescent crystals embedded in the walls, providing sparse and eerie illumination.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Remnants of Battle",
+                                    "description": "Scattered across the floor, the rusted and broken remains of weapons and armor tell silent tales of past conflicts.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 7
+                                },
+                                {
+                                    "name": "Ancient Bones",
+                                    "description": "Bones of unknown creatures and fallen adventurers, half-buried in the dungeon's floor, adding a sense of dread and history.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "The Forgotten Warrior",
+                                    "description": "A spectral warrior, bound to the dungeon, wandering the hall eternally. Its ghostly armor clinks softly as it moves, and its eyes glow with a sad, blue light.",
+                                    "dialog": [
+                                        "Many have walked this hall, few have returned...",
+                                        "Beware the darkness, for it hides more than just shadows."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "spectral warning",
+                                            "description": "Offer cryptic warnings about the dangers ahead and the fate of those who ventured before."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Echo of the Damned",
+                                    "description": "An eerie, disembodied voice that seems to come from the very walls, whispering of lost souls and forgotten evils.",
+                                    "dialog": [
+                                        "Can you hear them? The voices of the damned...",
+                                        "Their whispers are a warning, a tale of despair and darkness."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "eerie whispers",
+                                            "description": "Surround visitors with haunting whispers, enhancing the unsettling atmosphere of the hall."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Chamber of Whispers",
+                                "exit": "Cavern of Echoes"
+                            }
+                        },
+                        {
+                            "name": "Cavern of Echoes",
+                            "description": "The Cavern of Echoes is the deepest and most dangerous part of the Den of Evil. The air is thick with the stench of death and decay, and the walls are covered with blood and gore. The floor is littered with the remains of fallen adventurers, and the distant sounds of battle echo through the cavern. The only light comes from the glowing runes etched into the walls, casting a faint, ominous glow.",
+                            "keywords": ["ominous", "dangerous", "treacherous"],
+                            "items": [
+                                {
+                                    "name": "Glowing Runes",
+                                    "description": "Ancient runes etched into the walls, their faint glow providing the only illumination in the cavern.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                },
+                                {
+                                    "name": "Bloodstained Walls",
+                                    "description": "The walls are covered with blood and gore, hinting at the horrors that took place in the cavern.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Remains of Adventurers",
+                                    "description": "The floor is littered with the remains of fallen adventurers, their broken weapons and rusted armor telling tales of past battles.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "The Cursed One",
+                                    "description": "A cursed soul, trapped in the cavern, forever seeking a way out. Its eyes glow with a sad, blue light, and its voice is a whisper that echoes through the cavern.",
+                                    "dialog": [
+                                        "I once sought glory and riches... now I'm bound to these halls.",
+                                        "Tread carefully, or you might share my fate."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "lore",
+                                            "description": "Share tales of the cavern's past and the fate of those who dared to explore its depths."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "The Shadow Stalker",
+                                    "description": "A shadowy figure that stalks the cavern, its form barely visible in the faint light. Its eyes glow with a sad, blue light, and its voice is a whisper that echoes through the cavern.",
+                                    "dialog": [
+                                        "Lost souls linger in these halls... beware their touch.",
+                                        "Heed the whispers, for they speak truths long forgotten."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "haunting presence",
+                                            "description": "Appear and vanish mysteriously, creating an eerie and haunted atmosphere in the cavern."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Hall of Shadows",
+                                "exit": "Den of Evil"
+                            }
+                        }                                                                        
                     ]
                 }
             ]
@@ -764,7 +1027,10 @@
                     ],
                     "paths": {
                         "entrance": "Nexus Park",
-                        "exit": "Heroes Arcade"
+                        "exit": "Heroes Arcade",
+                        "Captain's Quarters": "Captain's Quarters",
+                        "The Galleon's Deck": "The Galleon's Deck",
+                        "The Crow's Nest": "The Crow's Nest"
                     },
                     "rooms": [
                         {
@@ -984,7 +1250,10 @@
                     ],
                     "paths": {
                         "entrance": "Nexus Park",
-                        "exit": "Blackheart's Revenge"
+                        "exit": "Blackheart's Revenge",
+                        "Retro Gaming Zone": "Retro Gaming Zone",
+                        "Virtual Reality Arena": "Virtual Reality Arena",
+                        "eSports Arena": "eSports Arena"
                     },
                     "rooms": [
                         {
@@ -1298,7 +1567,10 @@
                     ],
                     "paths": {
                         "entrance": "Lost Vikings Adventure",
-                        "exit": "StarCraft Sector"
+                        "exit": "StarCraft Sector",
+                        "The Great Hall of Valhalla": "The Great Hall of Valhalla",
+                        "Runestone Puzzle Chamber": "Runestone Puzzle Chamber",
+                        "Viking Voyage Simulator": "Viking Voyage Simulator"
                     },
                     "rooms": [
                         {
@@ -1616,7 +1888,10 @@
                     ],
                     "paths": {
                         "entrance": "StarCraft Sector",
-                        "exit": "Ghost Academy"
+                        "exit": "Ghost Academy",
+                        "Strategic Operations Room": "Strategic Operations Room",
+                        "Battle Simulation Chamber": "Battle Simulation Chamber",
+                        "StarCraft Universe Exhibit": "StarCraft Universe Exhibit"
                     },
                     "rooms": [
                         {
@@ -1829,7 +2104,10 @@
                     ],
                     "paths": {
                         "entrance": "StarCraft Sector",
-                        "exit": "Nexus Experience"
+                        "exit": "Nexus Experience",
+                        "Zergling Interaction Zone": "Zergling Interaction Zone",
+                        "Protoss Fauna Sanctuary": "Protoss Fauna Sanctuary",
+                        "Terran Farmstead Experience": "Terran Farmstead Experience"
                     },
                     "rooms": [
                         {
@@ -2042,7 +2320,10 @@
                     ],
                     "paths": {
                         "entrance": "StarCraft Sector",
-                        "exit": "Command Center Lift Off"
+                        "exit": "Command Center Lift Off",
+                        "Galactic Battle Arena": "Galactic Battle Arena",
+                        "Strategy Command Room": "Strategy Command Room",
+                        "Heroes of the Koprulu Exhibit": "Heroes of the Koprulu Exhibit"
                     },
                     "rooms": [
                         {
@@ -2401,7 +2682,10 @@
                     ],
                     "paths": {
                         "entrance": "Warcraft Kingdom",
-                        "exit": "Ancient Curios"
+                        "exit": "Ancient Curios",
+                        "The Salty Sailor Tavern": "The Salty Sailor Tavern",
+                        "Merchant's Row": "Merchant's Row",
+                        "Dockside Promenade": "Dockside Promenade"
                     },
                     "rooms": [
                         {
@@ -2666,7 +2950,10 @@
                     ],
                     "paths": {
                         "entrance": "Warcraft Kingdom",
-                        "exit": "Blackrock Mountain"
+                        "exit": "Blackrock Mountain",
+                        "Enchanted Artifact Chamber": "Enchanted Artifact Chamber",
+                        "Tome and Relic Repository": "Tome and Relic Repository",
+                        "Mystic's Sanctum": "Mystic's Sanctum"
                     },
                     "rooms": [
                         {
@@ -2883,7 +3170,10 @@
                     ],
                     "paths": {
                         "entrance": "Warcraft Kingdom",
-                        "exit": "Booty Bay"
+                        "exit": "Booty Bay",
+                        "Mystical Midway": "Mystical Midway",
+                        "Magician's Alley": "Magician's Alley",
+                        "Enchanted Garden": "Enchanted Garden"
                     },
                     "rooms": [
                         {
