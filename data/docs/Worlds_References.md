@@ -1,3 +1,4 @@
+
 # World JSON Structure Reference
 
 ## Overview
@@ -15,7 +16,8 @@ This document serves as a guide for expanding the game world in 'Odyssey'. The w
     "main-entry": true or false,
     "keywords": ["keyword1", "keyword2"],
     "paths": {
-        "direction": "Connected Location"
+        "direction": "Connected Location or Sublocation",
+        "room_direction": "Room within the current location"
     },
     "sublocations": [
         // Sublocation objects
@@ -29,8 +31,8 @@ This document serves as a guide for expanding the game world in 'Odyssey'. The w
 - **description**: A brief description of the location.
 - **main-entry**: Boolean indicating if the location is the main entry point for the game.
 - **keywords**: An array of strings that are key themes or elements of the location.
-- **paths**: An object where each key is a direction (e.g., "north", "east", "south", "west", "up", "down") and each value is the name of the location it connects to.
-- **sublocations**: An array of sublocation objects (see below for sublocation structure).
+- **paths**: An object where each key is a direction or a descriptor (e.g., "north", "up", "entrance to X") and each value is the name of the location it connects to, which can be a top-level location, sublocation, or a room within the current location.
+- **sublocations**: An array of sublocation objects.
 
 ## Adding Sublocations
 
@@ -42,7 +44,8 @@ This document serves as a guide for expanding the game world in 'Odyssey'. The w
     "description": "Description of the sublocation.",
     "keywords": ["keyword1", "keyword2"],
     "paths": {
-        "exit": "Parent Location"
+        "exit": "Parent Location",
+        "room_direction": "Room within the sublocation"
     },
     "items": [
         // Item objects
@@ -52,19 +55,58 @@ This document serves as a guide for expanding the game world in 'Odyssey'. The w
     ],
     "npcs": [
         // NPC objects
+    ],
+    "rooms": [
+        // Room objects
+    ]
+}
+```
+## Adding Rooms
+
+Rooms are specialized sublocations that exist within the hierarchy of a sublocation. They represent distinct areas players can explore and interact with.
+
+### Structure
+
+```json
+{
+    "name": "Room Name",
+    "description": "Description of the room.",
+    "keywords": ["keyword1", "keyword2"],
+    "paths": {
+        "entrance": "Parent Sublocation",
+        "exit": "Connecting Room or Sublocation"
+    },
+    "items": [
+        // Item objects
+    ],
+    "npcs": [
+        // NPC objects
     ]
 }
 ```
 
 ### Instructions
 
+- **name**: A string representing the room's name.
+- **description**: A description of the room's atmosphere, features, and any lore-related elements.
+- **keywords**: Key terms associated with the room.
+- **paths**: Directions leading into and out of the room. The "entrance" key leads back to the parent sublocation, while "exit" can lead to another room or back to the sublocation.
+- **items**: Items that can be found or interacted with in the room.
+- **npcs**: NPCs present within the room, each with their dialogue and interactions.
+
+Remember, when specifying paths for rooms, ensure that they are consistent with the rest of the world's navigation structure. This will enable players to move seamlessly between locations, sublocations, and rooms.
+
+``
+### Instructions
+
 - **name**: A string for the sublocation's name.
 - **description**: A detailed description of the sublocation.
 - **keywords**: An array of strings highlighting key themes or elements of the sublocation.
-- **paths**: An object with an "exit" key pointing to the parent location.
+- **paths**: An object with keys for "exit" pointing to the parent location and other keys for each room within the sublocation.
 - **items**: An array of item objects that can be found in the sublocation.
 - **containers**: An array of container objects present in the sublocation.
-- **npcs**: An array of NPC objects, each with details about the NPC.
+- **npcs**: An array of NPC objects.
+- **rooms**: An array of room objects that are part of the sublocation.
 
 ## Adding Items
 

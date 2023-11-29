@@ -275,7 +275,7 @@ class GameUI(QWidget):
             text_height = metrics.height() * len(text_block)
             text_area_height = self.game_text_area.viewport().height() - 100
             padding_lines = max(0, (text_area_height - text_height) // (2 * metrics.height()))
-            return '\n' * padding_lines
+            return '\n' #* padding_lines
 
         # Display text in chunks of max_lines
         for i in range(0, len(text_lines), max_lines):
@@ -292,7 +292,7 @@ class GameUI(QWidget):
                 # Process events to update the text area immediately
                 QApplication.processEvents()
                 # Sleep for a short duration to create the typing effect
-                time.sleep(0.01)
+                time.sleep(0.0001)
 
             # Wait for a moment after each chunk
             time.sleep(1)
