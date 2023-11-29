@@ -1,0 +1,3086 @@
+{
+    "name": "Blizzard World",
+    "description": "An immersive theme park bringing to life the legendary universes of Blizzard Entertainment. Each section of the park is dedicated to a beloved game series, offering unique attractions and experiences.",
+    "locations": [
+        {
+            "name": "Diablo Realm",
+            "description": "An eerie and gothic environment, inspired by the Diablo series. This realm is characterized by its medieval architecture, dimly lit paths, and the sense of lurking danger.",
+            "keywords": ["gothic", "medieval", "mysterious"],
+            "main-entry": true,
+            "npcs": [
+                {
+                    "name": "Deckard Cain",
+                    "description": "Deckard Cain, the last of the Horadrim, is a wise and learned sage, offering insights into the dark lore of the realm.",
+                    "dialog": [
+                        "Stay awhile and listen.",
+                        "Beware, for the Prime Evils are ever scheming in the shadows."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "lore",
+                            "description": "Share ancient tales of the Horadrim and the Eternal Conflict."
+                        },
+                        {
+                            "type": "identify",
+                            "description": "Offer to identify mysterious artifacts for adventurers."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Horadric Scroll",
+                            "description": "A scroll containing wisdom from the ancient Horadrim.",
+                            "type": "Scroll",
+                            "collectable": true,
+                            "quantity": 2
+                        }
+                    ]
+                },
+                {
+                    "name": "Leah",
+                    "description": "Leah, a spirited adventurer and scholar, seeks to unravel the mysteries of the Diablo Realm.",
+                    "dialog": [
+                        "I feel a darkness growing stronger.",
+                        "We must uncover the secrets of this cursed land."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "quest",
+                            "description": "Recruit brave souls to investigate the ominous signs in New Tristram."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Diablo's Lament",
+                            "description": "An ancient tome containing the history of Sanctuary.",
+                            "type": "Book",
+                            "collectable": true,
+                            "quantity": 1
+                        }
+                    ]
+                },
+                {
+                    "name": "The Blacksmith",
+                    "description": "A burly and skilled blacksmith, crafting and repairing equipment for adventurers facing the horrors of the realm.",
+                    "dialog": [
+                        "Need your gear repaired or maybe something new forged?",
+                        "These hands have crafted weapons that have slain demons."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "repair",
+                            "description": "Offer repair services for damaged equipment."
+                        },
+                        {
+                            "type": "craft",
+                            "description": "Forge new weapons and armor for adventurers."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Blacksmith's Hammer",
+                            "description": "A heavy, well-used hammer for forging weapons and armor.",
+                            "type": "Tool",
+                            "collectable": false
+                        }
+                    ]
+                }
+            ],
+            "items": [
+                {
+                    "name": "Gothic Lantern",
+                    "description": "An ornate lantern casting a soft, eerie light along the paths.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 10
+                },
+                {
+                    "name": "Medieval Tapestry",
+                    "description": "A large, ancient tapestry depicting the battles between angels and demons.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 5
+                },
+                {
+                    "name": "Cursed Statue",
+                    "description": "A stone statue of an angel, its face twisted in a silent scream.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 3
+                }
+            ],
+            "paths": {
+                "north": "Nexus Park",
+                "east": "StarCraft Sector",
+                "south": "Warcraft Kingdom",
+                "west": "Lost Vikings Adventure"
+            },
+            "sublocations": [
+                {
+                    "name": "Tristram Cathedral",
+                    "description": "A hauntingly beautiful cathedral, full of hidden dangers and dark secrets. Its tall, shadowed spires and ancient stained glass windows give it an aura of both majesty and mystery.",
+                    "keywords": ["gothic", "mysterious", "ancient"],
+                    "items": [
+                        {
+                            "name": "Stained Glass Windows",
+                            "description": "Ornate windows depicting various scenes from the lore of Diablo, casting colorful light within the cathedral.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        },
+                        {
+                            "name": "Gargoyles",
+                            "description": "Stone gargoyles perched ominously around the cathedral, as if guarding ancient secrets.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 4
+                        },
+                        {
+                            "name": "Candles of Ritual",
+                            "description": "Tall, flickering candles set in ornate holders, casting eerie shadows along the cathedral walls.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 8
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Archbishop Lazarus",
+                            "description": "A mysterious and enigmatic figure, Lazarus wanders the halls of the cathedral, muttering cryptic phrases.",
+                            "dialog": [
+                                "The cathedral holds many secrets... some best left undiscovered.",
+                                "Beware the evil that lurks in the shadows."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "lore",
+                                    "description": "Share ominous tales and legends about the cathedral and its dark past."
+                                },
+                                {
+                                    "type": "guide",
+                                    "description": "Offer to guide visitors through the less-traveled paths of the cathedral."
+                                }
+                            ],
+                            "inventory": [
+                                {
+                                    "name": "Tome of Cursed Knowledge",
+                                    "description": "An ancient tome carried by Lazarus, filled with forbidden knowledge.",
+                                    "type": "Book",
+                                    "collectable": false
+                                }
+                            ]
+                        },
+                        {
+                            "name": "The Ghostly Choir",
+                            "description": "An ethereal choir whose haunting melodies echo throughout the cathedral, telling tales of sorrow and redemption.",
+                            "dialog": [
+                                "Hear the songs of the fallen... their tales woven into every note.",
+                                "Our voices carry the weight of Tristram's tragic past."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "performance",
+                                    "description": "Perform melancholic and otherworldly songs that tell the story of Tristram."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "Diablo Realm",
+                        "exit": "Caldeum Market"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Chapel of the Damned",
+                            "description": "A dimly lit chapel within the cathedral, known for its haunting atmosphere and whispered legends. The room is filled with ancient icons and faded murals depicting the struggle between light and darkness.",
+                            "keywords": ["eerie", "ancient", "haunting"],
+                            "items": [
+                                {
+                                    "name": "Faded Murals",
+                                    "description": "Old wall paintings that depict the eternal conflict between the High Heavens and the Burning Hells.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Cursed Altar",
+                                    "description": "An old altar at the center of the chapel, rumored to have been used in forbidden rituals.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Ancient Icons",
+                                    "description": "Religious artifacts that are said to hold mystical powers, their origins shrouded in mystery.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Brother Alaric",
+                                    "description": "A solemn priest who guards the secrets of the chapel, Brother Alaric speaks in hushed tones about the history and the dark tales associated with this place.",
+                                    "dialog": [
+                                        "This chapel has witnessed events that would chill your very soul.",
+                                        "Beware the spirits that linger here; not all are friendly."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "lore",
+                                            "description": "Share the grim history and legends associated with the Chapel of the Damned."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Tristram Cathedral",
+                                "exit": "Sacristy of Shadows"
+                            }
+                        },
+                        {
+                            "name": "Sacristy of Shadows",
+                            "description": "A secretive chamber within Tristram Cathedral, the Sacristy of Shadows is cloaked in perpetual semi-darkness. The room is filled with old tomes, relics, and shadowy corners, hinting at long-forgotten secrets.",
+                            "keywords": ["secretive", "ancient", "mysterious"],
+                            "items": [
+                                {
+                                    "name": "Ancient Reliquaries",
+                                    "description": "Ornate containers holding relics of saints and martyrs, each with its own tale and mystical properties.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Shadowed Tomes",
+                                    "description": "A collection of old, leather-bound books, their contents ranging from sacred texts to forbidden knowledge.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Candlelit Shrines",
+                                    "description": "Small shrines with flickering candles, offering a somber and reflective space within the sacristy.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Librarian Ethel",
+                                    "description": "The keeper of the sacristy's tomes, Librarian Ethel is a knowledgeable but reclusive figure, wary of those who seek the sacristy's deeper secrets.",
+                                    "dialog": [
+                                        "These tomes hold knowledge beyond your wildest dreams, but some secrets come at a price.",
+                                        "Tread carefully among these shelves; knowledge is power, and power can corrupt."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "lore",
+                                            "description": "Offer insights into the rare and mysterious tomes housed within the Sacristy of Shadows."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Chapel of the Damned",
+                                "exit": "Crypt of Echoes"
+                            }
+                        },
+                        {
+                            "name": "Crypt of Echoes",
+                            "description": "The deepest and most solemn part of the cathedral, the Crypt of Echoes is where the legends of the past seem to come alive. The air is cool and still, filled with the echoes of whispered prayers and long-lost chants.",
+                            "keywords": ["solemn", "ancient", "mystical"],
+                            "items": [
+                                {
+                                    "name": "Heroic Tombs",
+                                    "description": "Grand tombs of fallen heroes and saints, each etched with intricate carvings and inscriptions telling their stories.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Ethereal Lanterns",
+                                    "description": "Lanterns that emit a ghostly light, casting long, dancing shadows across the crypt walls.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                },
+                                {
+                                    "name": "Relic Shrines",
+                                    "description": "Small shrines holding ancient relics, believed to be imbued with sacred power.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Caretaker Mordun",
+                                    "description": "The old and wise caretaker of the crypt, Mordun knows every tale and secret hidden within these hallowed walls.",
+                                    "dialog": [
+                                        "Every stone in this crypt tells a story of valor and sacrifice.",
+                                        "The spirits of the past linger here, in eternal rest and silent vigil."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "lore",
+                                            "description": "Share the histories and legends associated with the crypt's many tombs and relics."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Sacristy of Shadows",
+                                "exit": "Tristram Cathedral"
+                            }
+                        }                                                                        
+                    ]
+                },
+                {
+                    "name": "Caldeum Market",
+                    "description": "A bustling marketplace offering exotic goods and mysterious artifacts. The vibrant stalls and busy alleys are filled with the sounds of haggling merchants and the exotic scents of distant lands.",
+                    "keywords": ["bustling", "exotic", "mysterious"],
+                    "items": [
+                        {
+                            "name": "Merchant Stalls",
+                            "description": "Colorful stalls showcasing a variety of goods, from intricate jewelry to ancient artifacts.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 6
+                        },
+                        {
+                            "name": "Exotic Lanterns",
+                            "description": "Brightly colored lanterns hanging above the market, casting a warm, inviting glow.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 10
+                        },
+                        {
+                            "name": "Mystical Runes",
+                            "description": "Ancient runes carved into the market walls, believed to bring good fortune to merchants.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Sulamani the Trader",
+                            "description": "A charismatic and wise merchant, Sulamani deals in rare and magical items, offering tales of their origins.",
+                            "dialog": [
+                                "Welcome to Caldeum Market, where the rarest treasures can be found.",
+                                "Each item here has a story to tell, some more mysterious than others."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "trade",
+                                    "description": "Engage visitors in the art of trading, offering unique items in exchange for goods or services."
+                                }
+                            ],
+                            "inventory": [
+                                {
+                                    "name": "Enchanted Amulet",
+                                    "description": "A beautifully crafted amulet with a glowing gemstone at its center, said to possess magical properties.",
+                                    "type": "Artifact",
+                                    "collectable": true,
+                                    "quantity": 2
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Rashida the Mystic",
+                            "description": "A mysterious figure draped in robes, Rashida offers fortunes and insights into the unknown.",
+                            "dialog": [
+                                "Seeking knowledge of the future or wisdom from the past? You've come to the right place.",
+                                "The stars and spirits whisper secrets to those who listen."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "fortune",
+                                    "description": "Read fortunes and offer mystical insights to curious visitors."
+                                }
+                            ],
+                            "inventory": [
+                                {
+                                    "name": "Crystal Orb",
+                                    "description": "A translucent orb used by Rashida for divination and fortune-telling.",
+                                    "type": "Mystical Tool",
+                                    "collectable": false
+                                }
+                            ]
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "Diablo Realm",
+                        "exit": "Den of Evil"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Spice Bazaar",
+                            "description": "A vibrant section of Caldeum Market dedicated to spices and culinary delights. The air is rich with the aromas of exotic spices from distant lands, and colorful stalls display an array of ingredients and rare herbs.",
+                            "keywords": ["aromatic", "culinary", "colorful"],
+                            "items": [
+                                {
+                                    "name": "Spice Stalls",
+                                    "description": "Rows of stalls overflowing with sacks of spices, herbs, and seasonings, each contributing to the rich tapestry of scents and colors in the bazaar.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Herb Gardens",
+                                    "description": "Small, carefully tended gardens showcasing rare and exotic herbs used in cooking and medicine.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Culinary Demonstration Area",
+                                    "description": "A space where skilled chefs prepare dishes using the spices and herbs from the bazaar, offering samples to visitors.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Chef Rashaad",
+                                    "description": "A renowned chef known for his expertise in exotic cuisines, Chef Rashaad delights visitors with cooking demonstrations and culinary tales.",
+                                    "dialog": [
+                                        "Welcome to the Spice Bazaar, where flavors from across the world come together.",
+                                        "Let me show you the art of transforming simple ingredients into culinary masterpieces."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "cooking",
+                                            "description": "Conduct cooking demonstrations and share knowledge about the use of various spices and herbs."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Caldeum Market",
+                                "exit": "Merchant's Alley"
+                            }
+                        },
+                        {
+                            "name": "Merchant's Alley",
+                            "description": "A narrow, winding alley within the Caldeum Market, lined with shops selling a variety of rare and unique items. The alley is known for its eclectic collection of goods, from handcrafted jewelry to ancient artifacts.",
+                            "keywords": ["eclectic", "narrow", "unique"],
+                            "items": [
+                                {
+                                    "name": "Curio Shops",
+                                    "description": "Small shops packed with an assortment of curiosities and rarities, each item with its own story.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Ornate Lanterns",
+                                    "description": "Beautifully crafted lanterns hanging above the alley, casting a soft, inviting glow.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 7
+                                },
+                                {
+                                    "name": "Mystical Artifacts",
+                                    "description": "Displays of mystical and ancient artifacts, each beckoning with untold histories and magical properties.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Trader Nasir",
+                                    "description": "An experienced merchant known for his keen eye for rare finds, Trader Nasir offers visitors insights into the unique items available in the alley.",
+                                    "dialog": [
+                                        "In Merchant's Alley, you'll find treasures you never imagined. Each has a tale to tell.",
+                                        "Let me show you wonders collected from every corner of the known world."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "trade",
+                                            "description": "Engage visitors with stories about the origins of various items and offer trade deals."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Spice Bazaar",
+                                "exit": "Artisan's Corner"
+                            }
+                        }                                                
+                    ]
+                },
+                {
+                    "name": "Den of Evil",
+                    "description": "A dark and treacherous dungeon, home to unspeakable horrors. The air is thick with menace, and the shadows seem to move on their own, hinting at the evil that lurks within.",
+                    "keywords": ["dark", "treacherous", "horrific"],
+                    "items": [
+                        {
+                            "name": "Sinister Altars",
+                            "description": "Grim altars scattered around the dungeon, adorned with arcane symbols and remnants of dark rituals.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 3
+                        },
+                        {
+                            "name": "Cursed Statuary",
+                            "description": "Eerie statues that seem to watch the visitors, their expressions twisted in eternal torment.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 4
+                        },
+                        {
+                            "name": "Shadowy Relics",
+                            "description": "Ancient relics emitting a faint, ominous glow, adding to the unsettling ambiance of the dungeon.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "The Dungeon Keeper",
+                            "description": "A mysterious and malevolent entity, The Dungeon Keeper watches over the Den of Evil, guarding its darkest secrets.",
+                            "dialog": [
+                                "You dare to enter the Den of Evil? Few have emerged to tell the tale.",
+                                "Beware the shadows, for they conceal fates worse than death."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "warning",
+                                    "description": "Provide ominous warnings and cryptic clues about the dangers lurking in the dungeon."
+                                }
+                            ],
+                            "inventory": [
+                                {
+                                    "name": "Key to the Abyss",
+                                    "description": "An ancient key held by The Dungeon Keeper, said to unlock deeper, more dangerous parts of the dungeon.",
+                                    "type": "Key",
+                                    "collectable": false
+                                }
+                            ]
+                        },
+                        {
+                            "name": "The Cursed Wanderer",
+                            "description": "A lost soul trapped within the dungeon, The Cursed Wanderer roams the halls, forever seeking a way out.",
+                            "dialog": [
+                                "I once sought treasure and glory... now I'm bound to these halls.",
+                                "Tread carefully, or you might share my fate."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "lore",
+                                    "description": "Share tales of the dungeon's past and the fate of those who dared to explore its depths."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "Diablo Realm",
+                        "exit": "Tristram Cathedral"
+                    },
+                    "rooms": [
+                        {    
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Nexus Park",
+            "description": "A vibrant area based on Heroes of the Storm, where characters and worlds from different Blizzard games converge in an exciting clash of themes.",
+            "keywords": ["vibrant", "crossover", "dynamic"],
+            "paths": {
+                "south": "Diablo Realm"
+            },
+            "npcs": [
+                {
+                    "name": "Raynor",
+                    "description": "Jim Raynor, a charismatic leader from the StarCraft universe, offering guidance and missions to brave adventurers.",
+                    "dialog": [
+                        "Looks like we've got a job to do.",
+                        "Keep your eyes open and watch your back."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "mission",
+                            "description": "Recruit heroes for a daring raid against the forces of the Nexus."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Raynor's Blaster",
+                            "description": "A high-tech energy weapon carried by Raynor, used in his battles.",
+                            "type": "Weapon",
+                            "collectable": true,
+                            "quantity": 1
+                        }
+                    ]
+                },
+                {
+                    "name": "Kerrigan",
+                    "description": "Sarah Kerrigan, the formidable Queen of Blades, lurking with enigmatic motives.",
+                    "dialog": [
+                        "The Nexus is full of surprises.",
+                        "Only the strongest will survive its challenges."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "challenge",
+                            "description": "Offer a test of strength and cunning to those who dare approach her."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Zerg Carapace Fragment",
+                            "description": "A rare fragment from the carapace of a Zerg, Kerrigan's former minions.",
+                            "type": "Artifact",
+                            "collectable": true,
+                            "quantity": 2
+                        }
+                    ]
+                },
+                {
+                    "name": "Uther",
+                    "description": "Uther the Lightbringer, a stalwart paladin, providing wisdom and healing to those in need.",
+                    "dialog": [
+                        "The Light be with you.",
+                        "In the Nexus, all heroes find their calling."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "healing",
+                            "description": "Offer healing and blessings to weary travelers."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Paladin's Sigil",
+                            "description": "A shining emblem representing the holy order of paladins.",
+                            "type": "Symbol",
+                            "collectable": false
+                        }
+                    ]
+                }
+            ],
+            "items": [
+                {
+                    "name": "Nexus Crystal",
+                    "description": "A shimmering crystal pulsating with the energy of the Nexus.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 6
+                },
+                {
+                    "name": "Blizzard Game Plaques",
+                    "description": "Decorative plaques showcasing the logos of various Blizzard games.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 5
+                },
+                {
+                    "name": "Heroic Statues",
+                    "description": "Statues of famous heroes from the Blizzard universes, standing tall and proud.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 4
+                }
+            ],
+            "sublocations": [
+                {
+                    "name": "Blackheart's Revenge",
+                    "description": "A thrilling pirate-themed adventure ride, full of twists and turns. The atmosphere is charged with the spirit of high seas adventure, complete with pirate ships, tropical islands, and hidden treasures.",
+                    "keywords": ["pirate", "adventure", "thrilling"],
+                    "items": [
+                        {
+                            "name": "Pirate Galleons",
+                            "description": "Imposing and intricately detailed pirate ships, creating an immersive high-seas environment.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 2
+                        },
+                        {
+                            "name": "Treasure Chests",
+                            "description": "Ornate treasure chests scattered throughout the ride, hinting at the hidden wealth of pirates.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        },
+                        {
+                            "name": "Tropical Foliage",
+                            "description": "Lush, green tropical plants that add to the exotic and adventurous ambiance of the ride.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 8
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Captain Blackheart",
+                            "description": "The infamous ghost pirate, Captain Blackheart, commands his ship with a mix of charisma and menace, challenging all who dare to join his crew.",
+                            "dialog": [
+                                "Arr! Welcome aboard, ye brave souls!",
+                                "Only the boldest can survive the perils of these treacherous waters."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "challenge",
+                                    "description": "Recruit adventurers for daring escapades and quests for hidden treasures."
+                                }
+                            ],
+                            "inventory": [
+                                {
+                                    "name": "Cursed Saber",
+                                    "description": "The legendary sword of Captain Blackheart, shrouded in mystery and tales of old.",
+                                    "type": "Weapon",
+                                    "collectable": false
+                                }
+                            ]
+                        },
+                        {
+                            "name": "The Siren",
+                            "description": "A mystical siren whose enchanting voice lures adventurers deeper into the ride, weaving tales of the sea.",
+                            "dialog": [
+                                "Heed the call of the ocean's depths, where fortunes and dangers await.",
+                                "Many have sailed these waters, but few know its secrets."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "lore",
+                                    "description": "Sing captivating songs that tell the history and mysteries of the high seas."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "Nexus Park",
+                        "exit": "Heroes Arcade"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Captain's Quarters",
+                            "description": "The heart of the pirate ship within Blackheart's Revenge, this room is adorned with nautical maps, treasure hoards, and the personal effects of Captain Blackheart. It's a richly decorated cabin that tells stories of countless voyages and battles.",
+                            "keywords": ["nautical", "treasure", "captain"],
+                            "items": [
+                                {
+                                    "name": "Nautical Maps",
+                                    "description": "Ancient maps detailing uncharted waters and mythical islands, spread out across a grand wooden table.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Captain's Logbooks",
+                                    "description": "Leather-bound logbooks filled with the tales of Captain Blackheart's adventures and exploits.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                },
+                                {
+                                    "name": "Treasure Hoard",
+                                    "description": "A dazzling display of gold coins, jewels, and precious artifacts, accumulated from a life at sea.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "First Mate Riggins",
+                                    "description": "The loyal first mate of Captain Blackheart, Riggins shares stories of their sea voyages and offers insights into the life of a pirate.",
+                                    "dialog": [
+                                        "Ye've entered the Captain's sanctum, where the secrets of the sea are kept.",
+                                        "These treasures tell tales more valuable than gold. Listen closely."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "storytelling",
+                                            "description": "Narrate the adventures and legends associated with the treasures and maps in the Captain's Quarters."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Blackheart's Revenge",
+                                "exit": "The Galleon's Deck"
+                            }
+                        },
+                        {
+                            "name": "The Galleon's Deck",
+                            "description": "The main deck of the pirate galleon, bustling with the activities of a seafaring vessel. Here, visitors can experience the thrill of sailing the high seas, complete with the sounds of ocean waves, creaking wood, and distant shanties.",
+                            "keywords": ["seafaring", "bustling", "ocean"],
+                            "items": [
+                                {
+                                    "name": "Ship's Wheel",
+                                    "description": "An ornate, wooden ship's wheel, standing at the helm of the galleon, offering visitors a chance to 'steer' the ship.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Cannons",
+                                    "description": "Row of old-fashioned cannons lined up along the deck, giving a sense of the ship's firepower.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Rigging and Sails",
+                                    "description": "The intricate network of ropes and large billowing sails that add to the authenticity of the galleon.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Quartermaster Briggs",
+                                    "description": "The grizzled quartermaster of the ship, Briggs oversees the deck activities and shares stories of life at sea.",
+                                    "dialog": [
+                                        "Keep a sharp eye on the horizon! You never know what you'll find in these waters.",
+                                        "The sea is both our greatest ally and our fiercest foe."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "guidance",
+                                            "description": "Provide an interactive experience of managing a pirate ship and share nautical knowledge."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Captain's Quarters",
+                                "exit": "The Crow's Nest"
+                            }
+                        },
+                        {
+                            "name": "The Crow's Nest",
+                            "description": "Perched high above the deck, the Crow's Nest offers a panoramic view of the surrounding seascape. This lookout point is an adventurous climb for visitors, providing a thrilling perspective of the pirate ship and the vast ocean beyond.",
+                            "keywords": ["panoramic", "lookout", "adventurous"],
+                            "items": [
+                                {
+                                    "name": "Telescope",
+                                    "description": "An old, brass telescope mounted in the crow's nest, allowing visitors to gaze out into the distant sea and sky.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Signal Flags",
+                                    "description": "Colorful flags used for ship-to-ship communication, fluttering in the sea breeze.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Rope Ladders",
+                                    "description": "Sturdy rope ladders leading up to the crow's nest, providing an authentic climbing experience.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Lookout Lenny",
+                                    "description": "A seasoned lookout with a keen eye, Lenny shares tales of the sea and points out interesting sights from the crow's nest.",
+                                    "dialog": [
+                                        "Ahoy! From up here, you can see the whole world spread out before you.",
+                                        "Keep your eyes peeled; the sea is full of surprises."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "observation",
+                                            "description": "Teach visitors how to spot distant ships and sea creatures, and share knowledge about navigation and lookout duties."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "The Galleon's Deck",
+                                "exit": "Blackheart's Revenge"
+                            }
+                        }                                                                        
+                    ]
+                },
+                {
+                    "name": "Heroes Arcade",
+                    "description": "An arcade area filled with classic and modern video games for all ages. The vibrant lights, electronic sounds, and wide array of games create a lively and entertaining atmosphere.",
+                    "keywords": ["arcade", "games", "entertainment"],
+                    "items": [
+                        {
+                            "name": "Arcade Machines",
+                            "description": "A variety of arcade machines, ranging from retro classics to the latest in gaming technology.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 15
+                        },
+                        {
+                            "name": "Prize Counter",
+                            "description": "A colorful counter where visitors can redeem tickets won from games for fun prizes and souvenirs.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 1
+                        },
+                        {
+                            "name": "Digital Scoreboards",
+                            "description": "High-tech digital scoreboards displaying the high scores and achievements of players.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Arcade Master Jin",
+                            "description": "A legendary gamer and the caretaker of the Heroes Arcade, Jin challenges visitors to beat high scores and shares tips on various games.",
+                            "dialog": [
+                                "Think you can beat the high score? Many have tried, few have succeeded!",
+                                "Each game is a new adventure, a new challenge to conquer."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "challenge",
+                                    "description": "Encourage visitors to participate in gaming challenges and competitions."
+                                }
+                            ],
+                            "inventory": [
+                                {
+                                    "name": "Golden Joystick Trophy",
+                                    "description": "A coveted trophy awarded by Arcade Master Jin to those who achieve remarkable gaming feats.",
+                                    "type": "Trophy",
+                                    "collectable": false
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Pixel",
+                            "description": "A quirky and friendly AI assistant, Pixel helps visitors navigate the arcade and find games that suit their preferences.",
+                            "dialog": [
+                                "Welcome to Heroes Arcade! Let me help you find the perfect game.",
+                                "From puzzles to action, we've got a game for every hero!"
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "guide",
+                                    "description": "Assist visitors in discovering new games and provide helpful tips to enhance their gaming experience."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "Nexus Park",
+                        "exit": "Blackheart's Revenge"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Retro Gaming Zone",
+                            "description": "A dedicated area within Heroes Arcade that pays homage to the classic era of video games. This room is filled with vintage arcade machines, offering a nostalgic journey through the golden age of gaming.",
+                            "keywords": ["retro", "nostalgic", "classic"],
+                            "items": [
+                                {
+                                    "name": "Vintage Arcade Cabinets",
+                                    "description": "A collection of classic arcade cabinets featuring beloved games from the 80s and 90s, each restored to its original glory.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 10
+                                },
+                                {
+                                    "name": "Neon Signs",
+                                    "description": "Vibrant neon signs displaying the names of classic games, adding to the retro atmosphere of the room.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Pixel Art Decorations",
+                                    "description": "Decorations and wall art featuring iconic characters and scenes from classic video games, rendered in charming pixel art.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Joystick Jerry",
+                                    "description": "A retro gaming enthusiast and expert, Jerry offers tips and trivia about the classic games available in the zone.",
+                                    "dialog": [
+                                        "Step into the past and relive the golden era of gaming!",
+                                        "Got a favorite classic? I bet we've got it here, complete with all the original quirks and charms."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "trivia",
+                                            "description": "Share interesting facts and stories about retro games and challenge visitors with gaming trivia."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Heroes Arcade",
+                                "exit": "Virtual Reality Arena"
+                            }
+                        },
+                        {
+                            "name": "Virtual Reality Arena",
+                            "description": "A cutting-edge area within Heroes Arcade that offers immersive virtual reality experiences. This room is equipped with the latest VR technology, allowing visitors to step into fantastical worlds and live out their gaming dreams.",
+                            "keywords": ["immersive", "virtual reality", "cutting-edge"],
+                            "items": [
+                                {
+                                    "name": "VR Pods",
+                                    "description": "High-tech virtual reality pods that transport players into a variety of interactive and immersive gaming environments.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Interactive Screens",
+                                    "description": "Large screens displaying the virtual worlds being explored by players, offering onlookers a glimpse into the VR experience.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Gaming Stations",
+                                    "description": "State-of-the-art gaming stations where visitors can engage in multiplayer VR experiences and challenges.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Tech Guru Logan",
+                                    "description": "An expert in VR technology, Logan guides visitors through the VR experience, offering tips and recommendations for the best games.",
+                                    "dialog": [
+                                        "Welcome to the forefront of gaming technology! Ready to dive into another world?",
+                                        "Whether you're a seasoned gamer or a first-timer, our VR experiences have something for everyone."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "guidance",
+                                            "description": "Assist and advise visitors on using VR technology and selecting games."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Retro Gaming Zone",
+                                "exit": "eSports Arena"
+                            }
+                        },
+                        {
+                            "name": "eSports Arena",
+                            "description": "An exciting, competitive gaming space within Heroes Arcade, designed for eSports tournaments and multiplayer battles. This arena is outfitted with high-performance gaming setups and large screens for spectators to watch the intense gaming action.",
+                            "keywords": ["competitive", "eSports", "multiplayer"],
+                            "items": [
+                                {
+                                    "name": "Gaming Consoles",
+                                    "description": "Advanced gaming consoles and PCs set up for high-stakes competitive play, each station equipped with top-tier gaming peripherals.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                },
+                                {
+                                    "name": "Spectator Screens",
+                                    "description": "Large digital screens around the arena, providing live feeds of the games in play, ensuring that spectators don't miss a moment of the action.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Commentary Booth",
+                                    "description": "A booth where eSports commentators provide live analysis and play-by-play commentary during tournaments.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Announcer Alex",
+                                    "description": "An enthusiastic eSports announcer, Alex brings energy and excitement to the games, engaging the audience with commentary and updates.",
+                                    "dialog": [
+                                        "Welcome to the eSports Arena, where skill and strategy come to life!",
+                                        "Get ready for some heart-pounding gaming action, folks!"
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "commentary",
+                                            "description": "Provide lively and informative commentary on the games being played in the arena."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Virtual Reality Arena",
+                                "exit": "Heroes Arcade"
+                            }
+                        }                                                                        
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Lost Vikings Adventure",
+            "description": "A tribute to The Lost Vikings, this area combines elements of puzzle-solving and exploration, reminiscent of the classic game.",
+            "keywords": ["puzzle", "exploration", "nostalgic"],
+            "paths": {
+                "east": "Diablo Realm"
+            },
+            "npcs": [
+                {
+                    "name": "Erik the Swift",
+                    "description": "Erik, one of the Lost Vikings, is swift and agile. He's eager to guide visitors through puzzles and challenges.",
+                    "dialog": [
+                        "Speed is key! But don't forget to think through the puzzles.",
+                        "Ready for an adventure? Follow me!"
+                    ],
+                    "interactions": [
+                        {
+                            "type": "guide",
+                            "description": "Lead visitors through challenging obstacle courses and mazes."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Erik's Helmet",
+                            "description": "A sturdy helmet worn by Erik, symbolizing his agility and courage.",
+                            "type": "Gear",
+                            "collectable": false
+                        }
+                    ]
+                },
+                {
+                    "name": "Baleog the Fierce",
+                    "description": "Baleog, the fierce and brave Viking, is ready to teach the art of combat and bravery.",
+                    "dialog": [
+                        "Strength and precision - that's what it takes to be a Viking!",
+                        "Sharpen your skills and your axes!"
+                    ],
+                    "interactions": [
+                        {
+                            "type": "training",
+                            "description": "Offer combat training sessions to visitors seeking to hone their skills."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Baleog's Sword",
+                            "description": "The legendary sword of Baleog, crafted for battle and bravery.",
+                            "type": "Weapon",
+                            "collectable": false
+                        }
+                    ]
+                },
+                {
+                    "name": "Olaf the Stout",
+                    "description": "Olaf the Stout, known for his shield and defensive tactics, offers tips on protection and strategy.",
+                    "dialog": [
+                        "A good defense is as important as a strong offense.",
+                        "Let me show you how to hold a shield like a true Viking!"
+                    ],
+                    "interactions": [
+                        {
+                            "type": "defense",
+                            "description": "Teach visitors the art of defense and strategic positioning."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Olaf's Shield",
+                            "description": "A large, unbreakable shield carried by Olaf, a testament to his defensive skills.",
+                            "type": "Shield",
+                            "collectable": false
+                        }
+                    ]
+                }
+            ],
+            "items": [
+                {
+                    "name": "Viking Longboat",
+                    "description": "A replica of a Viking longboat, symbolizing exploration and adventure.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 2
+                },
+                {
+                    "name": "Runic Stones",
+                    "description": "Stones inscribed with ancient runes, scattered throughout the area to add to the mystique.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 8
+                },
+                {
+                    "name": "Norse Tapestries",
+                    "description": "Decorative tapestries depicting scenes of Viking lore and legends.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 5
+                }
+            ],
+            "sublocations": [
+                {
+                    "name": "Lost and Found Vikings",
+                    "description": "An interactive exhibit where visitors can explore the world of The Lost Vikings. This area is filled with puzzles, challenges, and insights into the lives and adventures of Erik, Baleog, and Olaf.",
+                    "keywords": ["interactive", "explorative", "puzzles"],
+                    "items": [
+                        {
+                            "name": "Viking Runestone Puzzles",
+                            "description": "Intricately carved runestones with puzzles that visitors can solve to learn more about Viking lore and history.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 4
+                        },
+                        {
+                            "name": "Interactive Viking Longship",
+                            "description": "A replica of a Viking longship that visitors can board to experience a simulated Viking voyage.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 1
+                        },
+                        {
+                            "name": "Time Portal Exhibits",
+                            "description": "Displays showcasing the various time periods and realms the Vikings have traveled to, complete with interactive elements.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 3
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Curator Ragnar",
+                            "description": "Ragnar, the knowledgeable curator of the exhibit, offers fascinating facts and stories about Viking history and mythology.",
+                            "dialog": [
+                                "Welcome to the Lost and Found Vikings! Discover the rich history of these legendary warriors.",
+                                "Each artifact here has its own tale from the Viking sagas."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "lore",
+                                    "description": "Share detailed information and stories about the Vikings and their adventures."
+                                }
+                            ],
+                            "inventory": []
+                        },
+                        {
+                            "name": "Olaf the Stout Impersonator",
+                            "description": "An actor dressed as Olaf the Stout, entertaining visitors with humorous anecdotes and demonstrating Viking skills.",
+                            "dialog": [
+                                "Being a Viking isn't all about fighting; it's about wit and wisdom too!",
+                                "Let me show you how we Vikings navigate the treacherous waters and dense forests."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "performance",
+                                    "description": "Perform as Olaf, engaging with visitors and bringing the character to life."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "Lost Vikings Adventure",
+                        "exit": "StarCraft Sector"
+                    },
+                    "rooms": [
+                        {
+                            "name": "The Great Hall of Valhalla",
+                            "description": "A majestic hall that captures the essence of Viking mythology and the afterlife. The room is adorned with grand Norse symbols, long feast tables, and a large hearth, creating an immersive experience into the Viking culture.",
+                            "keywords": ["mythological", "grand", "Viking"],
+                            "items": [
+                                {
+                                    "name": "Norse Carvings",
+                                    "description": "Elaborate wooden carvings depicting scenes from Norse mythology and Viking sagas.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Feasting Tables",
+                                    "description": "Large wooden tables laid out with replica Viking feasts, showcasing the culinary aspects of Viking life.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Viking Hearth",
+                                    "description": "A central hearth that represents the heart of Viking communal life, complete with flickering flames and seating around it.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Saga Teller Sigurd",
+                                    "description": "A wise and animated storyteller, Sigurd regales visitors with tales of Viking heroes and the legends of Valhalla.",
+                                    "dialog": [
+                                        "Welcome to the Great Hall of Valhalla, where heroes meet in glory!",
+                                        "Gather round, and hear tales of bravery and valor from the ancient North."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "storytelling",
+                                            "description": "Narrate captivating Viking sagas and myths, bringing to life the stories of Norse gods and heroes."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Lost and Found Vikings",
+                                "exit": "Runestone Puzzle Chamber"
+                            }
+                        },
+                        {
+                            "name": "Runestone Puzzle Chamber",
+                            "description": "A room dedicated to the mystery and intrigue of Viking runestones. Here, visitors are challenged with various puzzles and riddles inscribed on runestones, each offering insights into Viking lore and history.",
+                            "keywords": ["puzzles", "intrigue", "runestones"],
+                            "items": [
+                                {
+                                    "name": "Inscribed Runestones",
+                                    "description": "A series of large stones inscribed with ancient runes, each presenting a unique puzzle for visitors to solve.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Riddle Scrolls",
+                                    "description": "Parchment scrolls containing riddles and brainteasers that relate to the runestone puzzles, providing clues and context.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Interactive Displays",
+                                    "description": "Digital screens that provide additional information about the runes and their historical significance in Viking culture.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Rune Master Einar",
+                                    "description": "An expert in ancient runic languages, Einar guides visitors through the puzzles and shares the historical significance of the runes.",
+                                    "dialog": [
+                                        "Deciphering these runes can unlock secrets from the Viking age.",
+                                        "Each rune tells a story, a piece of history etched in stone."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "puzzle",
+                                            "description": "Help visitors understand and solve the runestone puzzles, revealing stories and lore embedded within."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "The Great Hall of Valhalla",
+                                "exit": "Viking Voyage Simulator"
+                            }
+                        },
+                        {
+                            "name": "Viking Voyage Simulator",
+                            "description": "An exciting interactive experience that simulates a Viking voyage. This room features a state-of-the-art simulator where visitors can navigate a Viking longship through various historical and mythical scenarios, experiencing the challenges and adventures of a Viking sea journey.",
+                            "keywords": ["interactive", "simulator", "voyage"],
+                            "items": [
+                                {
+                                    "name": "Voyage Simulator Pods",
+                                    "description": "Highly immersive simulator pods designed to replicate the experience of sailing on a Viking longship, complete with visual and tactile feedback.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Nautical Projection Screens",
+                                    "description": "Large screens surrounding the simulator pods, displaying dynamic seascapes and changing weather conditions to enhance the realism of the voyage.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Interactive Control Panels",
+                                    "description": "Control panels within the simulator pods that allow visitors to steer the ship, adjust sails, and respond to various sea-faring challenges.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Navigator Njord",
+                                    "description": "An experienced Viking navigator, Njord assists visitors in mastering the art of ancient sea navigation and offers tips for handling the simulator.",
+                                    "dialog": [
+                                        "Set sail on a voyage like no other, navigating treacherous waters and exploring uncharted territories.",
+                                        "A true Viking navigator is always ready for the unexpected. Let's see what you're made of!"
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "navigation",
+                                            "description": "Instruct and guide visitors on how to navigate a Viking longship using the simulator."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Runestone Puzzle Chamber",
+                                "exit": "Lost and Found Vikings"
+                            }
+                        }                                                                        
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "StarCraft Sector",
+            "description": "Futuristic and action-packed, this area draws inspiration from the StarCraft universe, featuring space-themed attractions and technology.",
+            "keywords": ["futuristic", "space", "action"],
+            "paths": {
+                "west": "Nexus Park"
+            },
+            "npcs": [
+                {
+                    "name": "Sarah Kerrigan",
+                    "description": "The infamous Sarah Kerrigan, once a Terran ghost and later the Queen of Blades, offers visitors a glimpse into the complex world of StarCraft.",
+                    "dialog": [
+                        "In the heart of space, strength and cunning are your best allies.",
+                        "The galaxy holds many secrets waiting to be uncovered."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "lore",
+                            "description": "Share tales of the Koprulu Sector and the epic battles within."
+                        },
+                        {
+                            "type": "challenge",
+                            "description": "Test visitors' strategic skills with complex tactical simulations."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Psi Blade",
+                            "description": "A replica of a Protoss psi blade, glowing with energy.",
+                            "type": "Weapon",
+                            "collectable": false
+                        }
+                    ]
+                },
+                {
+                    "name": "Jim Raynor",
+                    "description": "The revered Terran marshal, Jim Raynor, offers advice and assistance to those exploring the Sector.",
+                    "dialog": [
+                        "There's no challenge too great if you face it with courage.",
+                        "Stay sharp out there; the universe is full of dangers."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "mission",
+                            "description": "Assign daring missions for visitors to undertake, promising thrilling adventures."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Raynor's Revolver",
+                            "description": "A high-caliber revolver, a symbol of Raynor's resilience and heroism.",
+                            "type": "Weapon",
+                            "collectable": false
+                        }
+                    ]
+                },
+                {
+                    "name": "Zeratul",
+                    "description": "The enigmatic Protoss Dark Templar, Zeratul, speaks of prophecy and fate, guiding visitors on a path of discovery.",
+                    "dialog": [
+                        "The wheel of fate turns in the most unexpected ways.",
+                        "Only those who seek the truth will find their path."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "prophecy",
+                            "description": "Offer cryptic clues and guidance, challenging visitors to unravel mysteries."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Dark Templar Warp Blade",
+                            "description": "A shimmering warp blade, used by the Dark Templar in their shadowy arts.",
+                            "type": "Weapon",
+                            "collectable": false
+                        }
+                    ]
+                }
+            ],
+            "items": [
+                {
+                    "name": "Terran Marine Suit Display",
+                    "description": "A life-sized display of a Terran Marine suit, complete with armor and weaponry.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 3
+                },
+                {
+                    "name": "Protoss Pylon Replica",
+                    "description": "A glowing replica of a Protoss pylon, serving as both a decorative and illuminative element.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 4
+                },
+                {
+                    "name": "Zerg Creep Spread",
+                    "description": "Artificially created Zerg creep, giving the area an authentic StarCraft battlefield feel.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 5
+                }
+            ],
+            "sublocations": [
+                {
+                    "name": "Command Center Lift Off",
+                    "description": "A high-tech simulation ride giving visitors the experience of a space command center. The ride combines state-of-the-art technology with immersive storytelling to give guests the feeling of commanding a space mission.",
+                    "keywords": ["simulation", "high-tech", "space"],
+                    "items": [
+                        {
+                            "name": "Simulation Pods",
+                            "description": "Advanced pods that replicate the interior of a StarCraft command center, complete with control panels and viewing screens.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 6
+                        },
+                        {
+                            "name": "Holographic Star Maps",
+                            "description": "Interactive holographic displays showing star systems and galaxies, adding to the strategic command experience.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 4
+                        },
+                        {
+                            "name": "Terran Tech Displays",
+                            "description": "Exhibits showcasing the technology and equipment used by Terran forces in the StarCraft universe.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Commander Raynor",
+                            "description": "An NPC resembling Jim Raynor, guiding visitors through the simulation and offering strategic advice.",
+                            "dialog": [
+                                "Welcome to the command center. Ready to lead your forces to victory?",
+                                "Make your decisions wisely; the fate of the galaxy rests in your hands."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "simulation",
+                                    "description": "Lead visitors through the command center simulation, offering a hands-on experience in space strategy."
+                                }
+                            ],
+                            "inventory": []
+                        },
+                        {
+                            "name": "Adjutant AI",
+                            "description": "An advanced AI system that assists visitors in navigating the command center and understanding their missions.",
+                            "dialog": [
+                                "Adjutant online. All systems operational.",
+                                "Command authorized. Proceed with your mission briefing."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "guidance",
+                                    "description": "Provide assistance and mission briefings to visitors, enhancing the immersive experience."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "StarCraft Sector",
+                        "exit": "Ghost Academy"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Strategic Operations Room",
+                            "description": "A high-tech room resembling a Terran strategic command center. Equipped with interactive displays, tactical maps, and communication equipment, this room offers visitors an insight into the strategic planning and coordination of space missions in the StarCraft universe.",
+                            "keywords": ["strategic", "high-tech", "interactive"],
+                            "items": [
+                                {
+                                    "name": "Tactical Holotables",
+                                    "description": "Interactive tables displaying holographic maps where visitors can engage in simulated strategic planning and mission briefings.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Communication Panels",
+                                    "description": "Advanced communication systems used to simulate contact with space fleets and ground forces.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Mission Briefing Screens",
+                                    "description": "Large screens providing detailed information about various StarCraft missions and campaigns.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Lieutenant Horner",
+                                    "description": "A tactical officer modeled after Matt Horner, providing mission briefings and strategic advice to visitors.",
+                                    "dialog": [
+                                        "Prepare for deployment. Let's review our mission objectives and strategies.",
+                                        "Coordination and strategy are key to success in any operation."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "briefing",
+                                            "description": "Offer simulated mission briefings and strategic planning sessions to visitors."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Command Center Lift Off",
+                                "exit": "Battle Simulation Chamber"
+                            }
+                        },
+                        {
+                            "name": "Battle Simulation Chamber",
+                            "description": "This room is equipped with advanced virtual reality technology, allowing visitors to experience simulated StarCraft battles. Players can assume the roles of various units from the StarCraft universe, engaging in strategic combat scenarios.",
+                            "keywords": ["virtual reality", "combat", "simulation"],
+                            "items": [
+                                {
+                                    "name": "VR Battle Stations",
+                                    "description": "State-of-the-art virtual reality stations where visitors can immerse themselves in simulated StarCraft battles, experiencing the action from a first-person perspective.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Tactical Display Monitors",
+                                    "description": "Monitors around the room displaying the virtual battlefield and real-time strategic data.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Interactive Control Interfaces",
+                                    "description": "User-friendly interfaces at each station, allowing players to control their characters and interact with the virtual environment.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Sergeant Hammer",
+                                    "description": "An NPC based on the popular Terran Siege Tank operator, Sergeant Hammer provides guidance and tips on combat techniques and strategies in the simulation.",
+                                    "dialog": [
+                                        "Get ready to roll out! Let's see how you handle yourself in a real skirmish.",
+                                        "Remember, in battle, strategy is just as important as firepower."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "training",
+                                            "description": "Train visitors in virtual combat, offering advice on tactics and the use of different StarCraft units."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Strategic Operations Room",
+                                "exit": "StarCraft Universe Exhibit"
+                            }
+                        },
+                        {
+                            "name": "StarCraft Universe Exhibit",
+                            "description": "This room serves as an interactive museum, showcasing the rich lore and expansive universe of StarCraft. Exhibits include detailed models of various species, planets, and technology from the game, along with interactive kiosks providing in-depth information.",
+                            "keywords": ["museum", "lore", "interactive"],
+                            "items": [
+                                {
+                                    "name": "Species Models",
+                                    "description": "Detailed and life-sized models of the Terran, Protoss, and Zerg species, each accompanied by informational displays.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Planetarium Display",
+                                    "description": "A digital planetarium showing the star systems and planets of the Koprulu Sector, the primary setting of StarCraft.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Technology Exhibits",
+                                    "description": "Exhibits showcasing the advanced technology used by the different factions in StarCraft, including weapons, vehicles, and buildings.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Archivist Zeratul",
+                                    "description": "An NPC based on the Protoss Dark Templar, Zeratul, offering deep insights into the history and lore of the StarCraft universe.",
+                                    "dialog": [
+                                        "The history of the Koprulu Sector is vast and full of mysteries.",
+                                        "Discover the stories of heroes, villains, and the eternal conflict that shapes our universe."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "lore",
+                                            "description": "Provide visitors with in-depth knowledge about the StarCraft universe, its history, and its characters."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Battle Simulation Chamber",
+                                "exit": "Command Center Lift Off"
+                            }
+                        }                                                                                               
+                    ]
+                },
+                {
+                    "name": "Hatchery Petting Zoo",
+                    "description": "An interactive area where visitors can get up close with creatures from the StarCraft universe. This exhibit features a variety of safe, lifelike replicas of StarCraft creatures, offering an educational and hands-on experience.",
+                    "keywords": ["interactive", "educational", "creatures"],
+                    "items": [
+                        {
+                            "name": "Zergling Enclosures",
+                            "description": "Specially designed enclosures housing lifelike replicas of Zerglings, allowing visitors to observe these creatures safely.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 3
+                        },
+                        {
+                            "name": "Protoss Fauna Exhibits",
+                            "description": "Displays showcasing the diverse and exotic fauna from the Protoss homeworlds, complete with interactive educational panels.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 4
+                        },
+                        {
+                            "name": "Terran Farm Animals",
+                            "description": "A section simulating a Terran farm, with domesticated animals and information about agriculture in the Terran colonies.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Dr. Ariel Hanson",
+                            "description": "A biologist NPC inspired by Dr. Ariel Hanson from StarCraft, providing insights into the biology and ecology of the creatures.",
+                            "dialog": [
+                                "Welcome to the Hatchery Petting Zoo! Discover the fascinating wildlife of the Koprulu Sector.",
+                                "Each species here plays a vital role in their respective ecosystems."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "education",
+                                    "description": "Educate visitors about the various species and their environments in the StarCraft universe."
+                                }
+                            ],
+                            "inventory": []
+                        },
+                        {
+                            "name": "Zoo Keeper Zal",
+                            "description": "An enthusiastic zookeeper who specializes in the care and maintenance of the creatures in the exhibit.",
+                            "dialog": [
+                                "Come and see the amazing creatures of the galaxy, each with their own unique traits!",
+                                "Caring for these creatures requires knowledge and respect for their natural habitats."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "caretaking",
+                                    "description": "Demonstrate how the creatures are cared for and share tips on conservation and respect for wildlife."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "StarCraft Sector",
+                        "exit": "Nexus Experience"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Zergling Interaction Zone",
+                            "description": "A safe and controlled environment where visitors can interact with lifelike replicas of Zerglings. This room is designed to educate visitors about the Zerg species, offering a unique opportunity to learn about their characteristics and behaviors in a hands-on manner.",
+                            "keywords": ["interactive", "Zerg", "educational"],
+                            "items": [
+                                {
+                                    "name": "Lifelike Zergling Replicas",
+                                    "description": "Highly detailed and realistic models of Zerglings, designed to move and react in a lifelike manner, providing an immersive experience.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Interactive Displays",
+                                    "description": "Digital screens providing information about Zerglings, their role in the Zerg swarm, and their biological features.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Zerg Ecology Exhibits",
+                                    "description": "Educational panels and displays that explain the ecology of the Zerg and their place within the StarCraft universe.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 2
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Xenobiologist Xara",
+                                    "description": "An expert on Zerg biology, Xara provides fascinating insights into the life cycle and behavior of Zerg creatures.",
+                                    "dialog": [
+                                        "Discover the intriguing biology of the Zerg, one of the most feared species in the galaxy.",
+                                        "Zerglings may seem intimidating, but there's much to learn about their adaptive and collective nature."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "education",
+                                            "description": "Educate visitors on the biological aspects of Zerglings and the greater Zerg Swarm."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Hatchery Petting Zoo",
+                                "exit": "Protoss Fauna Sanctuary"
+                            }
+                        },
+                        {
+                            "name": "Protoss Fauna Sanctuary",
+                            "description": "A tranquil and beautifully designed space that replicates the environment of the Protoss homeworlds. This sanctuary showcases the diverse and mysterious fauna of the Protoss, offering visitors a chance to learn about these alien species in a serene setting.",
+                            "keywords": ["tranquil", "Protoss", "diverse"],
+                            "items": [
+                                {
+                                    "name": "Protoss Wildlife Replicas",
+                                    "description": "Detailed replicas of various Protoss wildlife species, each accompanied by interactive information panels explaining their characteristics and significance.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Holographic Ecosystems",
+                                    "description": "Holographic displays that recreate the natural ecosystems of the Protoss planets, providing an immersive experience.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                },
+                                {
+                                    "name": "Botanical Exhibits",
+                                    "description": "Displays of exotic, alien plant life found on Protoss worlds, contributing to the overall ambiance of the sanctuary.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Preserver Lyra",
+                                    "description": "An NPC based on the Protoss Preservers, Lyra offers wisdom about the Protoss ecosystems and their reverence for all forms of life.",
+                                    "dialog": [
+                                        "In the Protoss culture, every creature has a role and a purpose within the harmony of the universe.",
+                                        "Explore the serene beauty of Protoss wildlife and understand our connection with nature."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "education",
+                                            "description": "Impart knowledge about Protoss fauna and flora, emphasizing the balance and harmony in their ecosystems."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Zergling Interaction Zone",
+                                "exit": "Terran Farmstead Experience"
+                            }
+                        },
+                        {
+                            "name": "Terran Farmstead Experience",
+                            "description": "A recreation of a typical Terran farm, this room offers visitors a glimpse into the agricultural practices and domesticated life on Terran colonies. It features various domesticated animal replicas and interactive displays about Terran agriculture and ecology.",
+                            "keywords": ["agricultural", "Terran", "domestic"],
+                            "items": [
+                                {
+                                    "name": "Domesticated Animal Replicas",
+                                    "description": "Lifelike replicas of animals commonly found on Terran colonies, offering an interactive and educational experience.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Agricultural Exhibits",
+                                    "description": "Displays showcasing the tools, techniques, and crops used in Terran agriculture, including interactive elements.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Eco-Information Kiosks",
+                                    "description": "Interactive kiosks providing information about the sustainability practices and ecological aspects of Terran farming.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Farmer Jed",
+                                    "description": "An NPC resembling a Terran farmer, Jed shares insights into the daily life and challenges of farming on distant Terran colonies.",
+                                    "dialog": [
+                                        "Welcome to our Terran farmstead! Here you can learn about our way of life beyond the stars.",
+                                        "Farming is vital for the survival and prosperity of Terran colonies. Let's explore how it's done."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "education",
+                                            "description": "Educate visitors about Terran agricultural practices and the importance of farming in space colonization."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Protoss Fauna Sanctuary",
+                                "exit": "Hatchery Petting Zoo"
+                            }
+                        }                                                                        
+                    ]
+                },
+                {
+                    "name": "Nexus Experience",
+                    "description": "An immersive attraction that brings the battles and stories of StarCraft to life. This high-tech, interactive exhibit allows visitors to experience the thrill of StarCraft battles and explore the rich lore of the universe.",
+                    "keywords": ["immersive", "interactive", "epic"],
+                    "items": [
+                        {
+                            "name": "Interactive Battle Stations",
+                            "description": "State-of-the-art battle stations where visitors can participate in simulated StarCraft skirmishes, complete with realistic controls and feedback.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 8
+                        },
+                        {
+                            "name": "Holographic Story Panels",
+                            "description": "Dynamic holographic displays presenting the stories and characters of StarCraft, offering an engaging narrative experience.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 6
+                        },
+                        {
+                            "name": "Virtual Reality Pods",
+                            "description": "Advanced VR pods that immerse visitors in the StarCraft universe, providing an up-close look at key events and locations.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Tactical Advisor Tann",
+                            "description": "A knowledgeable strategist NPC, offering insights into the tactics and strategies used in famous StarCraft battles.",
+                            "dialog": [
+                                "Welcome to the Nexus Experience. Ready to dive into the heart of a StarCraft battle?",
+                                "Every battle is a lesson in strategy and survival."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "strategy",
+                                    "description": "Provide strategic advice and breakdowns of famous battles, enhancing the understanding of StarCraft warfare."
+                                }
+                            ],
+                            "inventory": []
+                        },
+                        {
+                            "name": "Historian Xelara",
+                            "description": "An expert on the lore of StarCraft, Xelara guides visitors through the rich history and stories of the universe.",
+                            "dialog": [
+                                "The StarCraft universe is vast and full of wonders. Let me guide you through its most epic tales.",
+                                "From the rise of the Zerg to the fall of the Protoss, every story is a piece of a larger saga."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "lore",
+                                    "description": "Narrate the complex history and background stories of the StarCraft universe."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "StarCraft Sector",
+                        "exit": "Command Center Lift Off"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Galactic Battle Arena",
+                            "description": "This room is a state-of-the-art, immersive environment where visitors can experience the intensity of StarCraft battles. Featuring a large, circular projection area, it simulates various battle scenarios from the StarCraft universe, complete with sound and visual effects.",
+                            "keywords": ["immersive", "battle", "simulation"],
+                            "items": [
+                                {
+                                    "name": "360-Degree Projection System",
+                                    "description": "An advanced system that projects dynamic battle scenes onto the walls and floor, creating an all-encompassing battle environment.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Interactive Battle Stations",
+                                    "description": "Stations equipped with control interfaces, allowing visitors to take part in simulated battles as commanders of Terran, Protoss, or Zerg forces.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                },
+                                {
+                                    "name": "Ambient Sound System",
+                                    "description": "A surround sound system that enhances the immersive experience with battle sounds, character dialogues, and environmental audio.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Virtual Adjutant",
+                                    "description": "A holographic NPC based on the StarCraft Adjutants, providing real-time updates and strategic advice during the simulated battles.",
+                                    "dialog": [
+                                        "Battle commencing. All units prepare for engagement.",
+                                        "Strategic analysis indicates a need for tactical adaptation."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "simulation",
+                                            "description": "Guide visitors through the battle simulations, offering strategic advice and updates."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Battle Historian Tychus",
+                                    "description": "An NPC modeled after the legendary Terran marine, Tychus Findlay, narrating the history and significance of each battle scenario.",
+                                    "dialog": [
+                                        "Each battle in the Koprulu Sector has its story. Let's dive into the action.",
+                                        "Remember, every decision on the battlefield can turn the tide of war."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "lore",
+                                            "description": "Provide background stories and lore for each simulated battle, enhancing the educational aspect of the experience."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Nexus Experience",
+                                "exit": "Strategy Command Room"
+                            }
+                        },
+                        {
+                            "name": "Strategy Command Room",
+                            "description": "This room simulates the high-pressure environment of a StarCraft command center. Visitors can assume the role of commanders, making strategic decisions in real-time scenarios. The room is equipped with interactive consoles and displays, providing a hands-on experience in managing resources, deploying units, and strategizing against opponents.",
+                            "keywords": ["strategic", "command", "interactive"],
+                            "items": [
+                                {
+                                    "name": "Strategic Planning Consoles",
+                                    "description": "Advanced workstations where visitors can engage in strategic planning and resource management, simulating the responsibilities of a StarCraft commander.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Real-Time Battle Displays",
+                                    "description": "Large screens showing live simulations of StarCraft battles, allowing commanders to monitor and respond to changing battlefield conditions.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Interactive Galactic Maps",
+                                    "description": "Touch-sensitive galactic maps that visitors can use to plan attacks, defenses, and explore the StarCraft universe.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "General Warfield",
+                                    "description": "A character based on General Warfield from StarCraft, offering guidance and advice on military tactics and strategy.",
+                                    "dialog": [
+                                        "A good commander must always be three steps ahead of the enemy.",
+                                        "Let's see how you handle the pressure of a real-time conflict."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "tactical",
+                                            "description": "Provide tactical advice and challenge visitors to make quick, effective decisions."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Protoss Advisor",
+                                    "description": "An NPC representing a wise Protoss advisor, providing insights into the advanced tactics and philosophies of the Protoss race.",
+                                    "dialog": [
+                                        "In war, a well-thought strategy is as powerful as the mightiest army.",
+                                        "Consider the harmony of all things when making your decisions."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "strategic",
+                                            "description": "Offer strategic wisdom and encourage visitors to think critically about their choices in the simulations."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Galactic Battle Arena",
+                                "exit": "Heroes of the Koprulu Exhibit"
+                            }
+                        },
+                        {
+                            "name": "Heroes of the Koprulu Exhibit",
+                            "description": "This room is dedicated to the heroes and key figures of the StarCraft universe. Lifelike statues, interactive biographies, and personal artifacts are displayed, offering an in-depth look at the characters' backstories, achievements, and impact on the StarCraft narrative.",
+                            "keywords": ["heroes", "exhibit", "lore"],
+                            "items": [
+                                {
+                                    "name": "Hero Statues",
+                                    "description": "Statues of iconic StarCraft characters like Jim Raynor, Sarah Kerrigan, and Zeratul, each accompanied by their stories and achievements.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Interactive Lore Terminals",
+                                    "description": "Terminals where visitors can access detailed biographies, mission logs, and story arcs of various characters.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Artifacts and Relics",
+                                    "description": "Personal items and relics belonging to key characters, such as Raynor's revolver or Kerrigan's psi-blade, showcasing their journey through the StarCraft saga.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Historian Taldarin",
+                                    "description": "An NPC based on a Protoss historian, Taldarin shares the rich history and significant events of the StarCraft universe, highlighting the roles and contributions of its heroes.",
+                                    "dialog": [
+                                        "Every hero has a story to tell. Learn about the legends who shaped the galaxy.",
+                                        "The Koprulu Sector has witnessed many tales of bravery and sacrifice."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "lore",
+                                            "description": "Narrate the histories and tales of StarCraft's heroes, enriching visitors' understanding of the game's lore."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Archivist Selendis",
+                                    "description": "An NPC resembling Selendis from StarCraft, offering insights into the Protoss culture and their prominent figures.",
+                                    "dialog": [
+                                        "The Protoss have long been guardians of their ancient heritage. Let us explore their stories.",
+                                        "From the Templar to the Dark Templar, each has left an indelible mark on our history."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "cultural",
+                                            "description": "Explain the cultural significance and histories of various Protoss heroes and leaders."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Strategy Command Room",
+                                "exit": "Nexus Experience"
+                            }
+                        }                                                                        
+                    ]
+                }                
+            ]
+        },
+        {
+            "name": "Warcraft Kingdom",
+            "description": "A fantasy-themed area based on the Warcraft series, offering adventures in an epic landscape of magic and heroism.",
+            "keywords": ["fantasy", "magic", "epic"],
+            "paths": {
+                "north": "Diablo Realm"
+            },
+            "npcs": [
+                {
+                    "name": "Thrall",
+                    "description": "Thrall, the wise and powerful former Warchief of the Horde, stands as a beacon of strength and honor, guiding adventurers on their quests.",
+                    "dialog": [
+                        "In the heart of Azeroth, every hero plays a part in the grand tale.",
+                        "The spirits of the earth guide us to our destiny."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "quest",
+                            "description": "Bestow epic quests upon adventurers, promising great rewards and challenges."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Doomhammer",
+                            "description": "A legendary hammer symbolizing the power and legacy of the orcish warchief.",
+                            "type": "Weapon",
+                            "collectable": false
+                        }
+                    ]
+                },
+                {
+                    "name": "Jaina Proudmoore",
+                    "description": "Jaina Proudmoore, the powerful sorceress, offers magical insights and mystical experiences to those who seek knowledge.",
+                    "dialog": [
+                        "Magic is a tool and a weapon, but it must be wielded with care.",
+                        "The balance of power is delicate in the world of Azeroth."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "magic",
+                            "description": "Perform magical demonstrations and teach about the arcane arts."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Staff of Antonidas",
+                            "description": "A staff of great power, once belonging to the Archmage Antonidas.",
+                            "type": "Magic Staff",
+                            "collectable": false
+                        }
+                    ]
+                },
+                {
+                    "name": "Illidan Stormrage",
+                    "description": "Illidan Stormrage, the notorious Demon Hunter, lurks in the shadows, offering challenging trials and dark wisdom.",
+                    "dialog": [
+                        "You are not prepared for the dangers that lie ahead.",
+                        "Embrace the shadows to find the truth."
+                    ],
+                    "interactions": [
+                        {
+                            "type": "trial",
+                            "description": "Challenge adventurers to brave the trials of a Demon Hunter."
+                        }
+                    ],
+                    "inventory": [
+                        {
+                            "name": "Warglaives of Azzinoth",
+                            "description": "The fearsome warglaives wielded by Illidan, marked by their distinctive curved blades.",
+                            "type": "Weapon",
+                            "collectable": false
+                        }
+                    ]
+                }
+            ],
+            "items": [
+                {
+                    "name": "Elven Statues",
+                    "description": "Elegant statues of elven figures, adorned in ancient armor and wielding magical artifacts.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 4
+                },
+                {
+                    "name": "Magical Runestones",
+                    "description": "Mystical runestones that glow softly, etched with ancient runes of power.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 6
+                },
+                {
+                    "name": "Dragon Sculptures",
+                    "description": "Magnificent sculptures of dragons from Azeroth, capturing their majesty and power.",
+                    "type": "Decor",
+                    "collectable": false,
+                    "quantity": 3
+                }
+            ],
+            "sublocations": [
+                {
+                    "name": "Booty Bay",
+                    "description": "A lively port town filled with shops, taverns, and swashbuckling fun. The bustling streets and waterfront are alive with the sounds of sea shanties, merchants haggling, and adventurers sharing tales of their exploits.",
+                    "keywords": ["port town", "lively", "adventure"],
+                    "items": [
+                        {
+                            "name": "Merchant Stalls",
+                            "description": "Colorful stalls selling a variety of goods, from exotic spices to handcrafted trinkets, lining the cobblestone streets of Booty Bay.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 10
+                        },
+                        {
+                            "name": "Pirate Ship Replica",
+                            "description": "A full-size replica of a pirate ship, complete with sails and cannons, serving as a central attraction in the harbor.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 1
+                        },
+                        {
+                            "name": "Tavern Signs",
+                            "description": "Quaint, swinging signs for various taverns, each with its own unique name and character, inviting visitors for food and drink.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Captain Greyson",
+                            "description": "A charismatic and roguish pirate captain, regaling visitors with tales of high-seas adventure and offering tips for aspiring buccaneers.",
+                            "dialog": [
+                                "Ahoy, matey! Welcome to Booty Bay, where adventure awaits at every corner!",
+                                "Care to hear tales of treasure hunts and daring sea battles?"
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "storytelling",
+                                    "description": "Share exciting and humorous pirate stories, captivating the audience with tales of loot and escapades."
+                                }
+                            ],
+                            "inventory": []
+                        },
+                        {
+                            "name": "Barkeep Brannigan",
+                            "description": "The friendly and boisterous owner of the main tavern in Booty Bay, known for his hearty laughs and generous pours.",
+                            "dialog": [
+                                "Step right in for a taste of the finest ales and stories you'll find this side of Azeroth!",
+                                "A good drink and a good tale are all you need to feel at home in Booty Bay."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "hospitality",
+                                    "description": "Offer visitors a warm welcome, sharing stories and serving up the local flavors of Booty Bay."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "Warcraft Kingdom",
+                        "exit": "Ancient Curios"
+                    },
+                    "rooms": [
+                        {
+                            "name": "The Salty Sailor Tavern",
+                            "description": "A central hub in Booty Bay, The Salty Sailor Tavern is a lively and raucous place, filled with the sounds of clinking mugs, hearty laughter, and tales of the sea. This room offers visitors an authentic tavern experience, complete with themed food and drinks, as well as interactions with colorful characters.",
+                            "keywords": ["tavern", "lively", "social"],
+                            "items": [
+                                {
+                                    "name": "Themed Dining Tables",
+                                    "description": "Rustic wooden tables and benches designed to resemble those found in a bustling pirate tavern, providing a comfortable setting for visitors to enjoy their meals and drinks.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                },
+                                {
+                                    "name": "Pirate Memorabilia",
+                                    "description": "Walls adorned with pirate flags, maps, and other nautical memorabilia, immersing visitors in the pirate culture of Booty Bay.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Bar Counter",
+                                    "description": "A large wooden bar counter where visitors can order themed drinks and hear tales from the bartender.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Barkeep Smitts",
+                                    "description": "A jovial and gregarious barkeep who entertains guests with stories of Booty Bay's history and the exploits of its many visitors.",
+                                    "dialog": [
+                                        "Welcome to The Salty Sailor! What tales can I regale you with today?",
+                                        "Ah, Booty Bay is full of stories and secrets. Pull up a stool and listen!"
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "storytelling",
+                                            "description": "Share fascinating and humorous tales of pirates and adventurers who have passed through Booty Bay."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Pirate Minstrels",
+                                    "description": "A group of NPC musicians playing lively sea shanties and pirate tunes, adding to the tavern's boisterous atmosphere.",
+                                    "dialog": [
+                                        "Gather 'round for a song of the high seas!",
+                                        "Let's lift our spirits with a tune from the depths of the ocean!"
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "performance",
+                                            "description": "Perform engaging and interactive music that encourages visitors to sing along and enjoy the lively atmosphere."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Booty Bay",
+                                "exit": "Merchant's Row"
+                            }
+                        },
+                        {
+                            "name": "Merchant's Row",
+                            "description": "Merchant's Row is a bustling marketplace within Booty Bay, where visitors can browse a variety of stalls and shops selling unique and exotic items inspired by the Warcraft universe. This lively bazaar-like setting is filled with the sounds of haggling, the sights of colorful merchandise, and the aromas of exotic spices and foods.",
+                            "keywords": ["marketplace", "exotic", "shopping"],
+                            "items": [
+                                {
+                                    "name": "Market Stalls",
+                                    "description": "A series of vibrant stalls offering a range of items, from replica weapons and armor to magical trinkets and artifacts.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 10
+                                },
+                                {
+                                    "name": "Exotic Goods Displays",
+                                    "description": "Displays filled with intriguing items from across the Warcraft world, including magical potions, rare ingredients, and curious gadgets.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 7
+                                },
+                                {
+                                    "name": "Food and Spice Vendors",
+                                    "description": "Stalls offering a variety of Warcraft-inspired culinary delights and exotic spices, allowing visitors to taste the flavors of Azeroth.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Gazlowe",
+                                    "description": "The goblin entrepreneur Gazlowe, known for his shrewd business dealings, offers unique items and artifacts for sale, along with a bit of cunning advice.",
+                                    "dialog": [
+                                        "Step right up and see the wonders I've gathered from every corner of Azeroth!",
+                                        "Looking for something special? Gazlowe's got just what you need!"
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "trade",
+                                            "description": "Offer a variety of unique and interesting items for visitors to purchase or trade."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Wandering Merchants",
+                                    "description": "A group of NPCs representing various races from the Warcraft universe, each selling their own unique wares and sharing stories about their origins.",
+                                    "dialog": [
+                                        "You won't find goods like these anywhere else in Azeroth!",
+                                        "Let me tell you the tale behind this rare artifact."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "sales",
+                                            "description": "Engage with visitors, offering a diverse range of goods and sharing lore about the items and their significance."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "The Salty Sailor Tavern",
+                                "exit": "Dockside Promenade"
+                            }
+                        },
+                        {
+                            "name": "Dockside Promenade",
+                            "description": "The Dockside Promenade is a lively waterfront area in Booty Bay, offering stunning views of the sea and passing ships. It's a place where visitors can stroll along the docks, watch performances by sea shanty singers, and interact with various characters from the Warcraft universe. The ambiance is filled with the sounds of the ocean, the caws of seagulls, and the laughter of patrons enjoying the seaside atmosphere.",
+                            "keywords": ["waterfront", "scenic", "lively"],
+                            "items": [
+                                {
+                                    "name": "Seaside Benches",
+                                    "description": "Wooden benches along the promenade for visitors to relax and enjoy the ocean views.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                },
+                                {
+                                    "name": "Dockside Decorations",
+                                    "description": "Nautical-themed decorations including ropes, anchors, and nets, adding to the maritime charm of the area.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Performance Stage",
+                                    "description": "A small stage set up for live performances, such as sea shanties, folk dances, and storytelling sessions.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Captain Placeholder",
+                                    "description": "A charismatic sea captain who entertains visitors with tales of his voyages and the lore of the seas of Azeroth.",
+                                    "dialog": [
+                                        "Ahoy! Gather 'round and hear the tales of high seas and daring adventures!",
+                                        "The sea is both a friend and a foe; respect her, and she'll see you to safe shores."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "storytelling",
+                                            "description": "Engage visitors with captivating stories of maritime adventures and the lore of the Warcraft universe."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Seaside Performers",
+                                    "description": "A troupe of performers dressed in pirate and sailor attire, providing entertainment with sea shanties, dances, and interactive plays.",
+                                    "dialog": [
+                                        "Join us in song and dance as we celebrate the spirit of the sea!",
+                                        "Let's raise our voices together and fill the air with the music of Azeroth's oceans!"
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "performance",
+                                            "description": "Perform lively sea shanties and dances, creating an engaging and festive atmosphere."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Merchant's Row",
+                                "exit": "Booty Bay"
+                            }
+                        }                                                                        
+                    ]
+                },
+                {
+                    "name": "Ancient Curios",
+                    "description": "A mystical shop selling rare and enchanted items from the Warcraft universe. The shop is filled with an air of mystery, its shelves lined with ancient artifacts, magical tomes, and mysterious relics.",
+                    "keywords": ["mystical", "enchanted", "rare"],
+                    "items": [
+                        {
+                            "name": "Magical Artifacts",
+                            "description": "A diverse array of artifacts, each with its own unique magical properties and mystical backstory.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 6
+                        },
+                        {
+                            "name": "Enchanted Tomes",
+                            "description": "Ancient books containing powerful spells and knowledge of forgotten lore, safely displayed for visitors to admire.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 4
+                        },
+                        {
+                            "name": "Relic Display Cases",
+                            "description": "Elegant glass cases showcasing a variety of mystical relics, each tagged with descriptions of their origins and powers.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Mystic Meryl",
+                            "description": "The wise and enigmatic owner of Ancient Curios, Meryl possesses vast knowledge about each item in the shop.",
+                            "dialog": [
+                                "Welcome, seeker of the arcane. Peruse my collection of the rarest magical wonders in Azeroth.",
+                                "Each item here holds a story, a fragment of the world's hidden mysteries."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "lore",
+                                    "description": "Provide detailed information about the magical items and their historical significance."
+                                }
+                            ],
+                            "inventory": [
+                                {
+                                    "name": "Crystal Ball",
+                                    "description": "A mysterious crystal ball used by Mystic Meryl for divination and unveiling secrets.",
+                                    "type": "Mystical Tool",
+                                    "collectable": false
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Apprentice Vaelen",
+                            "description": "A young and eager apprentice, Vaelen assists visitors in exploring the shop and discovering the wonders it holds.",
+                            "dialog": [
+                                "So much to learn, so much to discover! Let me show you some of our most intriguing items.",
+                                "They say each of these artifacts has been part of incredible adventures."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "guide",
+                                    "description": "Guide visitors through the shop, highlighting interesting items and their magical properties."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "Warcraft Kingdom",
+                        "exit": "Blackrock Mountain"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Enchanted Artifact Chamber",
+                            "description": "The Enchanted Artifact Chamber is a captivating room within Ancient Curios, where visitors can discover a collection of rare and powerful artifacts from the Warcraft universe. The chamber is dimly lit, with magical artifacts displayed in secure cases, each accompanied by descriptions of their history and powers. The atmosphere is one of awe and mystery, inviting visitors to explore the wonders and secrets of Azeroth's magical heritage.",
+                            "keywords": ["mystical", "artifacts", "history"],
+                            "items": [
+                                {
+                                    "name": "Magical Display Cases",
+                                    "description": "Secure glass cases illuminated with soft, magical light, each showcasing a different enchanted artifact, ranging from ancient weapons to mystical amulets.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Ancient Scrolls",
+                                    "description": "Parchment scrolls hung on the walls, detailing the lore and stories behind the artifacts, allowing visitors to delve into the history of each item.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                },
+                                {
+                                    "name": "Mystical Runes",
+                                    "description": "Glowing runes etched into the floor and walls of the chamber, adding to the mystical ambiance and highlighting the magical nature of the artifacts.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 10
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Curator Malden",
+                                    "description": "The knowledgeable curator of Ancient Curios, Malden is an expert in arcane artifacts and ancient magic. He guides visitors through the chamber, sharing insights and tales about the items on display.",
+                                    "dialog": [
+                                        "Welcome to the Enchanted Artifact Chamber, where history and magic intertwine.",
+                                        "Each of these artifacts holds a story, a piece of Azeroth's vast and mystical past."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "lore",
+                                            "description": "Provide detailed information about the artifacts, their origins, and their significance in the Warcraft universe."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Ancient Curios",
+                                "exit": "Tome and Relic Repository"
+                            }
+                        },
+                        {
+                            "name": "Tome and Relic Repository",
+                            "description": "The Tome and Relic Repository is a room dedicated to the preservation and study of ancient magical texts and relics. This library-like space is filled with towering bookshelves, housing ancient tomes, manuscripts, and scrolls. The air is tinged with the scent of old parchment and magical incense. Each book and relic has a story, offering visitors a glimpse into the arcane knowledge and mystical lore of the Warcraft universe.",
+                            "keywords": ["scholarly", "magical", "ancient"],
+                            "items": [
+                                {
+                                    "name": "Ancient Bookshelves",
+                                    "description": "Tall, ornate bookshelves lined with ancient books, manuscripts, and scrolls, each bearing the wisdom of Azeroth's past.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                },
+                                {
+                                    "name": "Magical Relics",
+                                    "description": "A collection of mystical relics displayed on pedestals throughout the room, each with a unique magical aura and history.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Arcane Globes",
+                                    "description": "Globes depicting the lands of Azeroth, glowing with an inner light and enchanted to show the shifting ley lines and magical currents.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 3
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Archivist Elara",
+                                    "description": "A wise and learned archivist, Elara dedicates her life to the preservation of ancient texts and relics. She shares her extensive knowledge with visitors, explaining the significance of the items and the arcane lore they contain.",
+                                    "dialog": [
+                                        "Each tome and artifact here is a window into the ancient and mystical world of Azeroth.",
+                                        "The knowledge preserved in this repository is a testament to the rich magical heritage of our land."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "education",
+                                            "description": "Educate visitors about the ancient texts and relics, explaining their historical and magical importance."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Enchanted Artifact Chamber",
+                                "exit": "Mystic's Sanctum"
+                            }
+                        },
+                        {
+                            "name": "Mystic's Sanctum",
+                            "description": "The Mystic's Sanctum is a secluded chamber within the Ancient Curios shop, imbued with a powerful magical presence. This room is a hidden gem, where the air crackles with arcane energy. Dimly lit by enchanted candles, the sanctum is adorned with mystical symbols and runes. Here, visitors can witness magical demonstrations, participate in interactive arcane experiments, and even receive mystical insights into their own adventures in Azeroth.",
+                            "keywords": ["arcane", "secluded", "mystical"],
+                            "items": [
+                                {
+                                    "name": "Enchanted Candles",
+                                    "description": "Candles that burn with an ethereal flame, casting a mesmerizing glow and creating an atmosphere of mystery and magic.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Arcane Circle",
+                                    "description": "A large circle inscribed with intricate runes and symbols, used for magical demonstrations and rituals.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 1
+                                },
+                                {
+                                    "name": "Mystical Artifacts",
+                                    "description": "Curious and powerful artifacts from various corners of Azeroth, each with a unique magical property and story.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Mystic Maelor",
+                                    "description": "A skilled mage and mystic, Maelor guides visitors through the arcane arts, offering interactive experiences and personal readings that reveal mystical insights.",
+                                    "dialog": [
+                                        "Step into the realm of the arcane and discover the magic that lies within you.",
+                                        "Let me guide you through a journey of magical discovery and enlightenment."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "magic demonstration",
+                                            "description": "Perform captivating magical demonstrations, showing the power and beauty of arcane magic."
+                                        },
+                                        {
+                                            "type": "mystical insight",
+                                            "description": "Provide personal readings for visitors, offering insights into their own magical affinities and potential."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Tome and Relic Repository",
+                                "exit": "Ancient Curios"
+                            }
+                        }                                                                        
+                    ]
+                },
+                {
+                    "name": "Darkmoon Faire",
+                    "description": "A whimsical carnival filled with games, rides, and magical entertainment. The air is alive with laughter and music, and colorful tents and banners create a festive atmosphere reminiscent of the beloved in-game event.",
+                    "keywords": ["whimsical", "carnival", "entertainment"],
+                    "items": [
+                        {
+                            "name": "Carnival Games",
+                            "description": "A variety of fun and challenging games, each offering a unique experience and the chance to win prizes.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 10
+                        },
+                        {
+                            "name": "Magical Rides",
+                            "description": "Enchanting rides that transport visitors through fantastical scenes and stories, thrilling and delighting guests of all ages.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 5
+                        },
+                        {
+                            "name": "Performance Stages",
+                            "description": "Stages where live performances and magical shows captivate audiences, featuring performers from across Azeroth.",
+                            "type": "Decor",
+                            "collectable": false,
+                            "quantity": 3
+                        }
+                    ],
+                    "npcs": [
+                        {
+                            "name": "Silas Darkmoon",
+                            "description": "The enigmatic and charismatic founder of the Darkmoon Faire, Silas Darkmoon welcomes visitors with open arms and a mysterious smile.",
+                            "dialog": [
+                                "Step right up! Experience the wonders and marvels of the Darkmoon Faire!",
+                                "Magic, mystery, and mirth await at every corner of my fair."
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "welcome",
+                                    "description": "Greet visitors and invite them to partake in the myriad entertainments of the Faire."
+                                }
+                            ],
+                            "inventory": []
+                        },
+                        {
+                            "name": "Faire Jester",
+                            "description": "A playful and mischievous jester who entertains visitors with jokes, tricks, and amusing performances.",
+                            "dialog": [
+                                "Laughter is the best magic, and I have plenty of both!",
+                                "Join me for a jest, a jape, or a joyful jaunt around the Faire!"
+                            ],
+                            "interactions": [
+                                {
+                                    "type": "entertainment",
+                                    "description": "Engage with visitors through humorous performances and interactive fun."
+                                }
+                            ],
+                            "inventory": []
+                        }
+                    ],
+                    "paths": {
+                        "entrance": "Warcraft Kingdom",
+                        "exit": "Booty Bay"
+                    },
+                    "rooms": [
+                        {
+                            "name": "Mystical Midway",
+                            "description": "The Mystical Midway is the heart of Darkmoon Faire, a bustling area filled with colorful booths, challenging games, and whimsical attractions. The air is filled with the sounds of laughter, playful shouts, and the clatter of carnival games. The Midway is adorned with vibrant banners and twinkling lights, creating an atmosphere of fun and magic. Visitors can try their luck at various games, win unique prizes, and enjoy the lively spirit of the Faire.",
+                            "keywords": ["playful", "games", "vibrant"],
+                            "items": [
+                                {
+                                    "name": "Game Booths",
+                                    "description": "A series of colorful booths offering a variety of carnival games, each themed around the Warcraft universe, inviting visitors to test their skills.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                },
+                                {
+                                    "name": "Prize Counters",
+                                    "description": "Counters where visitors can redeem tickets won at games for a variety of prizes, from plush toys to magical trinkets.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                },
+                                {
+                                    "name": "Festive Banners",
+                                    "description": "Brightly colored banners and flags, fluttering in the breeze, adorned with symbols and characters from the Warcraft series.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 10
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Carnival Barker Baelin",
+                                    "description": "A lively and enthusiastic NPC, Baelin invites visitors to participate in the games and shares the lore behind each attraction.",
+                                    "dialog": [
+                                        "Step right up! Test your skill and might at the Mystical Midway!",
+                                        "Every game here holds a tale from the land of Azeroth. Care to hear one?"
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "invitation",
+                                            "description": "Encourage visitors to play the carnival games and explain the rules and lore behind each one."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Prize Master Grendel",
+                                    "description": "The keeper of the prizes, Grendel delights visitors with his vast collection of unique and whimsical rewards.",
+                                    "dialog": [
+                                        "Win big and take home a treasure from the Darkmoon Faire!",
+                                        "From cuddly critters to enchanted artifacts, our prizes are like no other!"
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "prize distribution",
+                                            "description": "Showcase the array of prizes available and assist visitors in redeeming their game winnings."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Darkmoon Faire",
+                                "exit": "Magician's Alley"
+                            }
+                        },
+                        {
+                            "name": "Magician's Alley",
+                            "description": "Magician's Alley is a mesmerizing area within Darkmoon Faire, where magic and illusion come to life. This dimly lit alley is lined with tents and stages where skilled magicians and illusionists perform spellbinding tricks and enchantments. Each performance captivates the audience with illusions, conjuring tricks, and tales of magic from the Warcraft universe. The atmosphere is one of awe and wonder, with shimmering lights and mystical decorations enhancing the magical experience.",
+                            "keywords": ["enchanting", "illusions", "spellbinding"],
+                            "items": [
+                                {
+                                    "name": "Performance Stages",
+                                    "description": "Small stages set up for magical performances, each illuminated by enchanted lights and decorated with mystical symbols.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 5
+                                },
+                                {
+                                    "name": "Magical Props",
+                                    "description": "Various magical props used by the performers, including crystal balls, wands, and enchanted cloaks.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 10
+                                },
+                                {
+                                    "name": "Mystical Ornaments",
+                                    "description": "Decorative items such as glowing orbs, floating lanterns, and arcane sigils, adding to the mysterious and magical ambiance of the alley.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 8
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Illusionist Idris",
+                                    "description": "A master of magical illusions, Idris amazes the crowd with his mind-bending performances and teaches about the art of illusion.",
+                                    "dialog": [
+                                        "Prepare to have your reality challenged and your senses enchanted!",
+                                        "In the world of magic, things are rarely as they seem. Let me show you..."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "performance",
+                                            "description": "Perform incredible illusions and interact with the audience, blending magic and storytelling."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Mage Melisandra",
+                                    "description": "A skilled sorceress, Melisandra demonstrates the use of arcane magic and invites visitors to participate in safe, interactive magical experiences.",
+                                    "dialog": [
+                                        "Magic is not just for combat; it's also for wonder and joy. Let me demonstrate!",
+                                        "Join me in exploring the lighter, more whimsical side of arcane arts."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "interactive magic",
+                                            "description": "Guide visitors through interactive magical activities, offering a hands-on experience with simple spells and enchantments."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Mystical Midway",
+                                "exit": "Enchanted Garden"
+                            }
+                        },
+                        {
+                            "name": "Enchanted Garden",
+                            "description": "The Enchanted Garden is a magical oasis within Darkmoon Faire, a place where nature and magic intertwine. This lush, vibrant garden is filled with fantastical plants, shimmering pools, and mystical creatures from the Warcraft universe. Visitors can wander along winding paths, discovering hidden nooks and enchanting displays. The garden is a serene escape from the carnival's bustle, offering a chance to connect with the magical aspects of nature and the mysterious creatures that inhabit the world of Azeroth.",
+                            "keywords": ["serene", "magical", "nature"],
+                            "items": [
+                                {
+                                    "name": "Fantastical Flora",
+                                    "description": "Exotic and magical plants that glow, move, and interact with visitors, creating an immersive and whimsical experience.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 12
+                                },
+                                {
+                                    "name": "Mystical Creature Habitats",
+                                    "description": "Enchanting displays housing gentle, magical creatures from the Warcraft universe, each in a habitat that reflects their natural environment.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 6
+                                },
+                                {
+                                    "name": "Shimmering Pools",
+                                    "description": "Small, crystal-clear pools with gently glowing waters, inhabited by magical aquatic creatures and surrounded by luminescent plants.",
+                                    "type": "Decor",
+                                    "collectable": false,
+                                    "quantity": 4
+                                }
+                            ],
+                            "npcs": [
+                                {
+                                    "name": "Druid Elowen",
+                                    "description": "A gentle druid who guides visitors through the Enchanted Garden, sharing knowledge about the magical flora and fauna of Azeroth.",
+                                    "dialog": [
+                                        "Welcome to the Enchanted Garden, where nature's magic is celebrated in all its forms.",
+                                        "Here, you can learn about the delicate balance of life and magic in our world."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "nature tour",
+                                            "description": "Lead visitors on guided tours of the garden, highlighting the unique aspects of each magical plant and creature."
+                                        }
+                                    ],
+                                    "inventory": []
+                                },
+                                {
+                                    "name": "Fae Ambassador",
+                                    "description": "A mystical fae being who interacts with visitors, offering insights into the magical and mysterious elements of the garden.",
+                                    "dialog": [
+                                        "In this garden, the veil between worlds is thin, and the magic of the fae is near.",
+                                        "Let me show you the wonders that lie hidden in the whispers of the leaves."
+                                    ],
+                                    "interactions": [
+                                        {
+                                            "type": "mystical storytelling",
+                                            "description": "Tell enchanting stories and reveal secrets about the magical creatures and plants within the garden."
+                                        }
+                                    ],
+                                    "inventory": []
+                                }
+                            ],
+                            "paths": {
+                                "entrance": "Magician's Alley",
+                                "exit": "Darkmoon Faire"
+                            }
+                        }                                                                        
+                    ]
+                }                
+            ]
+        }
+    ]
+}

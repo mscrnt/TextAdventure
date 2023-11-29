@@ -164,7 +164,7 @@ class MainWindow(QMainWindow):
         player_name = self.prompt_for_player_name()  # Get the player's name
         if player_name:
             # Create a working copy of the world data for this game session
-            starting_world = "Avalonia"
+            starting_world = "BlizzardWorld"
             utilities.create_working_world_data(starting_world)
             
             # Create the GameUI with the player's name
