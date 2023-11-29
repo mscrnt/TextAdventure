@@ -273,7 +273,7 @@ class GameUI(QWidget):
         # Function to calculate padding
         def calculate_padding(text_block):
             text_height = metrics.height() * len(text_block)
-            text_area_height = self.game_text_area.viewport().height() - 75
+            text_area_height = self.game_text_area.viewport().height() - 100
             padding_lines = max(0, (text_area_height - text_height) // (2 * metrics.height()))
             return '\n' * padding_lines
 
@@ -305,8 +305,8 @@ class GameUI(QWidget):
         self.game_text_area.setAlignment(Qt.AlignCenter)
 
         # Ensure the scrollbar is adjusted properly at the end of all text
-        self.game_text_area.verticalScrollBar().setValue(0)  # Reset scrollbar to the top
-        self.game_text_area.ensureCursorVisible()
+        #self.game_text_area.verticalScrollBar().setValue(0)  # Reset scrollbar to the top
+        #self.game_text_area.ensureCursorVisible()
 
     def update_quest_log(self, quests):
         ic("Updating quest log")
