@@ -59,30 +59,23 @@ class WorldBuilder:
                 return f"Unrecognized command: {command}"
 
     def fast_travel_to_world(self, world_name):
-        # Convert both strings to lowercase for a case-insensitive comparison
-        available_worlds = [world.lower() for world in self.game_manager.player_sheet.get_fast_travel_worlds()]
-        
-        if world_name.lower() not in available_worlds:
+        available_worlds = [world.replace(" ", "").lower() for world in self.game_manager.player_sheet.get_fast_travel_worlds()]
+        formatted_world_name = world_name.replace(" ", "").lower()
+
+        if formatted_world_name not in available_worlds:
             print(f"{world_name} is not available for fast travel.")
             return f"{world_name} is not available for fast travel."
-    
 
         try:
-            # Load the working world data
-            new_world_data = utilities.load_working_world_data(world_name)
+            self.game_manager.save_game()  # Save the current game state
 
-            # Find the main entry location in the new world
-            main_entry_location = next((loc for loc in new_world_data['locations'] if loc.get('main-entry', False)), None)
+            self.world_data = utilities.load_working_world_data(formatted_world_name)  # Load the new world data
 
+            main_entry_location = next((loc for loc in self.world_data['locations'] if loc.get('main-entry', False)), None)
             if main_entry_location:
-                # Update the world data and the player's location
-                self.world_data = new_world_data
-                self.game_manager.player_sheet.location = {"world": world_name, "location/sublocation": main_entry_location['name']}
-
-                # Perform additional updates as needed
-                self.update_game_state_for_fast_travel(world_name)  # Pass the world_name as an argument
-
-                print(f"Fast traveled to {world_name}, location: {main_entry_location['name']}")
+                new_location = {"world": formatted_world_name, "location/sublocation": main_entry_location['name']}
+                self.game_manager.player_sheet.location = new_location
+                self.update_game_state_for_fast_travel(formatted_world_name)  # Handle additional updates
                 return True
             else:
                 print(f"No main entry location found in {world_name}.")
@@ -93,29 +86,17 @@ class WorldBuilder:
 
 
     def update_game_state_for_fast_travel(self, new_world_name):
-        # Update player's current location
-        self.game_manager.player_sheet.update_location({"world": new_world_name, "location/sublocation": "Main Entry"})  
+        # Update any world-specific game state here
+        # For example, refreshing NPCs, quests, etc., for the new world
+        self.game_manager.world_data = self.world_data  # Synchronize GameManager's world data
+        # Add any other necessary updates
 
-        # Update the world data in WorldBuilder
-        if self.update_world_data(new_world_name):
-            # Update the UI to reflect the new world state
-            self.game_manager.ui.update_ui()  # Assuming update_ui() method updates the entire UI
-
-            # Get a description of the new location
-            new_location_description = self.where_am_i()
-
-            # Display the description of the new location
-            self.game_manager.ui.display_text(new_location_description)  
-
-            # Handle any specific events or changes for the new location
-            # self.world_builder.handle_location_specific_events(new_world_name) (if needed)
-
-            # Notify player of the travel
-            self.game_manager.ui.display_text(f"Fast traveled to {new_world_name}.")
-        else:
-            self.game_manager.ui.display_text(f"Failed to update world data for {new_world_name}.")
-
-
+    def find_main_entry_location(self, world_data):
+        # Find the main entry location in the new world data
+        for location in world_data.get('locations', []):
+            if location.get('main-entry', False):
+                return location['name']
+        return None
 
     def find_location_data(self, location_name):
         if isinstance(location_name, dict):
@@ -219,13 +200,13 @@ class WorldBuilder:
         return f"You operate the machine: {machine['name']}."
 
 
-    def load_world_data(self):
+    def load_world_data(self, world_name):
         try:
-            with open('data/worlds/avalonia.json', 'r') as f:
+            with open(f'data/worlds/{world_name}.json', 'r') as f:
                 return json.load(f)
         except Exception as e:
-            ic(f"Error loading world data: {e}")
-            return {}
+            ic(f"Error loading world data for {world_name}: {e}")
+            return None
 
     def build_scene_text(self, location_data):
         location_data = self.get_current_location_data()  # Get the current location data

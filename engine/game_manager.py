@@ -17,6 +17,7 @@ class GameManager(QObject):
         self.quest_tracker = QuestTracker(self)
         self.ui = ui
         self.world_data = utilities.load_working_world_data(self.player_sheet.location['world'])
+        self.world_full_names = self.load_worlds_data()
 
         self.populate_initial_game_state()
         self.update_quests_ui()
@@ -33,7 +34,7 @@ class GameManager(QObject):
     
     def load_worlds_data(self):
         ic("Loading worlds data")
-        worlds_data = utilities.load_json("locations", "worlds")
+        worlds_data = utilities.load_all_worlds()
         return worlds_data
     
     def load_notes(self):
@@ -74,12 +75,8 @@ class GameManager(QObject):
             self.player_sheet.add_item(health_potion)
             ic("Health potion added to inventory")
 
-        # Names of the worlds you want to include
-        world_full_names = {
-            "Avalonia": "Avalonia",
-            "BlizzardWorld": "BlizzardWorld",
-            "Home": "Odyssey VR"  # Full name for display
-        }
+        # Load dynamic world names
+        world_full_names = utilities.load_all_worlds()
 
         # Loop through each world name
         for world_key, world_display_name in world_full_names.items():
@@ -88,10 +85,8 @@ class GameManager(QObject):
             if main_area:
                 self.player_sheet.add_fast_travel_location(main_area, world_display_name)
                 ic(f"{main_area['name']} (Main Area of {world_display_name}) added to fast travel locations")
-                print(f"{main_area['name']} (Main Area of {world_display_name}) added to fast travel locations")
             else:
                 ic(f"Main entry not found for {world_key}")
-                print(f"Main entry not found for {world_key}")
 
         # Load the notes
         notes = self.load_notes()

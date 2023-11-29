@@ -91,11 +91,44 @@ def create_working_world_data(world_name):
 def load_working_world_data(world_name):
     # Directly use the provided world name to construct file paths
     working_world_path = f'data/worlds/working_{world_name}.json'
+    saved_game_path = f'save_data/working_{world_name}_savegame.pkl'
+    print(f"Loading working world data for {world_name}.")
 
+
+    # Check if there's a saved game specific to this world
+    if os.path.exists(saved_game_path):
+        print(f"Found saved game state for {world_name}.")
+        # Load the saved game state
+        try:
+            with open(saved_game_path, 'rb') as f:
+                saved_state = pickle.load(f)
+                print(f"Loaded saved game state for {world_name}.")
+                return saved_state['world_data']
+        except Exception as e:
+            print(f"Error loading saved game state for {world_name}: {e}")
+
+    # If no specific saved game state, create a new working copy
     if not os.path.exists(working_world_path):
-        # If the working world file does not exist, create it from the base file
+        print(f"No working world data found for {world_name}. Creating a new working copy.")
         create_working_world_data(world_name)
 
     # Load the working world data into memory and return it
     with open(working_world_path, 'r') as f:
         return json.load(f)
+    
+def load_all_worlds():
+    world_directory = 'data/worlds'
+    world_data = {}
+
+    try:
+        for filename in os.listdir(world_directory):
+            if filename.endswith('.json') and not filename.startswith('working_'):
+                world_name = filename[:-5]  # Remove .json extension
+                with open(os.path.join(world_directory, filename), 'r') as file:
+                    data = json.load(file)
+                    world_display_name = data.get("name", "Unknown World")
+                    world_data[world_name] = world_display_name
+    except Exception as e:
+        ic(f"An error occurred while loading world data: {e}")
+
+    return world_data

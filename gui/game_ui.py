@@ -212,10 +212,9 @@ class GameUI(QWidget):
 
         response = self.world_builder.incoming_command(command_text)
 
-        # Check if the response is a boolean and convert it to a string message
+        # Check if the response is a boolean and quietly continue without displaying anything
         if isinstance(response, bool):
-            # Convert the boolean response to a user-friendly message
-            response = "Command executed successfully." if response else "Command execution failed. Please try again."
+            return
 
         self.display_text(response)  # Display the response in the UI
 
