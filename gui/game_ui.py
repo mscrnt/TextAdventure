@@ -1,12 +1,13 @@
 # gui/game_ui.py
 
 from PySide6.QtWidgets import QApplication, QTextEdit, QVBoxLayout, QWidget, QLabel, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox, QListWidgetItem
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QPalette, QColor, QTextBlockFormat, QFontMetrics
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QFont, QPalette, QColor, QTextBlockFormat, QFontMetrics, QTextCharFormat, QTextCursor
 import time
 from engine.game_manager import GameManager
 from icecream import ic
 from engine.world_builder import WorldBuilder
+import re
 
 class GameUI(QWidget):
     def __init__(self, player_name, use_ai_assist=True, parent=None):
@@ -203,12 +204,15 @@ class GameUI(QWidget):
 
     def process_command(self):
         # Placeholder conditional in case I want to add other command interpretations
+        self.game_text_area.clear()
         if_not_dummy = False 
         if if_not_dummy:
             pass  # This will be replaced with actual command handling logic later
         else:
             command_text = self.command_input.text().strip().lower()
             self.command_input.clear()
+            html_command_text = f"<p>Processing command: <b>{command_text}</b></p>"
+            self.display_text(html_command_text)
 
         response = self.world_builder.incoming_command(command_text)
 
@@ -259,67 +263,86 @@ class GameUI(QWidget):
         else:
             self.display_text("Item details not found.")
 
-    def display_text(self, text):
+    # def display_text(self, html_content):
+    #     ic("Displaying text")
+    #     self.game_text_area.clear()
+    #     self.game_text_area.verticalScrollBar().setStyleSheet("QScrollBar {width:0px;}")
+
+    #     # Ensure the game_text_area can interpret HTML
+    #     self.game_text_area.setAcceptRichText(True)
+
+    #     font = self.game_text_area.font()
+    #     font.setFamily("Consolas")
+    #     font.setPointSize(12)
+    #     self.game_text_area.setFont(font)
+
+    #     # Remove the Markdown code block delimiters, if any
+    #     html_content = html_content.replace('```html', '').replace('```', '')
+
+    #     # Wrap the content in <div> tags with a style attribute for centering text
+    #     centered_html_content = f'<div style="text-align: center;">{html_content}</div>'
+
+    #     # Set the complete HTML content as the new content for game_text_area
+    #     self.game_text_area.setHtml(centered_html_content)
+
+
+    def display_text(self, html_content):
         ic("Displaying text")
-        # Clear the game text area before displaying new text
         self.game_text_area.clear()
-        self.game_text_area.verticalScrollBar().setStyleSheet("QScrollBar {width:0px;}") # Hides the scrollbar
+        self.game_text_area.verticalScrollBar().setStyleSheet("QScrollBar {width:0px;}")
 
-        # Set the alignment to center for the new text block
-        text_cursor = self.game_text_area.textCursor()
-        text_block_format = QTextBlockFormat()
-        text_block_format.setAlignment(Qt.AlignCenter)
-        text_cursor.mergeBlockFormat(text_block_format)
-        self.game_text_area.setTextCursor(text_cursor)
+        # Ensure the game_text_area can interpret HTML
+        self.game_text_area.setAcceptRichText(True)
 
-        # Optionally set a monospace font
         font = self.game_text_area.font()
-        font.setFamily("Consolas")  
-        font.setPointSize(12) 
+        font.setFamily("Consolas")
+        font.setPointSize(12)
         self.game_text_area.setFont(font)
 
-        # Calculate font metrics for the current font
-        metrics = QFontMetrics(font)
-        text_lines = text.split('\n')
-        max_lines = 1000 // metrics.height()  # Calculate the maximum number of lines that can fit in the text area. This is basically limitless for our purposes.
+        # Remove the Markdown code block delimiters, if any
+        html_content = html_content.replace('```html', '').replace('```', '')
 
-        # Function to calculate padding
-        def calculate_padding(text_block):
-            text_height = metrics.height() * len(text_block)
-            text_area_height = self.game_text_area.viewport().height() - 100
-            padding_lines = max(0, (text_area_height - text_height) // (2 * metrics.height()))
-            return '\n' #* padding_lines
+        # Wrap the content in <div> tags with a style attribute for centering text
+        centered_html_content = f'<div style="text-align: center;">{html_content}</div>'
 
-        # Display text in chunks of max_lines
-        for i in range(0, len(text_lines), max_lines):
-            chunk = text_lines[i:i + max_lines]
-            padding = calculate_padding(chunk)
-            display_text = padding + '\n'.join(chunk) + padding
+        # Split the centered HTML content into chunks
+        self.chunks = self.split_into_chunks(centered_html_content)
+        self.current_chunk_index = 0  # Initialize a variable to keep track of the current chunk index
 
-            # Insert the chunk character by character to create a typing effect
-            for char in display_text:
-                # Append character to the text area
-                self.game_text_area.insertPlainText(char)
-                # Keep text centered
-                self.game_text_area.setAlignment(Qt.AlignCenter)
-                # Process events to update the text area immediately
-                QApplication.processEvents()
-                # Sleep for a short duration to create the typing effect
-                time.sleep(0.0001)
+        # Start displaying the chunks from the beginning
+        self.display_chunk()
 
-            # Wait for a moment after each chunk
-            time.sleep(1)
+    def display_chunk(self):
+        if self.current_chunk_index < len(self.chunks):
+            # Get the current chunk and wrap it in a div with center alignment
+            chunk = self.chunks[self.current_chunk_index]
+            centered_chunk = f'<div style="text-align: center;">{chunk}</div>'
+            
+            if self.current_chunk_index > 0:
+                # Append the new chunk to the existing content
+                current_html = self.game_text_area.toHtml()
+                self.game_text_area.setHtml(current_html + centered_chunk)
+            else:
+                # If it's the first chunk, set it as new content
+                self.game_text_area.setHtml(centered_chunk)
 
-            # Clear the area for the next chunk
-            if i + max_lines < len(text_lines):
-                self.game_text_area.clear()
+            # Increment the chunk index
+            self.current_chunk_index += 1
 
-        # Re-center the cursor after typing is complete
-        self.game_text_area.setAlignment(Qt.AlignCenter)
+            # Set up the timer to call this method again after a delay
+            QTimer.singleShot(1000, self.display_chunk)  # 1000 ms delay
 
-        # Ensure the scrollbar is adjusted properly at the end of all text
-        #self.game_text_area.verticalScrollBar().setValue(0)  # Reset scrollbar to the top
-        #self.game_text_area.ensureCursorVisible()
+
+
+    def split_into_chunks(self, html_content):
+        # Split by paragraphs and unordered lists
+        chunks = re.split(r'(</p>|</ul>)', html_content)
+
+        # Re-add the split tags to each chunk and filter out empty strings
+        chunks = [chunk + split_tag for chunk, split_tag in zip(chunks[0::2], chunks[1::2]) if chunk]
+
+        return chunks
+
 
     def update_quest_log(self, quests):
         ic("Updating quest log")

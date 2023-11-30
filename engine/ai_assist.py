@@ -4,6 +4,7 @@ from openai import OpenAI
 from icecream import ic
 import json
 import re
+import time
 
 class AIAssist:
     def __init__(self, game_manager, world_builder):
@@ -20,18 +21,23 @@ class AIAssist:
         self.client = OpenAI(api_key=self.api_key)
 
 
-    def generate_ai_response(self, prompt, max_tokens=250):
+    def generate_ai_response(self, prompt, max_tokens=1000):
         try:
             response = self.client.chat.completions.create(
                 messages=[{"role": "system", "content": prompt}],
-                model="gpt-3.5-turbo-1106",  # Change the model based on your requirement
-                max_tokens=max_tokens
+                model="gpt-3.5-turbo-1106",
+                max_tokens=max_tokens,
+                temperature=0.4,
+                stop=["</HTML>"],  # Example stop sequence
+                frequency_penalty=.7,  # Adjust as needed
+                presence_penalty=.5   # Adjust as needed
             )
             print(f"AI generated response: {response.choices[0].message.content.strip()}")
             return response.choices[0].message.content.strip()
         except Exception as e:
             ic(f"Error in AI response generation: {e}")
             return f"I'm having trouble understanding that. {e}"
+
 
     def handle_player_command(self, command):
         # Access world data and player sheet
@@ -58,6 +64,13 @@ class AIAssist:
                 "parsing_guideline": "Extract the destination name from the command and format it as '(destination) location'.",
                 "command_to_perform": "move to, go to",
                 "command_format": "move to <destination>, e.g., go to Eldergrove Forest"
+            },
+            "talk to": {
+                "description": "Initiate a conversation with an NPC.",
+                "examples": ["talk to the guard", "speak to the merchant", "chat with the innkeeper"],
+                "parsing_guideline": "Identify the NPC to be spoken to from the command.",
+                "command_to_perform": "talk to",
+                "command_format": "talk to <NPC>, e.g., talk to the guard"
             },
             "take": {
                 "description": "Take an item from the current location or container.",
@@ -107,6 +120,13 @@ class AIAssist:
                 "parsing_guideline": "Interpret as a request to describe the player's current surroundings.",
                 "command_to_perform": "look around",
                 "command_format": "look around, e.g., look around"
+            },
+            "interact with": {
+                "description": "Interact with an object in the current location.",
+                "examples": ["interact with the statue", "use the lever", "pull the lever"],
+                "parsing_guideline": "Identify the object to interact with from the command.",
+                "command_to_perform": "interact with",
+                "command_format": "interact with <object>, e.g., interact with the statue"
             },
             "fast travel to": {
                 "description": "Instantly travel to a different world or major location.",
@@ -161,17 +181,17 @@ class AIAssist:
 
         # Directly use the extracted command in your checks
         if command == "move to":
-            destination = details  # 'details' holds the subject
+            destination = details  
             print(f"Extracted destination: {destination}")
             return self.world_builder.move_player(destination) if destination else "Cannot determine destination."
 
         elif command == "take":
-            item_name = details  # 'details' holds the subject
+            item_name = details  
             print(f"Extracted item name: {item_name}")
             return self.world_builder.take_item(item_name) if item_name else "Cannot determine item to take."
 
         elif command == "examine":
-            target = details  # 'details' holds the subject
+            target = details 
             print(f"Extracted target: {target}")
             return self.world_builder.examine_item(target) if target else "Cannot determine what to examine."
 
@@ -179,6 +199,16 @@ class AIAssist:
             container_name = details
             print(f"Extracted container name: {container_name}")
             return self.world_builder.open_container(container_name) if container_name else "Cannot determine container to open."
+
+        elif command == "interact with":
+            object_name = details
+            print(f"Extracted object name: {object_name}")
+            return self.world_builder.interact_with(object_name) if object_name else "Cannot determine object to interact with."
+
+        elif command == "talk to":
+            npc_name = details
+            print(f"Extracted NPC name: {npc_name}")
+            return self.world_builder.talk_to_npc(npc_name) if npc_name else "Cannot determine NPC to talk to."
 
         elif command == "close":
             print("Command to close container received")
@@ -210,7 +240,7 @@ class AIAssist:
 
         else:
             print(f"Unknown command received: {command}")
-            return "I'm not sure what you're trying to do. Can you phrase it differently?"
+            return self.world_builder.display_help()
 
     def parse_interpreted_command(self, interpreted_command):
         print(f"Extracting command details from: {interpreted_command}")
@@ -257,32 +287,46 @@ class AIAssist:
         return narrative_response
 
     def construct_narrative_prompt(self, action_response, original_command, location_data, current_location):
-        # Extract visible items, features, paths, exits, and containers from the current location data
+        game_context = "'Odyssey' by NexaSphere is a virtual escape for many, including the player, until an unexpected event trapped users inside this digital realm. Now, they must unravel 'Odyssey's' mysteries to find a way back to reality."
+
         visible_items = [item for item in location_data.get('items', []) if item.get('visible', True)]
         visible_features = location_data.get('features', [])
         paths = location_data.get('paths', {})
-        exits = [exit for exit in paths.values()]  # Extract exits from paths
+        exits = [exit for exit in paths.values()]  
         containers = location_data.get('containers', [])
 
-        # Construct a description for each element
-        items_description = f"Visible items: {', '.join([item['name'] for item in visible_items])}." if visible_items else "No visible items."
-        features_description = f"Visible features: {', '.join(visible_features)}." if visible_features else "No visible features."
-        paths_description = f"Available paths: {', '.join(paths.keys())}." if paths else "No visible paths."
-        exits_description = f"Exits: {', '.join(exits)}." if exits else "No visible exits."
-        containers_description = f"Containers: {', '.join([container['name'] for container in containers])}." if containers else "No visible containers."
+        # Filter rooms based on their 'visible' flag
+        rooms = [room for room in location_data.get('rooms', []) if room.get('visible', True)]
 
-        # Construct the prompt for GPT to generate a narrative response
+        # Construct descriptions
+        items_description = "Visible items: " + ", ".join([item['name'] for item in visible_items]) if visible_items else "No visible items."
+        features_description = "Visible features: " + ", ".join(visible_features) if visible_features else "No visible features."
+        paths_description = "Available paths: " + ", ".join(paths.keys()) if paths else "No visible paths."
+        exits_description = "Exits: " + ", ".join(exits) if exits else "No visible exits."
+        containers_description = "Containers: " + ", ".join([container['name'] for container in containers]) if containers else "No visible containers."
+        rooms_description = "Rooms: " + "; ".join([f"{room['name']}: {room['description']}" for room in rooms]) if rooms else "No visible rooms."
+
+        # Construct NPC descriptions
+        npcs = location_data.get('npcs', [])
+        npc_descriptions = "NPCs: " + "; ".join([f"{npc['name']}: {npc['description']}" for npc in npcs]) if npcs else "No NPCs in sight."
+
+        # HTML format example
+        html_format_example = "<html><body></body></html>"
+
+        # Construct the actual prompt
         prompt = (
-            f"Based on the following information, generate a narrative response for a role-playing game:\n"
+            f"Based on the following information, and replying in html format, generate a narrative response for a role-playing game:\n"
+            f"- Game context: {game_context}\n"
+            f"- HTML format example: {html_format_example}\n"
             f"- Player's original command: '{original_command}'\n"
             f"- Action taken: {action_response}\n"
             f"- Current location: {current_location}\n"
             f"- Location description: {location_data.get('description', 'An unknown location.')}\n"
             f"- {items_description}\n"
             f"- {features_description}\n"
-            f"- {paths_description}\n"
-            f"- {exits_description}\n"
-            f"- {containers_description}\n\n"
+            f"- {containers_description}\n"
+            f"- {rooms_description}\n"
+            f"- {npc_descriptions}\n\n"
             "Narrative Response:"
         )
         return prompt

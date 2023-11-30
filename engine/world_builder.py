@@ -10,13 +10,14 @@ class WorldBuilder:
     def __init__(self, game_manager, world_data, use_ai_assist=True):
         self.game_manager = game_manager
         self.world_data = world_data
-
         self.use_ai_assist = use_ai_assist
         if self.use_ai_assist:
             self.ai_assist = AIAssist(game_manager, self)
 
+
     def incoming_command(self, command):
-        self.game_manager.ui.display_text(f"Processing command: {command}")
+        html_command = utilities.convert_text_to_display(f"Processing command: {command}")
+        self.game_manager.ui.display_text(html_command)  # Use the converted HTML text
         print(f"Received command: {command}")
         if self.use_ai_assist:
             print("Sending command to AI for processing.")
@@ -555,6 +556,9 @@ class WorldBuilder:
             "whereami - Find out your current location including any open container.\n Example: 'whereami'\n\n"
             "look around - Look around your current location to see items, interactables, containers, and sublocations. If inside an open container, it shows the contents of the container.\n Example: 'look around'\n\n"
             "open <container> - Open a container in your current location to interact with its contents.\n Example: 'open chest'\n\n"
+            "Fast travel to <world> - Fast travel to a different world. You can only fast travel to worlds you have already visited.\n Example: 'fast travel to the moon'\n\n"
+            "talk to <NPC> - Talk to an NPC in your current location to learn more about them or interact with them.\n Example: 'talk to the guard'\n\n"
+            "interact with <interactable> - Interact with an interactable in your current location to learn more about it or interact with it.\n Example: 'interact with computer'\n\n"
             "close - Close the currently open container.\n Example: 'close'\n\n"
             "help - Display this list of commands.\n"
         )

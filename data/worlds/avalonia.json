@@ -57,7 +57,7 @@
                             "interactions": [
                                 {
                                     "type": "quest",
-                                    "description": "Retrieve the Lost Tome from the Royal Library."
+                                    "description": "Retrieve the Lost Tome from Secret Chamber in the Royal Library."
                                 },
                                 {
                                     "type": "trade",
@@ -244,6 +244,7 @@
                             "name": "Secret Chamber",
                             "description": "Concealed behind a hidden door in the Royal Library, the Secret Chamber holds the most confidential archives and artifacts of the kingdom. The chamber, shrouded in mystery, is said to contain powerful relics and forbidden knowledge.",
                             "keywords": ["hidden", "archives", "relics", "forbidden knowledge"],
+                            "visible": false,
                             "items": [
                                 {
                                     "name": "Enchanted Grimoire",

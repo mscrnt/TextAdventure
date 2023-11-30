@@ -132,3 +132,13 @@ def load_all_worlds():
         ic(f"An error occurred while loading world data: {e}")
 
     return world_data
+
+def convert_text_to_display(text):
+    # Convert newlines in the text to HTML paragraph tags
+    paragraphs = text.split('\n')
+    html_paragraphs = ['<p>{}</p>'.format(p.strip()) for p in paragraphs if p.strip()]
+
+    # Assemble the HTML content
+    html_content = "<html><body>{}</body></html>".format(''.join(html_paragraphs))
+
+    return html_content
