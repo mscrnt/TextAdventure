@@ -94,4 +94,3 @@ Retrieves details of a specific email.
 
 Returns a list of all emails.
 
-This reference guide provides an overview of the functionalities provided by the `PlayerSheet` class, enabling better understanding and further customization of player character management.
