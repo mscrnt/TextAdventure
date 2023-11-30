@@ -1,3 +1,5 @@
+# Description: Removes all but location data from a world json file. This is useful for creating a new world map.
+
 import json
 import argparse
 
