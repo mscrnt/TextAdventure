@@ -76,10 +76,7 @@
                         }
                     ],
                     "paths": {
-                        "exit": "Central Avalonia",
-                        "Throne Room": "Throne Room",
-                        "Royal Library": "Royal Library",
-                        "Secret Chamber": "Secret Chamber"
+                        "exit": "Central Avalonia"
                     },
                     "rooms": [
                         {
@@ -161,7 +158,8 @@
                                 }
                             ],
                             "paths": {
-                                "exit": "Grand Castle"
+                                "entrance": "Grand Castle",
+                                "exit": "Royal Library"
                             }
                         },                                     
                         {
@@ -238,15 +236,14 @@
                                 }
                             ],
                             "paths": {
-                                "exit": "Grand Castle",
-                                "Secret Chamber": "Secret Chamber: needs to be unlocked by chanting 'Open Sesame'."
+                                "entrance": "Throne Room",
+                                "exit": "Secret Chamber"
                             }
                         },                        
                         {
                             "name": "Secret Chamber",
                             "description": "Concealed behind a hidden door in the Royal Library, the Secret Chamber holds the most confidential archives and artifacts of the kingdom. The chamber, shrouded in mystery, is said to contain powerful relics and forbidden knowledge.",
                             "keywords": ["hidden", "archives", "relics", "forbidden knowledge"],
-                            "visible": false,
                             "items": [
                                 {
                                     "name": "Enchanted Grimoire",
@@ -303,8 +300,8 @@
                                 }
                             ],
                             "paths": {
-                                "exit": "Royal Library",
-                                "Grand Castle": "Grand Castle"
+                                "entrance": "Royal Library",
+                                "exit": "Grand Castle"
                             }
                         }                        
                     ]
@@ -375,10 +372,7 @@
                         }
                     ],
                     "paths": {
-                        "exit": "Central Avalonia",
-                        "Enchanted Emporium": "Enchanted Emporium",
-                        "The Mystic's Corner": "The Mystic's Corner",
-                        "The Armorer's Forge": "The Armorer's Forge"
+                        "exit": "Central Avalonia"
                     },
                     "rooms": [
                         {
@@ -386,6 +380,7 @@
                             "description": "The Enchanted Emporium is a wonder to behold, with shelves lined with glowing potions, mystical artifacts, and ancient scrolls. The air is tinged with the scent of magical herbs and the faint hum of enchanted objects. Soft, ethereal light fills the room, casting a magical glow on every surface.",
                             "keywords": ["glowing potions", "mystical artifacts", "enchanted objects", "magical herbs", "ethereal light"],
                             "paths": {
+                                "entrance": "Mystic Market",
                                 "exit": "Mystic Market"
                             },
                             "npcs": [
@@ -461,6 +456,7 @@
                             "description": "Tucked away in a quieter corner of the market, The Mystic's Corner is a haven for those seeking insight into the unknown. Dimly lit by flickering candles and filled with the scent of incense, the room is adorned with symbols of divination and mysticism. Crystal balls, tarot cards, and runic stones are arranged meticulously on draped tables, inviting curiosity and wonder.",
                             "keywords": ["divination", "mysticism", "crystal balls", "tarot cards", "runic stones"],
                             "paths": {
+                                "entrance": "Mystic Market",
                                 "exit": "Mystic Market"
                             },
                             "npcs": [
@@ -536,6 +532,7 @@
                             "description": "The Armorer's Forge is a place of heat, metal, and craftsmanship. The sound of hammering echoes through the air, mingling with the roar of the furnace. Weapons of various shapes and sizes, some glowing with enchantments, line the walls. Armor stands display masterfully crafted suits, each piece a testament to the skill of the armorer. The forge is a blend of traditional blacksmithing and magical enhancement, creating items both sturdy and mystical.",
                             "keywords": ["blacksmithing", "enchanted weapons", "crafted armor", "masterful craftsmanship", "magical enhancement"],
                             "paths": {
+                                "entrance": "Mystic Market",
                                 "exit": "Mystic Market"
                             },
                             "npcs": [
@@ -613,10 +610,7 @@
                     "description": "The Hall of Elders is a sanctum of ancient wisdom and revered traditions. Majestic in its design, the hall features towering columns, intricate murals depicting the history of Avalonia, and shelves lined with age-old tomes and artifacts. The air is filled with a serene silence, occasionally broken by the soft murmur of scholars and the rustling of parchment. This revered place serves as a meeting ground for the wisest elders of Avalonia and as a repository of knowledge gathered over centuries.",
                     "keywords": ["ancient wisdom", "majestic design", "history", "scholars", "repository of knowledge"],
                     "paths": {
-                        "exit": "Central Avalonia",
-                        "The Archives": "The Archives",
-                        "The Study": "The Study",
-                        "The Library": "The Library"
+                        "exit": "Central Avalonia"
                     },
                     "npcs": [
                         {
@@ -684,6 +678,7 @@
                             "description": "The Archives is a vast repository of ancient knowledge, containing scrolls, books, and artifacts from Avalonia's distant past. The shelves are lined with meticulously labeled tomes, and the air is filled with the scent of old parchment. Scholars and visitors alike can be found perusing the shelves, seeking wisdom from the annals of history.",
                             "keywords": ["repository of knowledge", "ancient scrolls", "meticulously labeled tomes", "old parchment"],
                             "paths": {
+                                "entrance": "Hall of Elders",
                                 "exit": "Hall of Elders"
                             },
                             "npcs": [
@@ -735,6 +730,7 @@
                             "description": "The Study is a place of quiet contemplation, where scholars can reflect on the knowledge they've gained. The room is filled with comfortable chairs and tables, each adorned with a small lamp. The walls are lined with bookshelves, and the air is filled with the scent of old parchment. It's a place of serenity and reflection, where the past speaks to those who listen.",
                             "keywords": ["quiet contemplation", "comfortable chairs", "bookshelves", "old parchment"],
                             "paths": {
+                                "entrance": "Hall of Elders",
                                 "exit": "Hall of Elders"
                             },
                             "npcs": [
@@ -786,6 +782,7 @@
                             "description": "The Library is a place of study and discovery, where the past speaks to those who listen. The shelves are lined with ancient scrolls and books, and the air is filled with the scent of old parchment. Scholars and visitors alike can be found perusing the shelves, seeking wisdom from the annals of history.",
                             "keywords": ["place of study", "ancient scrolls", "old parchment"],
                             "paths": {
+                                "entrance": "Hall of Elders",
                                 "exit": "Hall of Elders"
                             },
                             "npcs": [
