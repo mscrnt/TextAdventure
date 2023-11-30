@@ -16,6 +16,7 @@ class WorldBuilder:
             self.ai_assist = AIAssist(game_manager, self)
 
     def incoming_command(self, command):
+        self.game_manager.ui.display_text(f"Processing command: {command}")
         print(f"Received command: {command}")
         if self.use_ai_assist:
             print("Sending command to AI for processing.")
@@ -76,6 +77,7 @@ class WorldBuilder:
                 new_location = {"world": formatted_world_name, "location/sublocation": main_entry_location['name']}
                 self.game_manager.player_sheet.location = new_location
                 self.update_game_state_for_fast_travel(formatted_world_name)  
+                self.game_manager.ui.display_text(f"{self.where_am_i()}")
                 return True
             else:
                 print(f"No main entry location found in {world_name}.")
@@ -89,7 +91,7 @@ class WorldBuilder:
         # Update any world-specific game state here
         CapitalizedWorldName = new_world_name.capitalize()
         self.game_manager.world_data = self.world_data  # Synchronize GameManager's world data
-        self.game_manager.ui.display_text(f"Fast traveled to {CapitalizedWorldName}")
+        self.game_manager.ui.display_text(f"Fast traveling to {CapitalizedWorldName}...")
 
     def find_main_entry_location(self, world_data):
         # Find the main entry location in the new world data
@@ -431,7 +433,8 @@ class WorldBuilder:
                 if normalized_destination == sanitized_location_name:
                     self.game_manager.player_sheet.location = {"world": current_location['world'], "location/sublocation": destination}
                     print(f"Player moved to {destination}.")
-                    return f"You moved to {destination}."
+                    self.game_manager.ui.display_text(f"Moving to {destination}.")
+                    return f"{self.where_am_i()}."
 
         if 'sublocations' in current_location_data:
             for sublocation in current_location_data['sublocations']:
@@ -441,7 +444,8 @@ class WorldBuilder:
                     new_location_dict = {"world": current_location['world'], "location/sublocation": sublocation['name']}
                     self.game_manager.player_sheet.location = new_location_dict
                     print(f"Player moved to {sublocation['name']}.")
-                    return f"You moved to {sublocation['name']}."
+                    self.game_manager.ui.display_text(f"Moving to {sublocation['name']}.")
+                    return f"{self.where_am_i()}."
                 if 'rooms' in sublocation:
                     for room in sublocation['rooms']:
                         normalized_room_name = self.normalize_name(room['name'])
@@ -453,7 +457,10 @@ class WorldBuilder:
                             }
                             self.game_manager.player_sheet.location = new_location_dict
                             print(f"Player moved to {room['name']} within {sublocation['name']}.")
-                            return f"You moved to {room['name']}."
+                            self.game_manager.ui.display_text(f"Moving to {room['name']} within {sublocation['name']}.")
+                            return f"{self.where_am_i()}."
+                        else:
+                            return "You cannot access this area yet."
 
         print(f"Could not find path to: {sanitized_location_name} from {current_location_str}")
         return f"Cannot determine how to move to '{location_name}'."
