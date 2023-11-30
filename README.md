@@ -26,6 +26,8 @@ Welcome to my Text-Based Adventure Game, an engaging and interactive experience 
 2. Create a virtual environment using `python -m venv venv`.
 3. Install PySide and other dependencies using `pip install -r requirements.txt`.
 4. Run the game using `python main.py`.
+5. To use the AI assistant, you will need to create an OpenAI account and set the `OPENAI_API_KEY` environment variable to your API key.
+    - You can use the flag --use-ai to enable the AI assistant.
 
 ## How to Play
 Begin by creating your character, select a world to start in, and navigate the game using intuitive text commands. Engage with the game using text commands, with the AI assistant interpreting your inputs for immersive interactions.
