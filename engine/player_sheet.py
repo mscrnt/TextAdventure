@@ -9,7 +9,7 @@ class PlayerSheet:
         self.health = 100
         self.action_points = 10
         self.inventory = []
-        self._location = {"world": "BlizzardWorld", "location/sublocation": "Diablo Realm"}
+        self._location = {"world": "OdysseyVR", "location/sublocation": "Home"}
         self.fast_travel_locations = []
         self.quests = []
         self.notes = []
