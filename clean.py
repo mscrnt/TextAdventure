@@ -1,4 +1,5 @@
 # Description: Removes all but location data from a world json file. This is useful for creating a new world map.
+# Usage: python clean.py --input-file-name <world_name> (without the .json extension)
 
 import json
 import argparse
