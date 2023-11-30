@@ -108,6 +108,13 @@ class AIAssist:
                 "command_to_perform": "look around",
                 "command_format": "look around, e.g., look around"
             },
+            "fast travel to": {
+                "description": "Instantly travel to a different world or major location.",
+                "examples": ["fast travel to Shadowlands", "teleport to Mystic Peaks", "I want to fast travel to the Great Bazaar"],
+                "parsing_guideline": "Identify the target world or major location for fast travel from the command.",
+                "command_to_perform": "fast travel to",
+                "command_format": "fast travel to <world/location>, e.g., fast travel to Shadowlands"
+            },
             "help": {
                 "description": "Display the list of available commands.",
                 "examples": ["help", "what can I do"],
@@ -178,12 +185,16 @@ class AIAssist:
             return self.world_builder.close_container()
 
         elif command == "give":
-            item_info = details  # 'details' holds the subject
+            item_info = details  
             print(f"Extracted item info: {item_info}, quantity: {quantity}")
-            # Combine quantity and item info into a single string to match the expected command format
             combined_command = f"{quantity} {item_info}"
             print(f"Combined command: {combined_command}")
             return self.world_builder.give_item(combined_command) if item_info else "Cannot determine item to give."
+        
+        elif command == "fast travel to":
+            world_name = details 
+            print(f"Extracted world name for fast travel: {world_name}")
+            return self.world_builder.fast_travel_to_world(world_name) if world_name else "Cannot determine destination for fast travel."
 
         elif command == "where am i":
             print("Command to identify current location received")

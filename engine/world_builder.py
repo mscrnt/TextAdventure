@@ -4,6 +4,7 @@ import json
 from icecream import ic
 import re
 from engine.ai_assist import AIAssist 
+import utilities
 
 class WorldBuilder:
     def __init__(self, game_manager, world_data, use_ai_assist=True):
@@ -46,6 +47,9 @@ class WorldBuilder:
                 return self.open_container(container_name)
             elif command.startswith("close"):
                 return self.close_container()
+            elif command.startswith("fast travel to"):
+                world_name = command[len("fast travel to"):].strip()
+                return self.fast_travel_to_world(world_name)
             elif command.startswith("give"):
                 item_name = command[len("give"):].strip()
                 return self.give_item(item_name)
@@ -54,37 +58,50 @@ class WorldBuilder:
             else:
                 return f"Unrecognized command: {command}"
 
-    # def find_location_data(self, location_name):
-    #     def search_in_collection(collection, name):
-    #         for item in collection:
-    #             if self.normalize_name(item['name']) == name:  # Normalize names for comparison
-    #                 return item
-    #             if 'rooms' in item:  # Check if the item has rooms (for sublocations)
-    #                 room = search_in_collection(item['rooms'], name)
-    #                 if room:
-    #                     return room
-    #         return None
+    def fast_travel_to_world(self, world_name):
+        available_worlds = [world.replace(" ", "").lower() for world in self.game_manager.player_sheet.get_fast_travel_worlds()]
+        formatted_world_name = world_name.replace(" ", "").lower()
 
-    #     normalized_location_name = self.normalize_name(location_name)  # Normalize the input location name
+        if formatted_world_name not in available_worlds:
+            print(f"{world_name} is not available for fast travel.")
+            return f"{world_name} is not available for fast travel."
 
-    #     if isinstance(location_name, dict):
-    #         location_name = location_name.get("location/sublocation", "Unknown Location")
-    #         normalized_location_name = self.normalize_name(location_name)
+        try:
+            self.game_manager.save_game()  # Save the game before fast traveling
 
-    #     # Search in top-level locations
-    #     location = search_in_collection(self.world_data.get('locations', []), normalized_location_name)
-    #     if location:
-    #         print(f"Found location or room: {normalized_location_name}")
-    #         return location
+            self.world_data = utilities.load_working_world_data(formatted_world_name)  # Load the world data for the new world
 
-    #     print(f"Location or room not found: {normalized_location_name}")
-    #     return None
+            main_entry_location = next((loc for loc in self.world_data['locations'] if loc.get('main-entry', False)), None)
+            if main_entry_location:
+                new_location = {"world": formatted_world_name, "location/sublocation": main_entry_location['name']}
+                self.game_manager.player_sheet.location = new_location
+                self.update_game_state_for_fast_travel(formatted_world_name)  
+                return True
+            else:
+                print(f"No main entry location found in {world_name}.")
+                return False
+        except Exception as e:
+            print(f"Error loading world data for {world_name}: {e}")
+            return False
+
+
+    def update_game_state_for_fast_travel(self, new_world_name):
+        # Update any world-specific game state here
+        CapitalizedWorldName = new_world_name.capitalize()
+        self.game_manager.world_data = self.world_data  # Synchronize GameManager's world data
+        self.game_manager.ui.display_text(f"Fast traveled to {CapitalizedWorldName}")
+
+    def find_main_entry_location(self, world_data):
+        # Find the main entry location in the new world data
+        for location in world_data.get('locations', []):
+            if location.get('main-entry', False):
+                return location['name']
+        return None
 
     def find_location_data(self, location_name):
         if isinstance(location_name, dict):
             location_name = location_name.get("location/sublocation", "Unknown Location")
 
-        # First, normalize the location_name for consistency in comparison
         normalized_location_name = self.normalize_name(location_name)
 
         for location in self.world_data.get('locations', []):
@@ -96,11 +113,9 @@ class WorldBuilder:
                     if self.normalize_name(sublocation['name']) == normalized_location_name:
                         print(f"Found sublocation: {location_name}")
                         return sublocation
-                    # Now we also need to look for rooms within each sublocation
                     for room in sublocation.get('rooms', []):
                         if self.normalize_name(room['name']) == normalized_location_name:
                             print(f"Found room: {location_name}")
-                            # Here we can either return the room or return the room with sublocation context
                             room['parent_sublocation'] = sublocation['name']  # This is optional, for context
                             return room
         print(f"Location or room not found: {location_name}")
@@ -119,7 +134,6 @@ class WorldBuilder:
 
 
     def talk_to_npc(self, npc_name):
-        # Normalize the NPC name for comparison
         normalized_npc_name = self.normalize_name(npc_name)
 
         # Get the current location data
@@ -177,21 +191,16 @@ class WorldBuilder:
         # Add logic for solving puzzles
         return f"You attempt to solve the puzzle: {puzzle['name']}."
 
-    def operate_machine(self, machine):
-        # Add logic for operating machines
-        return f"You operate the machine: {machine['name']}."
-
-
-    def load_world_data(self):
+    def load_world_data(self, world_name):
         try:
-            with open('data/worlds/avalonia.json', 'r') as f:
+            with open(f'data/worlds/{world_name}.json', 'r') as f:
                 return json.load(f)
         except Exception as e:
-            ic(f"Error loading world data: {e}")
-            return {}
+            ic(f"Error loading world data for {world_name}: {e}")
+            return None
 
     def build_scene_text(self, location_data):
-        location_data = self.get_current_location_data()  # Get the current location data
+        location_data = self.get_current_location_data() 
 
         if not location_data:
             return "You are in an unknown location."
@@ -271,28 +280,23 @@ class WorldBuilder:
 
     def normalize_name(self, name):
         print(f"Normalizing name: {name}")
-        # Remove 'The' if it's at the start of the name
         normalized_name = re.sub(r'^the\s+', '', name, flags=re.IGNORECASE)
-        # Replace multiple spaces with a single space and trim leading/trailing spaces
         normalized_name = re.sub(r'\s+', ' ', normalized_name).strip().lower()
         print(f"Normalized name: {normalized_name}")
         return normalized_name
 
 
     def open_container(self, container_name):
-        # Normalize the input for comparison
         container_name = self.normalize_name(container_name)
 
-        # Get the current location data
         current_location = self.game_manager.player_sheet.location
         current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
         location_data = self.find_location_data(current_location_str)
 
-        # Check if the location data contains the specified container
         if location_data and 'containers' in location_data:
             for container in location_data['containers']:
                 if self.normalize_name(container['name']) == container_name:
-                    container['isOpen'] = True  # Set the isOpen flag to true
+                    container['isOpen'] = True  
                     ic(f"Container opened: {container_name}, isOpen: {container['isOpen']}")
                     print(f"Container opened: {container_name}, isOpen: {container['isOpen']}")
                     return self.list_container_contents(container)
@@ -328,10 +332,8 @@ class WorldBuilder:
         return transport_text
 
     def take_item(self, item_name):
-        # Normalize the item name for comparison
         normalized_item_name = self.normalize_name(item_name)
 
-        # Get the current location data
         current_location = self.game_manager.player_sheet.location
         current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
         location_data = self.find_location_data(current_location_str)
@@ -357,11 +359,11 @@ class WorldBuilder:
 
 
     def _take_item_from_open_container(self, item_name, location_data):
-        normalized_item_name = self.normalize_name(item_name)  # Normalize the item name
+        normalized_item_name = self.normalize_name(item_name)  
         for container in location_data.get('containers', []):
             if container.get('isOpen', False):
                 for item in container.get('contains', []):
-                    if self.normalize_name(item['name']) == normalized_item_name:  # Use normalized name for comparison
+                    if self.normalize_name(item['name']) == normalized_item_name:
                         if not item.get('collectable', True):
                             return f"{item['name']} cannot be taken."
                         container['contains'].remove(item)
@@ -370,7 +372,7 @@ class WorldBuilder:
                         print(f"You have taken {item['name']} from {container['name']}.")
                         return f"You have taken {item['name']} from {container['name']}."
 
-        print(f"Item not found: {normalized_item_name}")  # Use normalized name in the message
+        print(f"Item not found: {item_name}")
         return None
 
 
@@ -386,10 +388,10 @@ class WorldBuilder:
                 if container.get('isOpen', False):
                     ic(f"Container open: {container['name']}")
                     print(f"Container open: {container['name']}")
-                    return container['name']  # Return the name of the open container
+                    return container['name']  
                 
         print("No container open.")
-        return None  # Return None if no container is open
+        return None # No container open
     
     def close_container(self):
         open_container_name = self.is_container_open()
@@ -400,7 +402,7 @@ class WorldBuilder:
             if location_data and 'containers' in location_data:
                 for container in location_data['containers']:
                     if container['name'] == open_container_name:
-                        container['isOpen'] = False  # Close the container
+                        container['isOpen'] = False  
                         ic(f"Container closed: {open_container_name}, isOpen: {container['isOpen']}")
                         print(f"Container closed: {open_container_name}, isOpen: {container['isOpen']}")
                         return f"You have closed {open_container_name}."
@@ -413,19 +415,19 @@ class WorldBuilder:
         current_location = self.game_manager.player_sheet.location
         current_location_str = current_location.get("location/sublocation", "Unknown Location")
         
-        print(f"Attempting to move. Current location: {current_location_str}, Destination: {location_name}")  # Debug print
+        print(f"Attempting to move. Current location: {current_location_str}, Destination: {location_name}") 
 
         current_location_data = self.find_location_data(current_location_str)
         if not current_location_data:
             return "You are in an unknown location and cannot move."
 
         sanitized_location_name = self.normalize_name(location_name)
-        print(f"Sanitized destination name: {sanitized_location_name}")  # Debug print
+        print(f"Sanitized destination name: {sanitized_location_name}") 
 
         if 'paths' in current_location_data:
             for direction, destination in current_location_data['paths'].items():
                 normalized_destination = self.normalize_name(destination)
-                print(f"Checking path: {direction} to {normalized_destination}")  # Debug print
+                print(f"Checking path: {direction} to {normalized_destination}") 
                 if normalized_destination == sanitized_location_name:
                     self.game_manager.player_sheet.location = {"world": current_location['world'], "location/sublocation": destination}
                     print(f"Player moved to {destination}.")
@@ -434,7 +436,7 @@ class WorldBuilder:
         if 'sublocations' in current_location_data:
             for sublocation in current_location_data['sublocations']:
                 normalized_sublocation_name = self.normalize_name(sublocation['name'])
-                print(f"Checking sublocation: {normalized_sublocation_name}")  # Debug print
+                print(f"Checking sublocation: {normalized_sublocation_name}") 
                 if normalized_sublocation_name == sanitized_location_name:
                     new_location_dict = {"world": current_location['world'], "location/sublocation": sublocation['name']}
                     self.game_manager.player_sheet.location = new_location_dict
@@ -443,7 +445,7 @@ class WorldBuilder:
                 if 'rooms' in sublocation:
                     for room in sublocation['rooms']:
                         normalized_room_name = self.normalize_name(room['name'])
-                        print(f"Checking room: {normalized_room_name} in sublocation: {normalized_sublocation_name}")  # Debug print
+                        print(f"Checking room: {normalized_room_name} in sublocation: {normalized_sublocation_name}")  
                         if normalized_room_name == sanitized_location_name:
                             new_location_dict = {
                                 "world": current_location['world'],
@@ -453,7 +455,7 @@ class WorldBuilder:
                             print(f"Player moved to {room['name']} within {sublocation['name']}.")
                             return f"You moved to {room['name']}."
 
-        print(f"Could not find path to: {sanitized_location_name} from {current_location_str}")  # Debug print
+        print(f"Could not find path to: {sanitized_location_name} from {current_location_str}")
         return f"Cannot determine how to move to '{location_name}'."
 
 
@@ -482,11 +484,11 @@ class WorldBuilder:
         return f"{item_name} not found."
 
     def _examine_item_in_open_container(self, item_name, location_data):
-        normalized_item_name = self.normalize_name(item_name)  # Normalize the item name
+        normalized_item_name = self.normalize_name(item_name)  
         for container in location_data.get('containers', []):
             if container.get('isOpen', False):
                 for item in container.get('contains', []):
-                    if self.normalize_name(item['name']) == normalized_item_name:  # Use normalized name for comparison
+                    if self.normalize_name(item['name']) == normalized_item_name: 
                         print(f"Item description: {item['description']}")
                         return f"{item['name']}: {item['description']}"
 
@@ -551,22 +553,36 @@ class WorldBuilder:
         )
         return help_text
     
-    def update_world_data(self, location_name, update_dict):
+    def update_world_data(self, location_name, update_dict=None, new_world_name=None):
         """
-        Update the world_data based on the provided location and update dictionary.
+        Update the world_data based on the provided location and update dictionary or load a new world.
 
         Args:
         location_name (str): The name of the location to update.
-        update_dict (dict): A dictionary containing the keys (such as 'containers', 'items', etc.) 
-                            and their new values to be updated in the world_data.
+        update_dict (dict, optional): A dictionary containing the keys to be updated.
+        new_world_name (str, optional): The name of the new world to load. If provided, 
+                                        it will update the entire world data.
         """
-        for location in self.world_data.get('locations', []):
-            # Check both top-level locations and sublocations
-            if location['name'].lower() == location_name.lower():
-                self._apply_updates(location, update_dict)
-            for sublocation in location.get('sublocations', []):
-                if sublocation['name'].lower() == location_name.lower():
-                    self._apply_updates(sublocation, update_dict)
+        if new_world_name:
+            # Load and update the world data for a new world
+            new_world_data = utilities.load_working_world_data(new_world_name)
+            if new_world_data:
+                self.world_data = new_world_data
+                print(f"World data updated to {new_world_name}")
+                return True
+            else:
+                print(f"Failed to load world data for {new_world_name}")
+                return False
+        else:
+            # Update specific location in the current world data
+            for location in self.world_data.get('locations', []):
+                if location['name'].lower() == location_name.lower():
+                    self._apply_updates(location, update_dict)
+                for sublocation in location.get('sublocations', []):
+                    if sublocation['name'].lower() == location_name.lower():
+                        self._apply_updates(sublocation, update_dict)
+            return True
+
 
     def _apply_updates(self, location_dict, update_dict):
         """
