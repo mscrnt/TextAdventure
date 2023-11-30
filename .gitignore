@@ -10,3 +10,6 @@ __pycache__/
 
 # Ignore working json files
 working_*.json
+
+# Ignore updating secrets file
+data/secrets.json
