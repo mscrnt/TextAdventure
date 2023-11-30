@@ -123,15 +123,6 @@ class GameManager(QObject):
             ic("Activating Read Email quest")
             self.quest_tracker.activate_quest("Read Email") 
 
-    def update_inventory_ui(self):
-        pass  
-
-    def update_fast_travel_ui(self):
-        pass  
-
-    def update_notes_ui(self):
-        pass  
-
     def update_quests_ui(self):
         ic("Updating quests UI")
         # Call the update method on the UI instance
@@ -174,7 +165,7 @@ class GameManager(QObject):
             loc_name, world = location_name.split(' - ')
         else:
             loc_name = location_name
-            world = None  # or a default value
+            world = None 
 
         for location_with_world in self.player_sheet.fast_travel_locations:
             if location_with_world['location']['name'] == location_name:
@@ -189,15 +180,11 @@ class GameManager(QObject):
     def get_quest_details(self, quest_name):
         # Attempt to find the quest by name
         quest_detail = next((quest for quest in self.player_sheet.quests if quest['name'] == quest_name), None)
-        
-        # Debug print to check what is being retrieved
         ic(f"Quest search for '{quest_name}' found: {quest_detail}")
         
         if quest_detail:
-            # If the quest is found, return its details
             return quest_detail
         else:
-            # Return None if the quest is not found
             return None
         
     def mark_email_as_read(self, email_name):
@@ -214,8 +201,6 @@ class GameManager(QObject):
     def save_game(self):
         # Close all open containers before saving
         self.world_builder.close_all_containers()
-
-        # Extend the game state dictionary with the world data
         state = {
             'player_sheet': self.player_sheet,
             'world_data': self.world_data  # Include the in-memory world data
