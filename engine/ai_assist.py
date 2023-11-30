@@ -59,6 +59,13 @@ class AIAssist:
                 "command_to_perform": "move to, go to",
                 "command_format": "move to <destination>, e.g., go to Eldergrove Forest"
             },
+            "talk to": {
+                "description": "Initiate a conversation with an NPC.",
+                "examples": ["talk to the guard", "speak to the merchant", "chat with the innkeeper"],
+                "parsing_guideline": "Identify the NPC to be spoken to from the command.",
+                "command_to_perform": "talk to",
+                "command_format": "talk to <NPC>, e.g., talk to the guard"
+            },
             "take": {
                 "description": "Take an item from the current location or container.",
                 "examples": ["take potion", "pick up sword", "grab the key"],
@@ -107,6 +114,13 @@ class AIAssist:
                 "parsing_guideline": "Interpret as a request to describe the player's current surroundings.",
                 "command_to_perform": "look around",
                 "command_format": "look around, e.g., look around"
+            },
+            "interact with": {
+                "description": "Interact with an object in the current location.",
+                "examples": ["interact with the statue", "use the lever", "pull the lever"],
+                "parsing_guideline": "Identify the object to interact with from the command.",
+                "command_to_perform": "interact with",
+                "command_format": "interact with <object>, e.g., interact with the statue"
             },
             "fast travel to": {
                 "description": "Instantly travel to a different world or major location.",
@@ -161,17 +175,17 @@ class AIAssist:
 
         # Directly use the extracted command in your checks
         if command == "move to":
-            destination = details  # 'details' holds the subject
+            destination = details  
             print(f"Extracted destination: {destination}")
             return self.world_builder.move_player(destination) if destination else "Cannot determine destination."
 
         elif command == "take":
-            item_name = details  # 'details' holds the subject
+            item_name = details  
             print(f"Extracted item name: {item_name}")
             return self.world_builder.take_item(item_name) if item_name else "Cannot determine item to take."
 
         elif command == "examine":
-            target = details  # 'details' holds the subject
+            target = details 
             print(f"Extracted target: {target}")
             return self.world_builder.examine_item(target) if target else "Cannot determine what to examine."
 
@@ -179,6 +193,16 @@ class AIAssist:
             container_name = details
             print(f"Extracted container name: {container_name}")
             return self.world_builder.open_container(container_name) if container_name else "Cannot determine container to open."
+
+        elif command == "interact with":
+            object_name = details
+            print(f"Extracted object name: {object_name}")
+            return self.world_builder.interact_with(object_name) if object_name else "Cannot determine object to interact with."
+
+        elif command == "talk to":
+            npc_name = details
+            print(f"Extracted NPC name: {npc_name}")
+            return self.world_builder.talk_to_npc(npc_name) if npc_name else "Cannot determine NPC to talk to."
 
         elif command == "close":
             print("Command to close container received")
@@ -215,8 +239,6 @@ class AIAssist:
     def parse_interpreted_command(self, interpreted_command):
         print(f"Extracting command details from: {interpreted_command}")
         
-        # Regular expressions to extract Action, Subject, and Quantity
-        # Stops at a comma or a newline
         action_match = re.search(r"Action:\s*([^\n,]+)", interpreted_command)
         subject_match = re.search(r"Subject:\s*([^\n,]+)", interpreted_command)
         quantity_match = re.search(r"Quantity:\s*(\d+)", interpreted_command)
@@ -257,19 +279,23 @@ class AIAssist:
         return narrative_response
 
     def construct_narrative_prompt(self, action_response, original_command, location_data, current_location):
-        # Extract visible items, features, paths, exits, and containers from the current location data
+        # Extract visible items, features, and containers from the current location data
         visible_items = [item for item in location_data.get('items', []) if item.get('visible', True)]
         visible_features = location_data.get('features', [])
-        paths = location_data.get('paths', {})
-        exits = [exit for exit in paths.values()]  # Extract exits from paths
         containers = location_data.get('containers', [])
+        rooms = location_data.get('rooms', [])
+
+        # Filter paths based on their 'visible' flag
+        visible_paths = {key: value for key, value in location_data.get('paths', {}).items() if value.get('visible', True)}
+        visible_exits = [value['destination'] for value in visible_paths.values()]
 
         # Construct a description for each element
         items_description = f"Visible items: {', '.join([item['name'] for item in visible_items])}." if visible_items else "No visible items."
         features_description = f"Visible features: {', '.join(visible_features)}." if visible_features else "No visible features."
-        paths_description = f"Available paths: {', '.join(paths.keys())}." if paths else "No visible paths."
-        exits_description = f"Exits: {', '.join(exits)}." if exits else "No visible exits."
+        paths_description = f"Available paths: {', '.join(visible_paths.keys())}." if visible_paths else "No visible paths."
+        exits_description = f"Exits: {', '.join(visible_exits)}." if visible_exits else "No visible exits."
         containers_description = f"Containers: {', '.join([container['name'] for container in containers])}." if containers else "No visible containers."
+        rooms_description = f"Rooms: {', '.join([room['name'] for room in rooms])}." if rooms else "No visible rooms."
 
         # Construct the prompt for GPT to generate a narrative response
         prompt = (
@@ -282,7 +308,8 @@ class AIAssist:
             f"- {features_description}\n"
             f"- {paths_description}\n"
             f"- {exits_description}\n"
-            f"- {containers_description}\n\n"
+            f"- {containers_description}\n"
+            f"- {rooms_description}\n\n"
             "Narrative Response:"
         )
         return prompt
