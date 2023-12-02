@@ -12,7 +12,7 @@ class GameManager(QObject, IGameManager):
     display_text_signal = Signal(str)
     gameLoaded = Signal()
 
-    def __init__(self):
+    def __init__(self, use_ai=False):
         super().__init__() 
         self.player_sheet = PlayerSheet("DefaultPlayer") 
         self.quest_tracker = QuestTracker()  
@@ -21,7 +21,7 @@ class GameManager(QObject, IGameManager):
         self.quest_tracker.set_player_sheet(self.player_sheet)
         # Load dynamic world names
         self.world_data = self.load_world_data()
-        self.world_builder = WorldBuilder(world_data=self.world_data)
+        self.world_builder = WorldBuilder(world_data=self.world_data, use_ai_assist=use_ai)
         self.world_builder.set_game_manager(self)
         self.ui = None
         # self.populate_initial_game_state()

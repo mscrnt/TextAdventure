@@ -18,13 +18,14 @@ class GameUI(QWidget, IGameUI):
         super().__init__(parent)
         self.game_manager = game_manager
         self.world_builder = world_builder
-        self.is_item_clicked_connected = False  # Initialize this attribute
+        self.is_item_clicked_connected = False 
         self.was_command_help = False
 
         
         # UI initialization logic
         self.init_ui()
 
+        # Connect signals and slots
         self.update_text_signal.connect(self.display_text)
         self.game_manager.display_text_signal.connect(self.display_text)
         self.world_builder.display_text_signal.connect(self.display_text)

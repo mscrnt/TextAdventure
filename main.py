@@ -26,7 +26,7 @@ def main():
     player_sheet = PlayerSheet("Player1")
     quest_tracker = QuestTracker() 
     world_builder = WorldBuilder({}, use_ai)  
-    game_manager = GameManager()  
+    game_manager = GameManager(use_ai)
 
     # Initialize GameUI
     game_ui = GameUI(game_manager, world_builder)
