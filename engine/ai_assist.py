@@ -42,7 +42,7 @@ class AIAssist:
     def handle_player_command(self, command):
         # Access world data and player sheet
         world_data = self.world_builder.world_data
-        player_data = self.game_manager.player_sheet
+        player_data = self.player_sheet
 
         # Step 2: Send command to GPT for interpretation
         interpret_prompt = self.construct_command_context_prompt(command, world_data, player_data)
@@ -274,7 +274,7 @@ class AIAssist:
         
     def generate_narrative_response(self, action_response, original_command):
         print(f"Generating narrative response for action: {action_response}, original command: {original_command}")
-        player_data = self.game_manager.player_sheet
+        player_data = self.player_sheet
         current_location = player_data.location.get("location/sublocation", "Unknown Location")
         location_data = self.world_builder.find_location_data(current_location)
         print(f"Current location data for narrative: {location_data}")

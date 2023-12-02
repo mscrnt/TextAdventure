@@ -9,17 +9,26 @@ from interfaces import IWorldBuilder, IGameManager
 
 class WorldBuilder(IWorldBuilder):
     def __init__(self, world_data, use_ai_assist=True):
-        self.game_manager = None  # To be set later
+        self.game_manager = None
         self.world_data = world_data
+        ic(f'World data: {self.world_data}')
         self.use_ai_assist = use_ai_assist
         if self.use_ai_assist:
-            self.ai_assist = None  # To be initialized later
-        ic("Initializing world builder")
+            ic(f"AI assist enabled: {self.use_ai_assist}")
+        ic("WorldBuilder initialized, AI assist deferred")
 
     def set_game_manager(self, game_manager: IGameManager):
         if not game_manager:
             raise ValueError("GameManager instance is required")
         self.game_manager = game_manager
+        if self.use_ai_assist:
+            self.initialize_ai_assist()
+
+    def initialize_ai_assist(self):
+        if not self.game_manager or not self.game_manager.player_sheet:
+            raise ValueError("GameManager with PlayerSheet is required for AIAssist")
+        ic("Initializing AI assist")
+        self.ai_assist = AIAssist(self.game_manager.player_sheet, self)
 
     def incoming_command(self, command):
         html_command = utilities.convert_text_to_display(f"Processing command: {command}")
@@ -31,6 +40,7 @@ class WorldBuilder(IWorldBuilder):
             ic(f"AI response: {response}")
             return response
         else:
+            ic("Processing command directly.")
             if command.startswith("take"):
                 item_name = command[len("take"):].strip()
                 text = self.take_item(item_name)
@@ -139,8 +149,10 @@ class WorldBuilder(IWorldBuilder):
             location_name = location_name.get("location/sublocation", "Unknown Location")
 
         normalized_location_name = self.normalize_name(location_name)
-
+        ic("finding location debug")
+        ic(self.world_data)
         for location in self.world_data.get('locations', []):
+            ic(f"Searching for location: {normalized_location_name}")
             if isinstance(location, dict) and 'name' in location:
                 if self.normalize_name(location['name']) == normalized_location_name:
                     ic(f"Found location: {location_name}")

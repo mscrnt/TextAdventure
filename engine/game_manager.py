@@ -18,12 +18,22 @@ class GameManager(QObject, IGameManager):
         self.quest_tracker.set_game_manager(self)
         self.quest_tracker.set_player_sheet(self.player_sheet) 
         self.quest_tracker.set_player_sheet(self.player_sheet)
-        self.world_builder = WorldBuilder(world_data={}, use_ai_assist=True)
+        # Load dynamic world names
+        self.world_data = self.load_world_data()
+        self.world_builder = WorldBuilder(world_data=self.world_data, use_ai_assist=True)
         self.world_builder.set_game_manager(self)
         self.ui = None
-        self.world_data = None
         # self.populate_initial_game_state()
         ic("GameManager initialized")
+
+    def load_world_data(self):
+        world_full_names = utilities.load_all_worlds()
+
+        # Loop through each world name
+        for world_key in world_full_names.keys():
+            world_data = utilities.load_working_world_data(world_key)
+
+        return world_data
 
     def set_player_sheet(self, player_sheet: IPlayerSheet):
         self.player_sheet = player_sheet
@@ -66,10 +76,10 @@ class GameManager(QObject, IGameManager):
             ic("Quest tracker is not initialized.")
 
         # Initialize the WorldBuilder for a new game
-        if self.world_builder is not None:
-            self.world_builder.initialize_for_new_game()
-        else:
-            ic("World builder is not initialized.")
+        # if self.world_builder is not None:
+        #     self.world_builder.initialize_for_new_game()
+        # else:
+        #     ic("World builder is not initialized.")
 
         # If UI needs to be updated or initialized for a new game
         if self.ui is not None:
