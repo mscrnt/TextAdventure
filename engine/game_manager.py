@@ -1,32 +1,123 @@
 # engine/game_manager.py
-
-from engine.player_sheet import PlayerSheet
-from engine.quest_tracker import QuestTracker
 from icecream import ic
 import utilities
-from PySide6.QtCore import QObject, Signal
+from interfaces import IGameManager, IQuestTracker, IWorldBuilder, IPlayerSheet, IGameUI
+from engine.player_sheet import PlayerSheet
+from engine.quest_tracker import QuestTracker
 from engine.world_builder import WorldBuilder
+from PySide6.QtCore import QObject, Signal, QTimer
 
 
-class GameManager(QObject):
+class GameManager(QObject, IGameManager):
     gameLoaded = Signal()
 
-    def __init__(self, player_name, ui, use_ai_assist=True):
+    def __init__(self):
         super().__init__() 
-        self.player_sheet = PlayerSheet(player_name)
-        self.quest_tracker = QuestTracker(self)
+        self.player_sheet = PlayerSheet("DefaultPlayer") 
+        self.quest_tracker = QuestTracker()  
+        self.quest_tracker.set_game_manager(self)
+        self.quest_tracker.set_player_sheet(self.player_sheet) 
+        self.quest_tracker.set_player_sheet(self.player_sheet)
+        self.world_builder = WorldBuilder(world_data={}, use_ai_assist=True)
+        self.world_builder.set_game_manager(self)
+        self.ui = None
+        self.world_data = None
+        # self.populate_initial_game_state()
+        ic("GameManager initialized")
+
+    def set_player_sheet(self, player_sheet: IPlayerSheet):
+        self.player_sheet = player_sheet
+
+    def set_quest_tracker(self, quest_tracker: IQuestTracker):
+        self.quest_tracker = quest_tracker
+
+    def set_world_builder(self, world_builder: IWorldBuilder):
+        self.world_builder = world_builder
+        if self.world_builder:
+            self.world_builder.game_manager = self
+
+    def set_ui(self, ui: IGameUI):
         self.ui = ui
+
         self.world_data = utilities.load_working_world_data(self.player_sheet.location['world'])
+
         self.world_full_names = self.load_worlds_data()
+        ic("GameManager initialized")
 
+    def emit_game_loaded(self):
+        ic("Emitting game loaded signal")
+        self.gameLoaded.emit()
+
+    def start_new_game(self, player_name):
+        # Set the player name and reset its state
+        self.player_sheet.set_player_name(player_name)
+        self.player_sheet.reset_state()
+
+        # Load world data required for game state population
+        self.world_data = self.load_worlds_data()
+
+        # Now that world data is loaded, populate initial game state
         self.populate_initial_game_state()
-        self.update_quests_ui()
+
+        # Initialize the QuestTracker for a new game
+        if self.quest_tracker is not None:
+            self.quest_tracker.initialize_for_new_game()
+        else:
+            ic("Quest tracker is not initialized.")
+
+        # Initialize the WorldBuilder for a new game
+        if self.world_builder is not None:
+            self.world_builder.initialize_for_new_game()
+        else:
+            ic("World builder is not initialized.")
+
+        # If UI needs to be updated or initialized for a new game
+        if self.ui is not None:
+            self.ui.initialize_for_new_game()
+        else:
+            ic("UI is not initialized.")
+        QTimer.singleShot(1000, self.emit_game_loaded)
+        return True
+    
+    def activate_player_quest(self, quest_data):
+        if self.player_sheet:
+            self.player_sheet.add_quest(quest_data)
+            ic(f"Quest {quest_data['name']} added to player")
+        else:
+            ic("PlayerSheet is not set in GameManager")
+
+    def get_inventory_data(self):
+        ic("Getting inventory data")
+        return [f"{item['name']} (x{item['quantity']})" for item in self.player_sheet.inventory]
+
+    def get_fast_travel_locations_data(self):
+        ic("Getting fast travel locations data")
+        return [
+            f"{location['location']['name']} ({location['world_name']})"
+            for location in self.player_sheet.fast_travel_locations
+        ]
+
+    def get_notes_data(self):
+        ic("Getting notes data")
+        return [note['name'] for note in self.player_sheet.notes]
+
+    def get_quests_data(self):
+        if self.player_sheet is None:
+            ic("Warning: player_sheet is None in get_quests_data")
+            return []
+        ic("Getting quests data")
+        ic(self.player_sheet.quests)
+        return [
+            f"{quest['name']}: {'Completed' if quest['completed'] else 'In Progress'}" 
+            for quest in self.player_sheet.quests
+        ]
+
+    def get_emails_data(self):
+        ic("Getting emails data")
+        emails = sorted(self.player_sheet.emails, key=lambda x: x['read'])
+        return [f"{email['name']} (Read)" if email['read'] else email['name'] 
+                for email in emails]
         
-        # Initialize the game state with initial items, locations, etc.
-        self.world_builder = WorldBuilder(self, self.world_data, use_ai_assist)
-
-        ic("GameManager initialized")   
-
     def load_global_inventory(self):
         ic("Loading global inventory")
         global_inventory = utilities.load_json("item_list", "items")
@@ -60,20 +151,26 @@ class GameManager(QObject):
         # Load the global inventory
         global_items = self.load_global_inventory()
         ic("Global items loaded")
-        ic(global_items)
 
-        # Add items to the player's inventory
+        # Verify global items have been loaded with expected content
+        if not global_items:
+            ic("Warning: global_items is empty after loading.")
+
+        # Add items to the player's inventory and verify
         excalibur = find_item_by_name("Excalibur")
         if excalibur:
             self.player_sheet.add_item(excalibur)
-            ic("Excalibur added to inventory")
+            ic("Excalibur added to inventory", self.player_sheet.inventory)
+        else:
+            ic("Warning: Excalibur not found in global items.")
 
         health_potion = find_item_by_name("Health Potion")
         if health_potion:
-            # Modify the quantity here
             health_potion['quantity'] = 5
             self.player_sheet.add_item(health_potion)
-            ic("Health potion added to inventory")
+            ic("Health potion added to inventory", self.player_sheet.inventory)
+        else:
+            ic("Warning: Health Potion not found in global items.")
 
         # Load dynamic world names
         world_full_names = utilities.load_all_worlds()
@@ -123,6 +220,7 @@ class GameManager(QObject):
             ic("Activating Read Email quest")
             self.quest_tracker.activate_quest("Read Email") 
 
+
     def update_quests_ui(self):
         ic("Updating quests UI")
         # Call the update method on the UI instance
@@ -158,7 +256,7 @@ class GameManager(QObject):
         return next((item for item in self.player_sheet.inventory if item['name'] == item_name), None)
 
     def get_fast_travel_location_details(self, location_name):
-        print(f"Getting fast travel location details for {location_name}")
+        ic(f"Getting fast travel location details for {location_name}")
 
         # Check if the location name is in the expected format with a separator
         if ' - ' in location_name:
@@ -215,8 +313,8 @@ class GameManager(QObject):
             if state:
                 # Update the game manager's state with the loaded data
                 self.player_sheet.__dict__.update(state['player_sheet'].__dict__)
-                self.world_data = state['world_data']  # Load the world data into memory
-                self.gameLoaded.emit()
+                self.world_data = state['world_data']
+                self.emit_game_loaded()  # Corrected typo here
                 ic(f"Game loaded. Player: {self.player_sheet.name}, Filename: {filename}")
                 return True
             else:

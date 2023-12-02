@@ -7,8 +7,8 @@ import re
 import time
 
 class AIAssist:
-    def __init__(self, game_manager, world_builder):
-        self.game_manager = game_manager
+    def __init__(self, player_sheet, world_builder):
+        self.player_sheet = player_sheet
         self.world_builder = world_builder
 
         # Load API key from engine/secrets.json

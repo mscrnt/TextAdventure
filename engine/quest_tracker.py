@@ -2,11 +2,23 @@
 
 import json
 from icecream import ic
+from interfaces import IGameManager, IQuestTracker, IPlayerSheet
 
-class QuestTracker:
-    def __init__(self, game_manager):
-        self.game_manager = game_manager
+class QuestTracker(IQuestTracker):
+    def __init__(self):
+        self.game_manager = None  # To be set later
+
+        ic("Initializing quest tracker")
+        
         self.initial_quests = self.load_initial_quests()
+
+    def set_game_manager(self, game_manager: IGameManager):
+        if game_manager is None:
+            raise ValueError("GameManager cannot be None")
+        self.game_manager = game_manager
+
+    def set_player_sheet(self, player_sheet: IPlayerSheet):
+        self.player_sheet = player_sheet
 
     def load_initial_quests(self):
         try:
@@ -16,16 +28,25 @@ class QuestTracker:
             ic(f"Error loading quests: {e}")
             return []
 
+    def initialize_for_new_game(self):
+        # Initialize or reset quests for a new game
+        self.initial_quests = self.load_initial_quests() 
+        ic("Quest tracker initialized for a new game.")
+
     def get_quest(self, quest_name):
         return next((quest for quest in self.initial_quests if quest['name'] == quest_name), None)
 
-    def activate_quest(self, quest_name):
-        quest_data = self.get_quest(quest_name)
-        if quest_data and not quest_data['completed']:
-            quest_data['isActive'] = True  
-            self.game_manager.player_sheet.add_quest(quest_data)  
-            ic(f"Quest {quest_name} activated") 
 
+    def activate_quest(self, quest_name):
+        if not self.player_sheet:
+            ic("Player sheet not set in QuestTracker")
+            return
+        else:
+            quest_data = self.get_quest(quest_name)
+            if quest_data and not quest_data.get('completed', False):
+                quest_data['isActive'] = True
+                self.player_sheet.add_quest(quest_data)  # Assuming add_quest is a method in PlayerSheet
+                ic(f"Quest {quest_name} activated") 
 
     def initialize_quest(self, quest_slug, quest_data):
         quest_class = self.quest_class_for_slug(quest_slug)
@@ -42,8 +63,9 @@ class QuestTracker:
 
     def check_all_quests(self):
         ic("Checking all quests")
-        ic(self.game_manager.player_sheet.quests)
-        for quest_data in self.game_manager.player_sheet.quests:
+        if self.game_manager is None:
+            raise RuntimeError("GameManager is not set in QuestTracker")
+        for quest_data in self.player_sheet.quests:
             ic(f"Quest data before check: {quest_data}")
             if not quest_data['completed'] and quest_data['isActive']:
                 ic("Checking quest")
@@ -59,7 +81,7 @@ class QuestTracker:
                     if objectives_completed:
                         ic(f"Marking quest {quest_data['name']} as completed")
                         quest_data['completed'] = True
-                        self.game_manager.player_sheet.update_quest(quest_data)
+                        self.player_sheet.update_quest(quest_data)
                         ic(f"Quest {quest_data['name']} marked completed in player sheet")
 
 
@@ -69,8 +91,8 @@ class QuestTracker:
     
 # Base class for all objectives
 class BaseObjective:
-    def __init__(self, game_manager, objective_data):
-        self.game_manager = game_manager
+    def __init__(self, player_sheet, objective_data):
+        self.player_sheet = player_sheet
         self.objective_data = objective_data
         self.completed = objective_data.get('completed', False)
         ic(self.objective_data)
@@ -90,18 +112,12 @@ class BaseObjective:
 
 # Objective for reading email(s)
 class ReadEmailObjective(BaseObjective):
-    def check_objective(self):
-        # Handle the case where all items should be checked
-        if self.objective_data['target'] == "all-unread":
-            return self.check_all_emails_read()
-
-        # Handle the case where specific items are listed
-        elif isinstance(self.objective_data['target'], list):
-            return all(self.check_specific_email_read(email_name) for email_name in self.objective_data['target'])
-
-        # Handle the case where there is only one target
-        else:
-            return self.check_specific_email_read(self.objective_data['target'])
+    def __init__(self, game_manager, objective_data):
+        if game_manager is None or game_manager.player_sheet is None:
+            raise ValueError("GameManager and its player_sheet cannot be None")
+        super().__init__(game_manager.player_sheet, objective_data)
+        self.game_manager = game_manager
+        # Initialization is complete here. No return statements needed.
 
     def check_all_emails_read(self):
         emails = self.game_manager.player_sheet.get_all_emails()
@@ -116,8 +132,22 @@ class ReadEmailObjective(BaseObjective):
             return True
         return False
 
+    def check_objective(self):
+        # Move the logic from __init__ to this method
+        if self.objective_data['target'] == "all-unread":
+            return self.check_all_emails_read()
+        elif isinstance(self.objective_data['target'], list):
+            return all(self.check_specific_email_read(email_name) for email_name in self.objective_data['target'])
+        else:
+            return self.check_specific_email_read(self.objective_data['target'])
+
+
 # Objective for fetching an item
 class FetchItemObjective(BaseObjective):
+    def __init__(self, game_manager, objective_data):
+        super().__init__(game_manager.player_sheet, objective_data)
+        self.game_manager = game_manager
+
     def check_objective(self):
         item = self.game_manager.player_sheet.get_inventory_item_details(self.objective_data['target'])
         ic(item)
@@ -132,12 +162,9 @@ class BaseQuest:
     def __init__(self, game_manager, quest_data):
         self.game_manager = game_manager
         self.quest_data = quest_data
-        ic(self.quest_data)
         self.objectives = [self._create_objective(obj_data) for obj_data in quest_data['objectives']]
-        ic(self.objectives)
 
     def _create_objective(self, objective_data):
-        ic(objective_data)
         if objective_data['type'] == 'readEmail':
             return ReadEmailObjective(self.game_manager, objective_data)
         elif objective_data['type'] == 'fetchQuest':

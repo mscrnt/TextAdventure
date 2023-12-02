@@ -1,23 +1,33 @@
 # gui/main_window.py
 
-from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout, QPushButton, QFileDialog, QInputDialog, QDialog
+from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLabel, QStackedLayout, QPushButton, QFileDialog, QInputDialog, QApplication, QDialog
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
-from typing import Dict
+from PySide6.QtGui import QFont, QPalette, QColor
 from icecream import ic
-import sys
-from intro import IntroAnimation
-from gui.game_ui import GameUI
+from interfaces import IGameManager, IQuestTracker, IWorldBuilder, IPlayerSheet, IGameUI
 import utilities
 
-
 class MainWindow(QMainWindow):
-    def __init__(self, use_ai_assist=True):
+    def __init__(self, game_manager: IGameManager, world_builder: IWorldBuilder, player_sheet: IPlayerSheet, quest_tracker: IQuestTracker, game_ui: IGameUI):
         super().__init__()
+        self.game_manager = game_manager
+        self.world_builder = world_builder
+        self.player_sheet = player_sheet
+        self.quest_tracker = quest_tracker
+        self.game_ui = game_ui
+        ic("Initializing main window")
+
+        self.game_manager.gameLoaded.connect(self.game_ui.on_game_loaded)
+        self.game_ui.ui_ready_to_show.connect(self.switch_to_game_ui)
+
+
 
         # Set the main window's properties
         self.setWindowTitle("Odyssey")
         self.setGeometry(100, 100, 800, 600)
+
+        # Set the theme
+        self.set_dark_theme()
 
         # Initialize Menu Bar first
         self.init_menu_bar()
@@ -30,14 +40,33 @@ class MainWindow(QMainWindow):
         # Initialize Splash Screen
         self.init_splash_screen()
 
-        self.use_ai = use_ai_assist
-
         # Initialize Main Game Interface
         self.init_game_interface()
 
         self.init_entry_point()
 
+    def set_dark_theme(self):
+        # Set the palette for a dark theme
+        palette = QPalette()
+        palette.setColor(QPalette.Window, QColor(53, 53, 53))
+        palette.setColor(QPalette.WindowText, Qt.white)
+        palette.setColor(QPalette.Base, QColor(25, 25, 25))
+        palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+        palette.setColor(QPalette.ToolTipBase, Qt.white)
+        palette.setColor(QPalette.ToolTipText, Qt.white)
+        palette.setColor(QPalette.Text, Qt.white)
+        palette.setColor(QPalette.Button, QColor(35, 35, 35))
+        palette.setColor(QPalette.ButtonText, Qt.white)
+        palette.setColor(QPalette.BrightText, Qt.red)
+        palette.setColor(QPalette.Link, QColor(42, 130, 218))
+        palette.setColor(QPalette.Highlight, QColor(75, 110, 175))
+        palette.setColor(QPalette.HighlightedText, Qt.white)
+        QApplication.setPalette(palette)
+
     def init_entry_point(self):
+        # Entry point widget setup
+        ic("Initializing entry point")
+        ic(self.layout)
         self.entry_point_widget = QWidget()  
         entry_point_layout = QVBoxLayout(self.entry_point_widget)
 
@@ -59,9 +88,11 @@ class MainWindow(QMainWindow):
 
     def on_intro_animation_complete(self):
         # Here, switch to the game UI
+        ic("Intro animation complete")
         self.setCentralWidget(self.game_ui)
 
     def init_splash_screen(self):
+        ic("Initializing splash screen")
         splash_widget = QWidget()
         splash_layout = QVBoxLayout(splash_widget)
 
@@ -78,6 +109,7 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(splash_widget)
 
     def init_menu_bar(self):
+        ic("Initializing menu bar")
         menu_bar = self.menuBar()
         # Set menu bar color to match
         menu_bar.setStyleSheet("""
@@ -95,6 +127,7 @@ class MainWindow(QMainWindow):
         """)
 
         # File Menu
+        ic("Initializing file menu")
         file_menu = menu_bar.addMenu("File")
         new_game_action = file_menu.addAction("New Game")
         save_game_action = file_menu.addAction("Save Game")
@@ -103,12 +136,14 @@ class MainWindow(QMainWindow):
         exit_action = file_menu.addAction("Exit")
 
         # Connect actions
+        ic("Connecting actions")
         new_game_action.triggered.connect(self.start_new_game)
         save_game_action.triggered.connect(self.trigger_save_game)
         load_game_action.triggered.connect(self.select_save_file)
         exit_action.triggered.connect(self.close)
 
         # Add actions to menu
+        ic("Adding actions to menu")
         file_menu.addAction(new_game_action)
         file_menu.addAction(save_game_action)
         file_menu.addAction(load_game_action)
@@ -116,6 +151,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(exit_action)
 
         # Edit Menu
+        ic("Initializing edit menu")
         edit_menu = menu_bar.addMenu("Edit")
         edit_menu.addAction("Undo")
         edit_menu.addAction("Redo")
@@ -123,11 +159,13 @@ class MainWindow(QMainWindow):
         edit_menu.addAction("Preferences")
 
         # Help Menu
+        ic("Initializing help menu")
         help_menu = menu_bar.addMenu("Help")
         help_menu.addAction("About")
         help_menu.addAction("Game Instructions")
 
     def init_game_interface(self):
+        ic("Initializing game interface")
         # Game interface setup
         game_widget = QWidget()
         game_layout = QVBoxLayout(game_widget)
@@ -140,6 +178,7 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(game_widget)
 
     def create_ascii_banner(self, text):
+        ic("Creating ASCII banner")
         banner_width = 80
         padding = (banner_width - len(text) - 2) // 2
         banner_text = "+" + "-" * (banner_width - 2) + "+\n"
@@ -148,57 +187,44 @@ class MainWindow(QMainWindow):
         return banner_text
 
     def start_game(self, event):
+        ic("Starting game")
         # This method is called when the splash screen is clicked
         if event.button() == Qt.LeftButton:
             # Change to the entry point screen
             self.layout.setCurrentIndex(self.layout.indexOf(self.entry_point_widget))
 
-
-    def change_to_game_ui(self):
-        # Instantiate the game UI and set it as the central widget
-        self.game_ui = GameUI()
+    def switch_to_game_ui(self):
+        """
+        Switch the central widget to the game UI.
+        """
+        ic("Switching to game UI")
         self.setCentralWidget(self.game_ui)
 
     def start_new_game(self):
-        player_name = self.prompt_for_player_name()  # Get the player's name
-        if player_name:
-            # Create a working copy of the world data for this game session
-            starting_world = "BlizzardWorld"
-            utilities.create_working_world_data(starting_world)
-            
-            # Create the GameUI with the player's name
-            self.game_ui = GameUI(player_name, use_ai_assist=self.use_ai)
-            
-            # Start the intro animation and connect the completion signal to show the game UI
-            self.introAnimation = IntroAnimation(self)
-            self.introAnimation.animationComplete.connect(self.on_intro_animation_complete)
-            self.setCentralWidget(self.introAnimation)
+        # Prompt for player name and start a new game if a valid name is provided
+        player_name = self.prompt_for_player_name()
+        if player_name and self.game_manager.start_new_game(player_name):
+            ic("New game started successfully.")
         else:
-            # Handle the case where no name was entered
-            print("No player name entered, new game not started.")
+            ic("No player name entered, or failed to start new game.")
+
+
 
     # Method to save the game
     def trigger_save_game(self):
         self.game_ui.game_manager.save_game()
 
-    # Method to load the game
     def select_save_file(self):
-        # Open a file dialog to select the save file, starting in the 'save_data/' directory
         filename, _ = QFileDialog.getOpenFileName(self, "Load Game", "save_data/", "Save Files (*.pkl)")
         if filename:
-            # Create a GameUI instance if it does not exist
-            if not hasattr(self, 'game_ui'):
-                # Since we don't have the player's name, we might need to extract it from the save file or set a default
-                player_name = 'Default'  # This will be replaced once we have the player's name
-                self.game_ui = GameUI(player_name)
-
-            if self.game_ui.game_manager.load_game(filename):
+            if self.game_manager.load_game(filename):
+                self.game_ui.initialize_for_loaded_game()  # You may need to create this method in GameUI
                 self.setCentralWidget(self.game_ui)
-                print(f"Game loaded successfully from {filename}.")
+                ic(f"Game loaded successfully from {filename}.")
             else:
-                print("Failed to load the game.")
+                ic("Failed to load the game.")
         else:
-            print("No file selected.")
+            ic("No file selected.")
 
     def prompt_for_player_name(self):
         dialog = QInputDialog(self)
