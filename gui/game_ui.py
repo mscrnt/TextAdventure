@@ -16,6 +16,7 @@ class GameUI(QWidget, IGameUI):
         self.game_manager = game_manager
         self.world_builder = world_builder
         self.is_item_clicked_connected = False  # Initialize this attribute
+        self.was_command_help = False
         
         # UI initialization logic
         self.init_ui()
@@ -240,12 +241,16 @@ class GameUI(QWidget, IGameUI):
         # Placeholder conditional in case I want to add other command interpretations
         ic("Processing command")
         ic(self.command_input.text())
+        command_text = self.command_input.text().strip().lower()
+        self.command_input.clear()
+        self.command_input.setPlaceholderText("Processing...")
+        self.command_input.setEnabled(False)
         self.game_text_area.clear()
-        if_dummy = False 
-        if if_dummy:
-            pass  # This will be replaced with actual command handling logic later
+        if command_text == "help":
+            self.was_command_help = True
+            self.display_text(utilities.convert_text_to_display(self.game_manager.world_builder.display_help()))
+            return
         else:
-            command_text = self.command_input.text().strip().lower()
             self.command_input.clear()
             html_command_text = f"<p>Processing command: <b>{command_text}</b></p>"
             self.display_text(html_command_text)
@@ -254,6 +259,7 @@ class GameUI(QWidget, IGameUI):
             raise ValueError("GameUI requires a GameManager instance.")
         else:
             ic("GameManager instance set in GameUI:", self.game_manager)
+
 
         response = self.game_manager.world_builder.incoming_command(command_text)
 
@@ -357,9 +363,19 @@ class GameUI(QWidget, IGameUI):
             self.current_chunk_index += 1
             ic("Setting timer")
 
-
-            # Set up the timer to call this method again after a delay
-            QTimer.singleShot(1000, self.display_chunk)  # 1000 ms delay
+            if self.current_chunk_index >= len(self.chunks):
+                # If this was the last chunk, reset the command input
+                if self.was_command_help:
+                    self.command_input.clear()
+                    self.command_input.setEnabled(True)
+                    self.command_input.setPlaceholderText("Type a command...")
+                else:
+                    self.command_input.clear()
+                    self.command_input.setEnabled(True)
+                    self.command_input.setPlaceholderText("Type 'Help' to start")
+            else:
+                # Set up the timer to call this method again after a delay
+                QTimer.singleShot(500, self.display_chunk)  # 500 ms delay
 
     def split_into_chunks(self, html_content):
         # Split by paragraphs and unordered lists
