@@ -2,48 +2,6 @@
     "name": "Avalonia",
     "description": "A mystical land in the 'Odyssey' VR universe, filled with ancient magic, diverse biomes, and mysterious adventures.",
     "keywords": ["mystical", "ancient magic", "diverse biomes", "mysterious adventures"],
-    "npcs": [
-        {
-            "name": "Athena",
-            "description": "Athena, the AI digital assistant, provides guidance, game tips, and helpful information. She appears as a friendly holographic avatar and adapts to the user's preferences.",
-            "keywords": ["AI", "avatar", "assistant", "guide", "helper", "hologram", "holographic", "interactive", "virtual"],
-            "dialog": [
-                "Welcome to Odyssey VR! How can I assist you today?",
-                "Here are some tips for customizing your virtual home.",
-                "I can help you connect with friends or explore new virtual landscapes.",
-                "Need assistance with any in-game challenges or quests? I'm here to help!",
-                "Feeling lost? I can guide you to any location within Odyssey VR.",
-                "If you're looking for something fun to do, I can suggest some popular activities and events."
-            ],
-            "interactions": [
-                {
-                    "type": "Tutorial",
-                    "description": "Provides a step-by-step guide to new players about navigating and using Odyssey VR's features."
-                },
-                {
-                    "type": "Assistance",
-                    "description": "Offers real-time assistance and answers questions about the virtual world."
-                },
-                {
-                    "type": "Customization Help",
-                    "description": "Guides users through customizing their personal VR space and managing their virtual items."
-                },
-                {
-                    "type": "Quest Guide",
-                    "description": "Offers hints and guidance for completing quests and challenges within Odyssey VR."
-                },
-                {
-                    "type": "Navigation Assistant",
-                    "description": "Helps players find their way to different locations and points of interest in the virtual world."
-                },
-                {
-                    "type": "Event Coordinator",
-                    "description": "Informs players about ongoing and upcoming events and activities in Odyssey VR."
-                }
-            ],
-            "inventory": []
-        }  
-    ],
     "locations": [
         {
             "name": "Central Avalonia",

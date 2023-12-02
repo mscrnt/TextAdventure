@@ -9,6 +9,7 @@ from PySide6.QtCore import QObject, Signal, QTimer
 
 
 class GameManager(QObject, IGameManager):
+    display_text_signal = Signal(str)
     gameLoaded = Signal()
 
     def __init__(self):
@@ -335,4 +336,4 @@ class GameManager(QObject, IGameManager):
     
     def update_location(self, new_location):
         self.player_sheet.location = new_location
-        self.world_builder.build_scene()
+        #self.world_builder.build_scene()

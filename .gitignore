@@ -13,3 +13,6 @@ working_*.json
 
 # Ignore updating secrets file
 data/secrets.json
+
+# Ignore jsonl files
+*.jsonl

@@ -1,15 +1,18 @@
 # gui/game_ui.py
 
 from PySide6.QtWidgets import QTextEdit, QVBoxLayout, QLabel, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox, QListWidgetItem, QWidget
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import Qt, QTimer, Signal, QThread
 from PySide6.QtGui import QFont, QPalette, QColor
 from icecream import ic
 import re
 from interfaces import IGameManager, IWorldBuilder, IGameUI
 import utilities
+from engine.worker import Worker
+import threading
 
 class GameUI(QWidget, IGameUI):
     ui_ready_to_show = Signal()
+    update_text_signal = Signal(str)
 
     def __init__(self, game_manager, world_builder, parent=None):
         super().__init__(parent)
@@ -17,10 +20,15 @@ class GameUI(QWidget, IGameUI):
         self.world_builder = world_builder
         self.is_item_clicked_connected = False  # Initialize this attribute
         self.was_command_help = False
+
         
         # UI initialization logic
         self.init_ui()
-        
+
+        self.update_text_signal.connect(self.display_text)
+        self.game_manager.display_text_signal.connect(self.display_text)
+        self.world_builder.display_text_signal.connect(self.display_text)
+
         if not self.game_manager:
             raise ValueError("GameUI requires a GameManager instance.")
         else:
@@ -238,36 +246,41 @@ class GameUI(QWidget, IGameUI):
             self.inventory_list.addItem(item)
 
     def process_command(self):
-        # Placeholder conditional in case I want to add other command interpretations
-        ic("Processing command")
+        ic("Entered process_command", threading.get_ident())
         ic(self.command_input.text())
         command_text = self.command_input.text().strip().lower()
         self.command_input.clear()
         self.command_input.setPlaceholderText("Processing...")
         self.command_input.setEnabled(False)
         self.game_text_area.clear()
-        if command_text == "help":
-            self.was_command_help = True
-            self.display_text(utilities.convert_text_to_display(self.game_manager.world_builder.display_help()))
-            return
-        else:
-            self.command_input.clear()
-            html_command_text = f"<p>Processing command: <b>{command_text}</b></p>"
-            self.display_text(html_command_text)
 
-        if not self.game_manager:
-            raise ValueError("GameUI requires a GameManager instance.")
-        else:
-            ic("GameManager instance set in GameUI:", self.game_manager)
+        # Create a worker instance with the GameManager and command_text
+        self.worker = Worker(self.game_manager, command_text)
 
+        # Create a QThread instance
+        self.thread = QThread()
 
-        response = self.game_manager.world_builder.incoming_command(command_text)
+        # Move the worker to the thread
+        self.worker.moveToThread(self.thread)
 
-        # Check if the response is a boolean and quietly continue without displaying anything
-        if isinstance(response, bool):
-            return
+        # Connect the thread's started signal to the worker's process_command slot
+        self.thread.started.connect(self.worker.process_command)
 
-        self.display_text(response)  # Display the response in the UI
+        # Connect signals and slots
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+
+        # Ensure display_text is called in the main thread
+        self.worker.finished.connect(self.display_text_wrapped)
+
+        # Start the thread
+        self.thread.start()
+
+    def display_text_wrapped(self, processed_content):
+        # Execute this only in the main thread
+        if QThread.currentThread() == QThread.currentThread().thread():
+            self.display_text(processed_content)
 
     def display_item_information(self, item_widget):
         ic("Displaying item information")
@@ -314,26 +327,28 @@ class GameUI(QWidget, IGameUI):
             text = utilities.convert_text_to_display(f"{selected_name}:\n\nNo details available.")
             self.display_text(text)
 
-    def display_text(self, html_content):
-        ic("Displaying text")
-        ic(html_content)
+    def display_text(self, processed_content):
+        ic("display_text thread ID", threading.get_ident())
+        ic(processed_content)
 
+        # Clear the game text area and apply any necessary styling
         self.game_text_area.clear()
         self.game_text_area.verticalScrollBar().setStyleSheet("QScrollBar {width:0px;}")
 
         # Ensure the game_text_area can interpret HTML
         self.game_text_area.setAcceptRichText(True)
 
+        # Set the font for the game text area
         font = self.game_text_area.font()
         font.setFamily("Consolas")
         font.setPointSize(12)
         self.game_text_area.setFont(font)
 
         # Remove the Markdown code block delimiters, if any
-        html_content = html_content.replace('```html', '').replace('```', '')
+        processed_content = processed_content.replace('```html', '').replace('```', '')
 
         # Wrap the content in <div> tags with a style attribute for centering text
-        centered_html_content = f'<div style="text-align: center;">{html_content}</div>'
+        centered_html_content = f'<div style="text-align: center;">{processed_content}</div>'
 
         # Split the centered HTML content into chunks
         self.chunks = self.split_into_chunks(centered_html_content)
@@ -342,8 +357,13 @@ class GameUI(QWidget, IGameUI):
         # Start displaying the chunks from the beginning
         self.display_chunk()
 
+        # Re-enable the command input and reset placeholder text
+        self.command_input.setEnabled(True)
+        self.command_input.setPlaceholderText("Type a command...")
+        ic("Exiting display_text", threading.get_ident())
+
     def display_chunk(self):
-        ic("Displaying chunk")
+        ic("Entered display_chunk", threading.get_ident())
         if self.current_chunk_index < len(self.chunks):
             chunk = self.chunks[self.current_chunk_index]
             ic("Current chunk content:", chunk)

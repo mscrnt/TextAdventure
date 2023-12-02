@@ -279,69 +279,69 @@ class IPlayerSheet(ABC):
 
 
 
-class IWorldBuilder(ABC):
+class IWorldBuilder():
     
-    @abstractmethod
+
     def incoming_command(self, command):
         """Process an incoming command from the player."""
         pass
 
-    @abstractmethod
+
     def fast_travel_to_world(self, world_name):
         """Handle fast travel to a specified world."""
         pass
 
-    @abstractmethod
+
     def find_location_data(self, location_name):
         """Find and return data for a specified location."""
         pass
 
-    @abstractmethod
+
     def talk_to_npc(self, npc_name):
         """Handle interactions with a non-player character (NPC)."""
         pass
 
-    @abstractmethod
+
     def interact_with(self, interactable_name):
         """Handle interactions with an object in the game world."""
         pass
 
-    @abstractmethod
+
     def where_am_i(self):
         """Provide information about the player's current location."""
         pass
 
-    @abstractmethod
+
     def look_around(self):
         """Describe the player's current surroundings."""
         pass
 
-    @abstractmethod
+
     def open_container(self, container_name):
         """Open a container in the game world."""
         pass
 
-    @abstractmethod
+
     def move_player(self, location_name):
         """Move the player to a different location."""
         pass
 
-    @abstractmethod
+
     def examine_item(self, item_name):
         """Examine an item in the player's vicinity or inventory."""
         pass
 
-    @abstractmethod
+
     def give_item(self, item_name, quantity):
         """Give an item from the player's inventory to an NPC or container."""
         pass
 
-    @abstractmethod
+
     def update_world_data(self, location_name, update_dict=None, new_world_name=None):
         """Update the game world's data."""
         pass
 
-    @abstractmethod
+
     def build_scene_text(self):
         """Build and return a descriptive text of the current scene."""
         pass

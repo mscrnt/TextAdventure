@@ -6,15 +6,21 @@ import re
 from engine.ai_assist import AIAssist 
 import utilities
 from interfaces import IWorldBuilder, IGameManager
+from PySide6.QtCore import QObject, Signal
 
-class WorldBuilder(IWorldBuilder):
+class WorldBuilder(QObject, IWorldBuilder):
+    display_text_signal = Signal(str)
+
     def __init__(self, world_data, use_ai_assist=True):
+        super().__init__()
         self.game_manager = None
         self.world_data = world_data
         ic(f'World data: {self.world_data}')
         self.use_ai_assist = use_ai_assist
         if self.use_ai_assist:
             ic(f"AI assist enabled: {self.use_ai_assist}")
+        else:
+            ic("AI assist disabled")
         ic("WorldBuilder initialized, AI assist deferred")
 
     def set_game_manager(self, game_manager: IGameManager):
@@ -31,85 +37,92 @@ class WorldBuilder(IWorldBuilder):
         self.ai_assist = AIAssist(self.game_manager.player_sheet, self)
 
     def incoming_command(self, command):
-        html_command = utilities.convert_text_to_display(f"Processing command: {command}")
-        self.game_manager.ui.display_text(html_command)  # Use the converted HTML text
         ic(f"Received command: {command}")
-        if self.use_ai_assist:
-            ic("Sending command to AI for processing.")
-            response = self.ai_assist.handle_player_command(command)
-            ic(f"AI response: {response}")
-            return response
-        else:
-            ic("Processing command directly.")
-            if command.startswith("take"):
-                item_name = command[len("take"):].strip()
-                text = self.take_item(item_name)
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("move to") or command.startswith("go to"):
-                location_name = command[len("move to"):].strip() if command.startswith("move to") else command[len("go to"):].strip()
-                text = self.move_player(location_name)
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("examine"):
-                item_name = command[len("examine"):].strip()
-                text = self.examine_item(item_name)
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("whereami") or command.startswith("where am i"):
-                text = self.where_am_i()
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("look around") or command.startswith("look"):
-                text = self.look_around()
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("talk to"):
-                npc_name = command[len("talk to"):].strip()
-                text = self.talk_to_npc(npc_name)
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("interact with"):
-                interactable_name = command[len("interact with"):].strip()
-                text = self.interact_with(interactable_name)
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("open"):
-                container_name = command[len("open"):].strip()
-                text = self.open_container(container_name)
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("close"):
-                text = self.close_container()
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("fast travel to"):
-                world_name = command[len("fast travel to"):].strip()
-                text = self.fast_travel_to_world(world_name)
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("give"):
-                item_name = command[len("give"):].strip()
-                text = self.give_item(item_name)
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
-            elif command.startswith("help"):
-                text = self.display_help()
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
+        try:
+            html_command = utilities.convert_text_to_display(f"Processing command: {command}")
+            self.game_manager.display_text_signal.emit(html_command)
+            ic(f"Received command: {command}")
+            ic(f'Ai assist: {self.use_ai_assist}')
+            if self.use_ai_assist:
+                ic("Sending command to AI for processing.")
+                response = self.ai_assist.handle_player_command(command)
+                ic(f"AI response: {response}")
+                return response
             else:
-                text = self.unrecognized_command(command)
-                html_text = utilities.convert_text_to_display(text)
-                return html_text
+                ic("Processing command directly.")
+                if command.startswith("take"):
+                    item_name = command[len("take"):].strip()
+                    text = self.take_item(item_name)
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("move to") or command.startswith("go to"):
+                    location_name = command[len("move to"):].strip() if command.startswith("move to") else command[len("go to"):].strip()
+                    text = self.move_player(location_name)
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("examine"):
+                    item_name = command[len("examine"):].strip()
+                    text = self.examine_item(item_name)
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("whereami") or command.startswith("where am i"):
+                    text = self.where_am_i()
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("look around") or command.startswith("look"):
+                    text = self.look_around()
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("talk to"):
+                    npc_name = command[len("talk to"):].strip()
+                    text = self.talk_to_npc(npc_name)
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("interact with"):
+                    interactable_name = command[len("interact with"):].strip()
+                    text = self.interact_with(interactable_name)
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("open"):
+                    container_name = command[len("open"):].strip()
+                    text = self.open_container(container_name)
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("close"):
+                    text = self.close_container()
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("fast travel to"):
+                    world_name = command[len("fast travel to"):].strip()
+                    text = self.fast_travel_to_world(world_name)
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("give"):
+                    item_name = command[len("give"):].strip()
+                    text = self.give_item(item_name)
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                elif command.startswith("help"):
+                    text = self.display_help()
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+                else:
+                    text = self.unrecognized_command(command)
+                    html_text = utilities.convert_text_to_display(text)
+                    return html_text
+        except Exception as e:
+            ic(f"Error processing command: {e}")
+            return f"Error processing command: {e}"
 
     def fast_travel_to_world(self, world_name):
         available_worlds = [world.replace(" ", "").lower() for world in self.game_manager.player_sheet.get_fast_travel_worlds()]
         formatted_world_name = world_name.replace(" ", "").lower()
 
         if formatted_world_name not in available_worlds:
-            ic(f"{world_name} is not available for fast travel.")
-            return f"{world_name} is not available for fast travel."
-
+            text = f"{world_name} is not available for fast travel."
+            self.display_text_signal.emit(text)  # Emit signal instead of direct call
+            return False  # Return a boolean based on the outcome
+        
         try:
             self.game_manager.save_game()  # Save the game before fast traveling
 
@@ -119,23 +132,30 @@ class WorldBuilder(IWorldBuilder):
             if main_entry_location:
                 new_location = {"world": formatted_world_name, "location/sublocation": main_entry_location['name']}
                 self.game_manager.player_sheet.location = new_location
-                self.update_game_state_for_fast_travel(formatted_world_name)  
-                html_command = utilities.convert_text_to_display(f"{self.where_am_i()}.")
-                self.game_manager.ui.display_text(html_command)  
-                return True
+                self.game_manager.update_location(new_location)  # Update the game manager with the new location
+
+                # Since where_am_i might try to directly modify the UI, it should return a plain string, which can be formatted and emitted as a signal
+                text = self.where_am_i()
+                html_command = utilities.convert_text_to_display(f"{text}.")
+                self.display_text_signal.emit(html_command)
+                return html_command 
             else:
-                ic(f"No main entry location found in {world_name}.")
-                return False
+                text = utilities.convert_text_to_display(f"No main entry location found in {world_name}.")
+                self.display_text_signal.emit(text)  # Emit signal instead of direct call
+                return text
         except Exception as e:
-            ic(f"Error loading world data for {world_name}: {e}")
-            return False
+            text = f"Error loading world data for {world_name}: {e}"
+            html_text = utilities.convert_text_to_display(text)
+            self.display_text_signal.emit(text)  # Emit signal instead of direct call
+            return html_text
 
 
     def update_game_state_for_fast_travel(self, new_world_name):
         # Update any world-specific game state here
         CapitalizedWorldName = new_world_name.capitalize()
         self.game_manager.world_data = self.world_data  # Synchronize GameManager's world data
-        self.game_manager.ui.display_text(f"Fast traveling to {CapitalizedWorldName}...")
+        html_command = utilities.convert_text_to_display(f"You have arrived in {CapitalizedWorldName}.")
+        self.display_text_signal.emit(f'{html_command}')  # Emit signal instead of direct call
 
     def find_main_entry_location(self, world_data):
         # Find the main entry location in the new world data
@@ -479,7 +499,8 @@ class WorldBuilder(IWorldBuilder):
                 if normalized_destination == sanitized_location_name:
                     self.game_manager.player_sheet.location = {"world": current_location['world'], "location/sublocation": destination}
                     ic(f"Player moved to {destination}.")
-                    self.game_manager.ui.display_text(f"Moving to {destination}.")
+                    text = utilities.convert_text_to_display(f"Moving to {destination}.")
+                    self.display_text_signal.emit(text)
                     return f"{self.where_am_i()}."
 
         if 'sublocations' in current_location_data:
@@ -490,7 +511,8 @@ class WorldBuilder(IWorldBuilder):
                     new_location_dict = {"world": current_location['world'], "location/sublocation": sublocation['name']}
                     self.game_manager.player_sheet.location = new_location_dict
                     ic(f"Player moved to {sublocation['name']}.")
-                    self.game_manager.ui.display_text(f"Moving to {sublocation['name']}.")
+                    text = utilities.convert_text_to_display(f"Moving to {sublocation['name']}.")
+                    self.display_text_signal.emit(text)
                     return f"{self.where_am_i()}."
                 if 'rooms' in sublocation:
                     for room in sublocation['rooms']:
@@ -503,7 +525,8 @@ class WorldBuilder(IWorldBuilder):
                             }
                             self.game_manager.player_sheet.location = new_location_dict
                             ic(f"Player moved to {room['name']} within {sublocation['name']}.")
-                            self.game_manager.ui.display_text(f"Moving to {room['name']} within {sublocation['name']}.")
+                            text = utilities.convert_text_to_display(f"Moving to {room['name']} within {sublocation['name']}.")
+                            self.display_text_signal.emit(text)
                             return f"{self.where_am_i()}."
                         else:
                             return "You cannot access this area yet."
