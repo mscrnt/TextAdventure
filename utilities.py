@@ -37,7 +37,7 @@ def load_json(file_name: str, key) -> Dict:
         ic(f"An error occurred: {e}")
     return []
 
-def save_game(state, filename='savegame.pkl'):
+def save_game_data(state, filename='savegame.pkl'):
     save_directory = "save_data"
     if not os.path.exists(save_directory):
         os.makedirs(save_directory)
@@ -50,9 +50,17 @@ def save_game(state, filename='savegame.pkl'):
     except Exception as e:
         ic(f"An error occurred while saving the game: {e}")
 
-    # Ensure the location is a dictionary with the 'world' key
-    if isinstance(state['player_sheet'].location, dict) and 'world' in state['player_sheet'].location:
-        world_name = state['player_sheet'].location['world']
+    # Determine the world name based on whether player_sheet is a dictionary or an object
+    world_name = None
+    if isinstance(state['player_sheet'], dict):
+        # Handling dictionary representation
+        player_location = state['player_sheet'].get('location', {})
+        world_name = player_location.get('world') if isinstance(player_location, dict) else None
+    else:
+        # Handling object representation
+        world_name = state['player_sheet'].location.get('world') if 'world' in state['player_sheet'].location else None
+
+    if world_name:
         working_world_path = f'data/worlds/working_{world_name}.json'
         try:
             with open(working_world_path, 'w') as f:
@@ -61,12 +69,12 @@ def save_game(state, filename='savegame.pkl'):
         except Exception as e:
             ic(f"An error occurred while saving the working world data: {e}")
     else:
-        ic(f'Player location: {state["player_sheet"].location}')
         ic("The player's location is not in the correct format. Cannot save world data.")
 
 
+
 # Function to load game state
-def load_game(filename='savegame.pkl'):
+def load_game_data(filename='savegame.pkl'):
     try:
         with open(filename, 'rb') as f:
             return pickle.load(f)

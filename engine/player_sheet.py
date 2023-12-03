@@ -162,3 +162,24 @@ class PlayerSheet:
     def get_all_emails(self):
         ic("Getting all emails")
         return self.emails
+    
+    def get_state(self):
+        """Return a serializable representation of the player sheet."""
+        return {
+            'name': self.name,
+            'level': self.level,
+            'health': self.health,
+            'action_points': self.action_points,
+            'inventory': self.inventory,
+            'location': self._location,
+            'fast_travel_locations': self.fast_travel_locations,
+            'quests': self.quests,
+            'notes': self.notes,
+            'emails': self.emails
+        }
+
+    def set_state(self, state):
+        if isinstance(state, PlayerSheet):
+            self.__dict__.update(state.__dict__)
+        else:
+            raise TypeError("state must be an instance of PlayerSheet")

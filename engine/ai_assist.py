@@ -4,7 +4,6 @@ from openai import OpenAI
 from icecream import ic
 import json
 import re
-import time
 
 class AIAssist:
     def __init__(self, player_sheet, world_builder):

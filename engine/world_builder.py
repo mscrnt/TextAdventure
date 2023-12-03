@@ -4,7 +4,7 @@ import json
 from icecream import ic
 import re
 from engine.ai_assist import AIAssist 
-import utilities
+from utilities import convert_text_to_display, load_working_world_data
 from interfaces import IWorldBuilder, IGameManager
 from PySide6.QtCore import QObject, Signal
 
@@ -15,13 +15,17 @@ class WorldBuilder(QObject, IWorldBuilder):
         super().__init__()
         self.game_manager = None
         self.world_data = world_data
-        ic(f'World data: {self.world_data}')
+        ic(f'WorldBuilder initialized with world data: {world_data}')
         self.use_ai_assist = use_ai_assist
         if self.use_ai_assist:
             ic(f"AI assist enabled: {self.use_ai_assist}")
         else:
             ic("AI assist disabled")
         ic("WorldBuilder initialized, AI assist deferred")
+
+    def set_world_data(self, world_data):
+        self.world_data = world_data
+        ic("World data set in WorldBuilder")
 
     def set_game_manager(self, game_manager: IGameManager):
         if not game_manager:
@@ -39,7 +43,7 @@ class WorldBuilder(QObject, IWorldBuilder):
     def incoming_command(self, command):
         ic(f"Received command: {command}")
         try:
-            html_command = utilities.convert_text_to_display(f"Processing command: {command}")
+            html_command = convert_text_to_display(f"Processing command: {command}")
             self.game_manager.display_text_signal.emit(html_command)
             ic(f'Ai assist: {self.use_ai_assist}')
             if self.use_ai_assist:
@@ -69,10 +73,10 @@ class WorldBuilder(QObject, IWorldBuilder):
                 for prefix, (method, argument) in command_dispatch.items():
                     if command.startswith(prefix):
                         text = method(argument) if argument else method()
-                        html_text = utilities.convert_text_to_display(text)
+                        html_text = convert_text_to_display(text)
                         return html_text
                 text = f'Unknown command: {command}'
-                html_text = utilities.convert_text_to_display(text)
+                html_text = convert_text_to_display(text)
                 return html_text
         except Exception as e:
             ic(f"Error processing command: {e}")
@@ -90,7 +94,7 @@ class WorldBuilder(QObject, IWorldBuilder):
         try:
             self.game_manager.save_game()  # Save the game before fast traveling
 
-            self.world_data = utilities.load_working_world_data(formatted_world_name)  # Load the world data for the new world
+            self.world_data = load_working_world_data(formatted_world_name)  # Load the world data for the new world
 
             main_entry_location = next((loc for loc in self.world_data['locations'] if loc.get('main-entry', False)), None)
             if main_entry_location:
@@ -100,16 +104,16 @@ class WorldBuilder(QObject, IWorldBuilder):
 
                 # Since where_am_i might try to directly modify the UI, it should return a plain string, which can be formatted and emitted as a signal
                 text = self.where_am_i()
-                html_command = utilities.convert_text_to_display(f"{text}.")
+                html_command = convert_text_to_display(f"{text}.")
                 self.display_text_signal.emit(html_command)
                 return html_command 
             else:
-                text = utilities.convert_text_to_display(f"No main entry location found in {world_name}.")
+                text = convert_text_to_display(f"No main entry location found in {world_name}.")
                 self.display_text_signal.emit(text)  # Emit signal instead of direct call
                 return text
         except Exception as e:
             text = f"Error loading world data for {world_name}: {e}"
-            html_text = utilities.convert_text_to_display(text)
+            html_text = convert_text_to_display(text)
             self.display_text_signal.emit(text)  # Emit signal instead of direct call
             return html_text
 
@@ -118,7 +122,7 @@ class WorldBuilder(QObject, IWorldBuilder):
         # Update any world-specific game state here
         CapitalizedWorldName = new_world_name.capitalize()
         self.game_manager.world_data = self.world_data  # Synchronize GameManager's world data
-        html_command = utilities.convert_text_to_display(f"You have arrived in {CapitalizedWorldName}.")
+        html_command = convert_text_to_display(f"You have arrived in {CapitalizedWorldName}.")
         self.display_text_signal.emit(f'{html_command}')  # Emit signal instead of direct call
 
     def find_main_entry_location(self, world_data):
@@ -463,7 +467,7 @@ class WorldBuilder(QObject, IWorldBuilder):
                 if normalized_destination == sanitized_location_name:
                     self.game_manager.player_sheet.location = {"world": current_location['world'], "location/sublocation": destination}
                     ic(f"Player moved to {destination}.")
-                    text = utilities.convert_text_to_display(f"Moving to {destination}.")
+                    text = convert_text_to_display(f"Moving to {destination}.")
                     self.display_text_signal.emit(text)
                     return f"{self.where_am_i()}."
 
@@ -475,7 +479,7 @@ class WorldBuilder(QObject, IWorldBuilder):
                     new_location_dict = {"world": current_location['world'], "location/sublocation": sublocation['name']}
                     self.game_manager.player_sheet.location = new_location_dict
                     ic(f"Player moved to {sublocation['name']}.")
-                    text = utilities.convert_text_to_display(f"Moving to {sublocation['name']}.")
+                    text = convert_text_to_display(f"Moving to {sublocation['name']}.")
                     self.display_text_signal.emit(text)
                     return f"{self.where_am_i()}."
                 if 'rooms' in sublocation:
@@ -489,7 +493,7 @@ class WorldBuilder(QObject, IWorldBuilder):
                             }
                             self.game_manager.player_sheet.location = new_location_dict
                             ic(f"Player moved to {room['name']} within {sublocation['name']}.")
-                            text = utilities.convert_text_to_display(f"Moving to {room['name']} within {sublocation['name']}.")
+                            text = convert_text_to_display(f"Moving to {room['name']} within {sublocation['name']}.")
                             self.display_text_signal.emit(text)
                             return f"{self.where_am_i()}."
                         else:
@@ -608,7 +612,7 @@ class WorldBuilder(QObject, IWorldBuilder):
         """
         if new_world_name:
             # Load and update the world data for a new world
-            new_world_data = utilities.load_working_world_data(new_world_name)
+            new_world_data = load_working_world_data(new_world_name)
             if new_world_data:
                 self.world_data = new_world_data
                 ic(f"World data updated to {new_world_name}")

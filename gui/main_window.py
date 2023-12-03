@@ -5,22 +5,20 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPalette, QColor
 from icecream import ic
 from interfaces import IGameManager, IQuestTracker, IWorldBuilder, IPlayerSheet, IGameUI
-import utilities
+from gui.game_ui import GameUI
 
 class MainWindow(QMainWindow):
     def __init__(self, game_manager: IGameManager, world_builder: IWorldBuilder, player_sheet: IPlayerSheet, quest_tracker: IQuestTracker, game_ui: IGameUI):
         super().__init__()
         self.game_manager = game_manager
-        self.world_builder = world_builder
-        self.player_sheet = player_sheet
-        self.quest_tracker = quest_tracker
+        # self.world_builder = world_builder
+        # self.player_sheet = player_sheet
+        # self.quest_tracker = quest_tracker
         self.game_ui = game_ui
         ic("Initializing main window")
 
         self.game_manager.gameLoaded.connect(self.game_ui.on_game_loaded)
         self.game_ui.ui_ready_to_show.connect(self.switch_to_game_ui)
-
-
 
         # Set the main window's properties
         self.setWindowTitle("Odyssey")
@@ -41,9 +39,12 @@ class MainWindow(QMainWindow):
         self.init_splash_screen()
 
         # Initialize Main Game Interface
-        self.init_game_interface()
+        #self.init_game_interface()
 
         self.init_entry_point()
+        
+    def set_game_ui(self, game_ui: IGameUI):
+        self.game_ui = game_ui
 
     def set_dark_theme(self):
         # Set the palette for a dark theme
@@ -198,17 +199,18 @@ class MainWindow(QMainWindow):
         Switch the central widget to the game UI.
         """
         ic("Switching to game UI")
+        self.game_manager.gameLoaded.connect(self.game_ui.on_game_loaded)
         self.setCentralWidget(self.game_ui)
 
     def start_new_game(self):
-        # Prompt for player name and start a new game if a valid name is provided
         player_name = self.prompt_for_player_name()
-        if player_name and self.game_manager.start_new_game(player_name):
-            ic("New game started successfully.")
-        else:
-            ic("No player name entered, or failed to start new game.")
-
-
+        if player_name:
+            self.game_manager.initialize_game_data(player_name)  # Initialize game data
+            if self.game_manager.start_new_game(player_name):
+                self.switch_to_game_ui()
+                ic("New game started successfully.")
+            else:
+                ic("Failed to start new game.")
 
     # Method to save the game
     def trigger_save_game(self):
@@ -218,13 +220,10 @@ class MainWindow(QMainWindow):
         filename, _ = QFileDialog.getOpenFileName(self, "Load Game", "save_data/", "Save Files (*.pkl)")
         if filename:
             if self.game_manager.load_game(filename):
-                self.game_ui.initialize_for_loaded_game()  # You may need to create this method in GameUI
-                self.setCentralWidget(self.game_ui)
+                self.switch_to_game_ui()
                 ic(f"Game loaded successfully from {filename}.")
             else:
                 ic("Failed to load the game.")
-        else:
-            ic("No file selected.")
 
     def prompt_for_player_name(self):
         dialog = QInputDialog(self)

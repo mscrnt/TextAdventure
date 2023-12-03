@@ -69,7 +69,7 @@
                     "contains": []
                 },
                 {
-                    "name": "Memory Cube",
+                    "name": "Cube",
                     "description": "Store and revisit favorite VR moments.",
                     "type": "Container",
                     "isOpen": false,

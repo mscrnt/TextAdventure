@@ -26,14 +26,13 @@ def main():
     app.aboutToQuit.connect(delete_working_files)
 
     # Initialize components 
-    player_sheet = PlayerSheet("Player1")
+    player_sheet = PlayerSheet("Player")
     quest_tracker = QuestTracker() 
     world_builder = WorldBuilder({}, use_ai)  
     game_manager = GameManager(use_ai)
 
     # Initialize GameUI
     game_ui = GameUI(game_manager, world_builder)
-    game_ui.complete_initialization()
 
     # Initialize MainWindow with all components
     main_window = MainWindow(game_manager, world_builder, player_sheet, quest_tracker, game_ui)

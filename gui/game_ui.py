@@ -6,7 +6,7 @@ from PySide6.QtGui import QFont, QPalette, QColor
 from icecream import ic
 import re
 from interfaces import IGameManager, IWorldBuilder, IGameUI
-import utilities
+from utilities import convert_text_to_display
 from engine.worker import Worker
 import threading
 
@@ -14,7 +14,7 @@ class GameUI(QWidget, IGameUI):
     ui_ready_to_show = Signal()
     update_text_signal = Signal(str)
 
-    def __init__(self, game_manager, world_builder, parent=None):
+    def __init__(self, game_manager=IGameManager, world_builder=IWorldBuilder, parent=None):
         super().__init__(parent)
         self.game_manager = game_manager
         self.world_builder = world_builder
@@ -146,6 +146,8 @@ class GameUI(QWidget, IGameUI):
         text_area_palette = self.game_text_area.palette()
         text_area_palette.setColor(QPalette.Text, QColor(255, 255, 0))  # Yellow text
         self.game_text_area.setPalette(text_area_palette)
+
+        self.complete_initialization()
 
 
     def initialize_drop_down_menu(self):
@@ -320,12 +322,12 @@ class GameUI(QWidget, IGameUI):
             else:
                 # For other categories, just display the name and description
                 formatted_details = f"{selected_name}:\n\n{item_details.get('description', 'No description available.')}"
-                text = utilities.convert_text_to_display(formatted_details)
+                text = convert_text_to_display(formatted_details)
                 
-            text = utilities.convert_text_to_display(formatted_details)                
+            text = convert_text_to_display(formatted_details)                
             self.display_text(text)
         else:
-            text = utilities.convert_text_to_display(f"{selected_name}:\n\nNo details available.")
+            text = convert_text_to_display(f"{selected_name}:\n\nNo details available.")
             self.display_text(text)
 
     def display_text(self, processed_content):
