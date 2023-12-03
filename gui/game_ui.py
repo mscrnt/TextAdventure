@@ -396,7 +396,7 @@ class GameUI(QWidget, IGameUI):
                     self.command_input.setPlaceholderText("Type 'Help' to start")
             else:
                 # Set up the timer to call this method again after a delay
-                QTimer.singleShot(500, self.display_chunk)  # 500 ms delay
+                QTimer.singleShot(250, self.display_chunk)  # 500 ms delay
 
     def split_into_chunks(self, html_content):
         # Split by paragraphs and unordered lists

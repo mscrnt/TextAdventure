@@ -186,15 +186,18 @@ class GameManager(QObject, IGameManager):
         # Load dynamic world names
         world_full_names = utilities.load_all_worlds()
 
-        # Loop through each world name
         for world_key, world_display_name in world_full_names.items():
-            world_data = utilities.load_working_world_data(world_key)
-            main_area = next((location for location in world_data['locations'] if location.get('main-entry', False)), None)
-            if main_area:
-                self.player_sheet.add_fast_travel_location(main_area, world_display_name)
-                ic(f"{main_area['name']} (Main Area of {world_display_name}) added to fast travel locations")
+            single_world_data = utilities.load_working_world_data(world_key)
+            if 'locations' in single_world_data:
+                main_area = next((location for location in single_world_data['locations'] if location.get('main-entry', False)), None)
+                if main_area:
+                    self.player_sheet.add_fast_travel_location(main_area, world_display_name)
+                    ic(f"{main_area['name']} (Main Area of {world_display_name}) added to fast travel locations")
+                else:
+                    ic(f"Main entry not found for {world_key}")
             else:
-                ic(f"Main entry not found for {world_key}")
+                ic(f"'locations' key missing in world data for {world_key}")
+
 
         # Load the notes
         notes = self.load_notes()

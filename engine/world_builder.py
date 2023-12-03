@@ -41,7 +41,6 @@ class WorldBuilder(QObject, IWorldBuilder):
         try:
             html_command = utilities.convert_text_to_display(f"Processing command: {command}")
             self.game_manager.display_text_signal.emit(html_command)
-            ic(f"Received command: {command}")
             ic(f'Ai assist: {self.use_ai_assist}')
             if self.use_ai_assist:
                 ic("Sending command to AI for processing.")
@@ -50,66 +49,31 @@ class WorldBuilder(QObject, IWorldBuilder):
                 return response
             else:
                 ic("Processing command directly.")
-                if command.startswith("take"):
-                    item_name = command[len("take"):].strip()
-                    text = self.take_item(item_name)
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("move to") or command.startswith("go to"):
-                    location_name = command[len("move to"):].strip() if command.startswith("move to") else command[len("go to"):].strip()
-                    text = self.move_player(location_name)
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("examine"):
-                    item_name = command[len("examine"):].strip()
-                    text = self.examine_item(item_name)
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("whereami") or command.startswith("where am i"):
-                    text = self.where_am_i()
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("look around") or command.startswith("look"):
-                    text = self.look_around()
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("talk to"):
-                    npc_name = command[len("talk to"):].strip()
-                    text = self.talk_to_npc(npc_name)
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("interact with"):
-                    interactable_name = command[len("interact with"):].strip()
-                    text = self.interact_with(interactable_name)
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("open"):
-                    container_name = command[len("open"):].strip()
-                    text = self.open_container(container_name)
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("close"):
-                    text = self.close_container()
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("fast travel to"):
-                    world_name = command[len("fast travel to"):].strip()
-                    text = self.fast_travel_to_world(world_name)
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("give"):
-                    item_name = command[len("give"):].strip()
-                    text = self.give_item(item_name)
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                elif command.startswith("help"):
-                    text = self.display_help()
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
-                else:
-                    text = self.unrecognized_command(command)
-                    html_text = utilities.convert_text_to_display(text)
-                    return html_text
+                command_dispatch = {
+                    "take": (self.take_item, command[len("take"):].strip()),
+                    "move to": (self.move_player, command[len("move to"):].strip()),
+                    "go to": (self.move_player, command[len("go to"):].strip()),
+                    "examine": (self.examine_item, command[len("examine"):].strip()),
+                    "whereami": (self.where_am_i, ""),
+                    "where am i": (self.where_am_i, ""),
+                    "look around": (self.look_around, ""),
+                    "look": (self.look_around, ""),
+                    "talk to": (self.talk_to_npc, command[len("talk to"):].strip()),
+                    "interact with": (self.interact_with, command[len("interact with"):].strip()),
+                    "open": (self.open_container, command[len("open"):].strip()),
+                    "close": (self.close_container, ""),
+                    "fast travel to": (self.fast_travel_to_world, command[len("fast travel to"):].strip()),
+                    "give": (self.give_item, command[len("give"):].strip()),
+                    "help": (self.display_help, "")
+                }
+                for prefix, (method, argument) in command_dispatch.items():
+                    if command.startswith(prefix):
+                        text = method(argument) if argument else method()
+                        html_text = utilities.convert_text_to_display(text)
+                        return html_text
+                text = f'Unknown command: {command}'
+                html_text = utilities.convert_text_to_display(text)
+                return html_text
         except Exception as e:
             ic(f"Error processing command: {e}")
             return f"Error processing command: {e}"
