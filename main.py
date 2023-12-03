@@ -8,6 +8,7 @@ from engine.game_manager import GameManager
 from engine.world_builder import WorldBuilder
 from engine.player_sheet import PlayerSheet
 from engine.quest_tracker import QuestTracker
+from utilities import delete_working_files
 
 # Argument parser setup
 parser = argparse.ArgumentParser()
@@ -21,6 +22,8 @@ def main():
     DebugConfig.set_level('DEBUG' if debug_on else 'ERROR')
 
     app = QApplication(sys.argv)
+
+    app.aboutToQuit.connect(delete_working_files)
 
     # Initialize components 
     player_sheet = PlayerSheet("Player1")

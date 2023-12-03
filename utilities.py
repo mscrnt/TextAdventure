@@ -5,6 +5,7 @@ from typing import Dict
 import pickle
 import os
 from icecream import ic
+import glob
 
 # Function to load text from a JSON file
 def load_text(file_name: str) -> Dict:
@@ -146,3 +147,12 @@ def convert_text_to_display(text):
     html_content = "<html><body>{}</body></html>".format(''.join(html_paragraphs))
 
     return html_content
+
+def delete_working_files():
+    # Delete all working files "working_*.json"
+    working_world_path = f'data/worlds/working_*.json'
+    working_world_files = glob.glob(working_world_path)
+    for file in working_world_files:
+        os.remove(file)
+    ic(f"Deleted {len(working_world_files)} working world files.")
+
