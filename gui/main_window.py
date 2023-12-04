@@ -10,7 +10,7 @@ from engine.game_manager import GameManager
 from engine.world_builder import WorldBuilder
 from engine.quest_tracker import QuestTracker
 from engine.player_sheet import PlayerSheet
-
+from intro import IntroAnimation
 
 
 class MainWindow(QMainWindow):
@@ -106,9 +106,11 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.entry_point_widget)
 
     def on_intro_animation_complete(self):
-        # Here, switch to the game UI
-        ic("Intro animation complete")
-        self.setCentralWidget(self.game_ui)
+        # Called when the intro animation is done
+        if self.game_manager.start_new_game(self.player_name):
+            self.switch_to_game_ui()
+        else:
+            ic("Failed to start new game.")
 
     def init_splash_screen(self):
         ic("Initializing splash screen")
@@ -224,13 +226,15 @@ class MainWindow(QMainWindow):
 
     def start_new_game(self):
         self.initialize_game_components()
-        player_name = self.prompt_for_player_name()
-        if player_name:
-            self.game_manager.initialize_game_data(player_name)
-            if self.game_manager.start_new_game(player_name):
-                self.switch_to_game_ui()
-            else:
-                ic("Failed to start new game.")
+        self.player_name = self.prompt_for_player_name() # Store the player name
+        if self.player_name:
+            # Add intro animation here
+            self.intro_animation = IntroAnimation(self)
+            self.setCentralWidget(self.intro_animation)
+            self.intro_animation.animationComplete.connect(self.on_intro_animation_complete)
+            self.intro_animation.start()
+        else:
+            ic("No player name entered.")
 
     # Method to save the game
     def trigger_save_game(self):

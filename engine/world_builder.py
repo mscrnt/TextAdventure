@@ -593,13 +593,13 @@ class WorldBuilder(QObject, IWorldBuilder):
             "move <location> - Move to new location.\n Example: 'move to the garden'\n\n"
             "examine <item> - Examine an items.\n Example: 'examine key'\n\n"
             "whereami - Find out your current location.\n Example: 'whereami'\n\n"
-            "look around - Look around at your environment.\n Example: 'look around'\n\n"
-            "open <container> - Open a container.\n Example: 'open chest'\n\n"
-            "Fast travel to <world> - Fast travel to a different world.\n Example: 'fast travel to the moon'\n\n"
-            "talk to <NPC> - Talk to an NPC.\n Example: 'talk to the guard'\n\n"
-            "interact with <interactable> - Interact with an object.\n Example: 'interact with computer'\n\n"
-            "close - Close container.\n Example: 'close'\n\n"
-            "help - Display this list of commands.\n"
+            "look around: Look around at your environment.\n Example: 'look around'\n\n"
+            "open <container>: Open a container.\n Example: 'open chest'\n\n"
+            "Fast travel to <world>: Fast travel to a different world.\n Example: 'fast travel to the moon'\n\n"
+            "talk to <NPC>: Talk to an NPC.\n Example: 'talk to the guard'\n\n"
+            "interact with <interactable>: Interact with an object.\n Example: 'interact with computer'\n\n"
+            "close: Close container.\n Example: 'close'\n\n"
+            "help: Display this list of commands.\n"
         )
         return help_text
     
