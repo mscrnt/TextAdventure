@@ -3,6 +3,10 @@
 from icecream import ic
 
 class PlayerSheet:
+    """
+    Implementation of the IPlayerSheet interface.
+    This class manages the player's state including inventory, quests, notes, emails, and fast travel locations.
+    """
     def __init__(self, name):
         self.name = name
         self.level = 1
@@ -14,6 +18,7 @@ class PlayerSheet:
         self.quests = []
         self.notes = []
         self.emails = []
+        self.tokens = 25
         ic("Player sheet initialized")
 
     @property
@@ -25,6 +30,23 @@ class PlayerSheet:
         if not isinstance(value, dict) or "world" not in value:
             raise ValueError("Location must be a dictionary with a 'world' key.")
         self._location = value
+
+    def set_player_name(self, name):
+        self.name = name
+
+    def reset_state(self):
+        """Reset the player's state to the initial values."""
+        self.level = 1
+        self.health = 100
+        self.action_points = 10
+        self.inventory = []
+        self._location = {"world": "OdysseyVR", "location/sublocation": "Home"}
+        self.fast_travel_locations = []
+        self.quests = []
+        self.notes = []
+        self.emails = []
+        self.tokens = 25
+        ic("Player state has been reset for a new game.")
 
     def add_item(self, item):
         ic(f"Item added to inventory: {item['name']}, Quantity: {item.get('quantity', 1)}")
@@ -107,10 +129,10 @@ class PlayerSheet:
 
     def add_fast_travel_location(self, location, world_name=None):
         ic("Adding fast travel location")
-        ic(location)
+        #ic(location)
         # If world_name is provided, use it; otherwise, try to get it from the location
         world_name = world_name or location.get('world_name')
-        print(f'location: {location}, world_name: {world_name}')
+        #ic(f'location: {location}')
         # Store both the location and world name in a new dictionary
         location_with_world = {
             'location': location,
@@ -118,7 +140,7 @@ class PlayerSheet:
         }
         # Ensure we're not adding duplicates
         if location_with_world not in self.fast_travel_locations:
-            print(f"Adding fast travel location: {location['name']} (Main Area of {world_name})")
+            ic(f"Adding fast travel location: {location['name']}")
             self.fast_travel_locations.append(location_with_world)
 
 
@@ -142,3 +164,25 @@ class PlayerSheet:
     def get_all_emails(self):
         ic("Getting all emails")
         return self.emails
+    
+    def get_state(self):
+        """Return a serializable representation of the player sheet."""
+        return {
+            'name': self.name,
+            'level': self.level,
+            'health': self.health,
+            'action_points': self.action_points,
+            'inventory': self.inventory,
+            'location': self._location,
+            'fast_travel_locations': self.fast_travel_locations,
+            'quests': self.quests,
+            'notes': self.notes,
+            'emails': self.emails,
+            'tokens': self.tokens
+        }
+
+    def set_state(self, state):
+        if isinstance(state, PlayerSheet):
+            self.__dict__.update(state.__dict__)
+        else:
+            raise TypeError("state must be an instance of PlayerSheet")

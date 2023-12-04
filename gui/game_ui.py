@@ -1,28 +1,61 @@
 # gui/game_ui.py
 
-from PySide6.QtWidgets import QApplication, QTextEdit, QVBoxLayout, QWidget, QLabel, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox, QListWidgetItem
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QPalette, QColor, QTextBlockFormat, QFontMetrics
-import time
-from engine.game_manager import GameManager
+from PySide6.QtWidgets import QTextEdit, QVBoxLayout, QLabel, QHBoxLayout, QListWidget, QLineEdit, QPushButton, QComboBox, QListWidgetItem, QWidget
+from PySide6.QtCore import Qt, QTimer, Signal, QThread
+from PySide6.QtGui import QFont, QPalette, QColor
 from icecream import ic
-from engine.world_builder import WorldBuilder
+import re
+from interfaces import IGameManager, IWorldBuilder, IGameUI
+from utilities import convert_text_to_display
+from engine.worker import Worker
+import threading
 
-class GameUI(QWidget):
-    def __init__(self, player_name, use_ai_assist=True, parent=None):
-        super(GameUI, self).__init__(parent)
-        self.is_item_clicked_connected = False  
-        self.current_category = None 
-        self.init_ui()
-        self.game_manager = GameManager(player_name, self, use_ai_assist)
-        self.game_manager.gameLoaded.connect(self.on_game_loaded)
-        self.world_builder = WorldBuilder(self.game_manager, self.game_manager.world_data, use_ai_assist)
+
+class GameUI(QWidget, IGameUI):
+    ui_ready_to_show = Signal()
+    update_text_signal = Signal(str)
+
+    def __init__(self, game_manager=IGameManager, world_builder=IWorldBuilder, parent=None):
+        super().__init__(parent)
+        self.game_manager = game_manager
+        self.world_builder = world_builder
+        self.is_item_clicked_connected = False 
+        self.was_command_help = False
+
+        if not self.game_manager:
+            raise ValueError("GameUI requires a GameManager instance.")
+        else:
+            ic("GameManager instance set in GameUI:", self.game_manager)
+        
         ic("GameUI initialized")
-        self.initialize_drop_down_menu() 
+
+    def set_game_manager(self, game_manager: IGameManager):
+        self.game_manager = game_manager
+
+    def set_world_builder(self, world_builder: IWorldBuilder):
+        self.world_builder = world_builder
+
+    def initialize_for_new_game(self):
+        """
+        Initialize the UI components for a new game.
+        """
+        ic("Initializing UI for a new game")
+        self.game_text_area.clear()
+        self.inventory_list.clear()
+        self.command_input.clear()
+
+    def complete_initialization(self):
+        self.initialize_drop_down_menu()
+        # Connect signals and slots
+        self.update_text_signal.connect(self.display_text)
+        self.game_manager.display_text_signal.connect(self.display_text)
+        self.world_builder.display_text_signal.connect(self.display_text)
 
     def on_game_loaded(self):
-        # This slot will be called when the GameManager emits the gameLoaded signal
-        self.update_ui()
+        ic("Game loaded")
+        self.update_quest_log()
+        self.ui_ready_to_show.emit()
+        ic("GameUI is now displayed")
 
     def init_ui(self):
         # Create the main layout
@@ -36,7 +69,7 @@ class GameUI(QWidget):
         self.inventory_label = QLabel("Inventory")  
         self.inventory_label.setAlignment(Qt.AlignCenter)
         self.inventory_label.setFont(QFont("Arial", 16, QFont.Bold))
-    
+
         self.inventory_list = QListWidget()
         self.drop_down_menu = QComboBox()
         inventory_layout.addWidget(self.inventory_label)
@@ -49,7 +82,6 @@ class GameUI(QWidget):
         self.command_input = QLineEdit()
         self.enter_button = QPushButton("Enter")
         self.game_text_area.setReadOnly(True)
-
 
         # Add widgets to the right panel layout
         right_panel_layout.addWidget(self.game_text_area, 5)
@@ -69,23 +101,60 @@ class GameUI(QWidget):
         # Set the dark theme palette for the entire widget
         palette = QPalette()
         palette.setColor(QPalette.Window, QColor(35, 35, 35))
-        palette.setColor(QPalette.WindowText, QColor(255, 255, 0)) 
+        palette.setColor(QPalette.WindowText, QColor(255, 255, 0))  # Yellow text
         palette.setColor(QPalette.Base, QColor(25, 25, 25))
-        palette.setColor(QPalette.Button, QColor(53, 53, 53))
-        palette.setColor(QPalette.ButtonText, QColor(0, 0, 0))  
+        palette.setColor(QPalette.Text, Qt.black)  # Black text for input fields
         self.setPalette(palette)
 
-        # Create a new palette for the drop down menu and the command input
-        input_palette = QPalette()
-        input_palette.setColor(QPalette.Text, QColor(0, 0, 0)) 
-        input_palette.setColor(QPalette.Base, QColor(255, 255, 255)) 
-        self.drop_down_menu.setPalette(input_palette)
-        self.command_input.setPalette(input_palette)
+        self.inventory_list.setStyleSheet("""
+            QListWidget {
+                background-color: #333;  # Dark background color
+                border: 1px solid yellow;  # Yellow border as before
+                color: white;  # White text color
+            }
+            QListWidget::item:selected {
+                background-color: #555;  # Slightly lighter background for selected items
+                color: white;  # Ensure selected item text is white
+            }
+        """)
+        # Set the style for the command input with a white background and black text
+        self.command_input.setStyleSheet("""
+            QLineEdit {
+                color: black; 
+                background-color: white; 
+                border: 1px solid yellow;
+                padding: 1px;
+                border-radius: 3px;
+            }
+        """)
+
+        # Set placeholder text for the command input
+        self.command_input.setPlaceholderText("Type 'Help' to start")
+
+        # Set the button style with a dark background and yellow text
+        self.enter_button.setStyleSheet("QPushButton { background-color: #333; color: yellow; }")
+
+        # Set the drop-down menu to match the button's theme
+        self.drop_down_menu.setStyleSheet("""
+            QComboBox { 
+                color: yellow; 
+                background-color: #333; 
+                border: 1px solid yellow;
+            }
+            QComboBox QAbstractItemView {
+                color: yellow; 
+                background-color: #333; 
+                selection-background-color: #555;
+            }
+        """)
 
         # Ensure the game_text_area retains the yellow text color
         text_area_palette = self.game_text_area.palette()
-        text_area_palette.setColor(QPalette.Text, QColor(255, 255, 0))  # Yellow text for game_text_area
+        text_area_palette.setColor(QPalette.Text, QColor(255, 255, 0))  # Yellow text
         self.game_text_area.setPalette(text_area_palette)
+
+        self.complete_initialization()
+
 
 
     def initialize_drop_down_menu(self):
@@ -107,22 +176,18 @@ class GameUI(QWidget):
 
     def update_ui_from_dropdown(self, index):
         ic("Updating UI from dropdown")
-        # Get the current text of the selected item
         selected_item = self.drop_down_menu.currentText()
+        ic("Selected item from dropdown:", selected_item)
         self.current_category = selected_item
         
-        # Set the inventory label text to the selected category
         self.inventory_label.setText(selected_item + " Locations" if selected_item == "Fast Travel" else selected_item)
-
-        # Clear the inventory list
         self.inventory_list.clear()
 
-        # Disconnect the itemClicked signal if it's connected
         if self.is_item_clicked_connected:
             self.inventory_list.itemClicked.disconnect()
-            self.is_item_clicked_connected = False  # Reset the flag
+            self.is_item_clicked_connected = False
 
-        # Populate the inventory list based on the selection
+        # Populate the list based on the selection
         if selected_item == "Inventory":
             self.populate_inventory()
         elif selected_item == "Fast Travel":
@@ -131,97 +196,106 @@ class GameUI(QWidget):
             self.populate_notes()
         elif selected_item == "Quest Log":
             self.populate_quest_log()
-            self.update_quest_log(self.game_manager.get_player_quests())
+            self.update_quest_log()  
         elif selected_item == "Emails":
             self.populate_emails()
-        ic("Connecting item clicked")
 
-
-        # Ensure to connect the item clicked signal to the display_item_information method
         self.inventory_list.itemClicked.connect(self.display_item_information)
         self.is_item_clicked_connected = True
 
+
     def populate_inventory(self):
         ic("Populating inventory")
-        # Use the GameManager to get inventory items
-        items = self.game_manager.get_inventory_items()
+        items = self.game_manager.get_inventory_data()
+        ic("Inventory items:, items")
+        self.inventory_list.clear()  # Clear the list before adding new items
         for item_string in items:
             self.inventory_list.addItem(item_string)
+            ic("Item added to inventory list widget:", item_string)
 
     def populate_fast_travel_locations(self):
         ic("Populating fast travel locations")
-        # Get fast travel locations from the game manager
-        locations = self.game_manager.get_fast_travel_locations()
-        for location_with_world in locations:
-            # Extract 'location' and 'world_name' from each dictionary
-            location_name = location_with_world['location']['name']
-            world_name = location_with_world['world_name']
-            # Adjust format to "Location Name (Main Area of World Name)"
-            display_text = f"{location_name} ({world_name})"
-            self.inventory_list.addItem(display_text)
-
+        locations = self.game_manager.get_fast_travel_locations_data()
+        ic("Fast travel locations:", locations)
+        self.inventory_list.clear()  # Clear the list before adding new items
+        for location_string in locations:
+            self.inventory_list.addItem(location_string)
+            ic("Location added to fast travel list widget:", location_string)
 
     def populate_notes(self):
         ic("Populating notes")
-        # Get notes from the game manager
-        notes = self.game_manager.get_player_notes()
-        for note in notes:
-            # Add each note's name or a summary to the inventory list
-            self.inventory_list.addItem(note['name'])
+        notes = self.game_manager.get_notes_data()
+        ic("Notes:", notes)
+        self.inventory_list.clear()  # Clear the list before adding new items
+        for note_name in notes:
+            self.inventory_list.addItem(note_name)
+            ic("Note added to notes list widget:", note_name)
 
     def populate_quest_log(self):
         ic("Populating quest log")
-        quests = self.game_manager.get_player_quests()
-        for quest in quests:
-            self.inventory_list.addItem(quest)
+        quests = self.game_manager.get_quests_data()
+        ic("Quests:", quests)
+        self.inventory_list.clear()  # Clear the list before adding new items
+        for quest_string in quests:
+            self.inventory_list.addItem(quest_string)
+            ic("Quest added to quest log list widget:", quest_string)
 
     def populate_emails(self):
         ic("Populating emails")
-        # Clear the existing items in the list to refresh the list
-        self.inventory_list.clear()
-        # Get emails from the game manager
-        emails = self.game_manager.get_player_emails()
-        
-        # Sort emails so that unread emails come first
-        sorted_emails = sorted(emails, key=lambda x: x['read'])
-        
-        # Add emails to the list with a different style if read
-        for email in sorted_emails:
-            item_text = f"{email['name']} (Read)" if email['read'] else email['name']
-            item = QListWidgetItem(item_text)
-            
-            # If the email is read, set the color to grey
-            if email['read']:
+        emails = self.game_manager.get_emails_data()
+        ic("Emails:", emails)
+        self.inventory_list.clear()  # Clear the list before adding new items
+        for email_string in emails:
+            item = QListWidgetItem(email_string)
+            if "(Read)" in email_string:
                 item.setForeground(QColor('grey'))
             else:
-                # Ensure that unread emails are bold
                 font = item.font()
                 font.setBold(True)
                 item.setFont(font)
-            
             self.inventory_list.addItem(item)
 
     def process_command(self):
-        # Placeholder conditional in case I want to add other command interpretations
-        if_not_dummy = False 
-        if if_not_dummy:
-            pass  # This will be replaced with actual command handling logic later
-        else:
-            command_text = self.command_input.text().strip().lower()
-            self.command_input.clear()
+        ic("Entered process_command", threading.get_ident())
+        ic(self.command_input.text())
+        command_text = self.command_input.text().strip().lower()
+        self.command_input.clear()
+        self.command_input.setPlaceholderText("Processing...")
+        self.command_input.setEnabled(False)
+        self.game_text_area.clear()
 
-        response = self.world_builder.incoming_command(command_text)
+        # Create a worker instance with the GameManager and command_text
+        self.worker = Worker(self.game_manager, command_text)
 
-        # Check if the response is a boolean and quietly continue without displaying anything
-        if isinstance(response, bool):
-            return
+        # Create a QThread instance
+        self.thread = QThread()
 
-        self.display_text(response)  # Display the response in the UI
+        # Move the worker to the thread
+        self.worker.moveToThread(self.thread)
+
+        # Connect the thread's started signal to the worker's process_command slot
+        self.thread.started.connect(self.worker.process_command)
+
+        # Connect signals and slots
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+
+        # Ensure display_text is called in the main thread
+        self.worker.finished.connect(self.display_text_wrapped)
+
+        # Start the thread
+        self.thread.start()
+
+    def display_text_wrapped(self, processed_content):
+        # Execute this only in the main thread
+        if QThread.currentThread() == QThread.currentThread().thread():
+            self.display_text(processed_content)
 
     def display_item_information(self, item_widget):
         ic("Displaying item information")
-        # Retrieve the selected item's text
         selected_text = item_widget.text()
+        ic("Selected item text:", selected_text)
 
         # Determine the selected name based on the current category
         if self.current_category == "Quest Log":
@@ -255,88 +329,116 @@ class GameUI(QWidget):
             else:
                 # For other categories, just display the name and description
                 formatted_details = f"{selected_name}:\n\n{item_details.get('description', 'No description available.')}"
-            self.display_text(formatted_details)
+                text = convert_text_to_display(formatted_details)
+                
+            text = convert_text_to_display(formatted_details)                
+            self.display_text(text)
         else:
-            self.display_text("Item details not found.")
+            text = convert_text_to_display(f"{selected_name}:\n\nNo details available.")
+            self.display_text(text)
 
-    def display_text(self, text):
-        ic("Displaying text")
-        # Clear the game text area before displaying new text
+    def display_text(self, processed_content):
+        ic("display_text thread ID", threading.get_ident())
+        ic(processed_content)
+
+        # Clear the game text area and apply any necessary styling
         self.game_text_area.clear()
-        self.game_text_area.verticalScrollBar().setStyleSheet("QScrollBar {width:0px;}") # Hides the scrollbar
+        self.game_text_area.verticalScrollBar().setStyleSheet("QScrollBar {width:0px;}")
 
-        # Set the alignment to center for the new text block
-        text_cursor = self.game_text_area.textCursor()
-        text_block_format = QTextBlockFormat()
-        text_block_format.setAlignment(Qt.AlignCenter)
-        text_cursor.mergeBlockFormat(text_block_format)
-        self.game_text_area.setTextCursor(text_cursor)
+        # Ensure the game_text_area can interpret HTML
+        self.game_text_area.setAcceptRichText(True)
 
-        # Optionally set a monospace font
+        # Set the font for the game text area
         font = self.game_text_area.font()
-        font.setFamily("Consolas")  
-        font.setPointSize(12) 
+        font.setFamily("Consolas")
+        font.setPointSize(12)
         self.game_text_area.setFont(font)
 
-        # Calculate font metrics for the current font
-        metrics = QFontMetrics(font)
-        text_lines = text.split('\n')
-        max_lines = 1000 // metrics.height()  # Calculate the maximum number of lines that can fit in the text area. This is basically limitless for our purposes.
+        # Remove the Markdown code block delimiters, if any
+        processed_content = processed_content.replace('```html', '').replace('```', '')
 
-        # Function to calculate padding
-        def calculate_padding(text_block):
-            text_height = metrics.height() * len(text_block)
-            text_area_height = self.game_text_area.viewport().height() - 100
-            padding_lines = max(0, (text_area_height - text_height) // (2 * metrics.height()))
-            return '\n' #* padding_lines
+        # Wrap the content in <div> tags with a style attribute for centering text
+        centered_html_content = f'<div style="text-align: center;">{processed_content}</div>'
 
-        # Display text in chunks of max_lines
-        for i in range(0, len(text_lines), max_lines):
-            chunk = text_lines[i:i + max_lines]
-            padding = calculate_padding(chunk)
-            display_text = padding + '\n'.join(chunk) + padding
+        # Split the centered HTML content into chunks
+        self.chunks = self.split_into_chunks(centered_html_content)
+        self.current_chunk_index = 0  # Initialize a variable to keep track of the current chunk index
 
-            # Insert the chunk character by character to create a typing effect
-            for char in display_text:
-                # Append character to the text area
-                self.game_text_area.insertPlainText(char)
-                # Keep text centered
-                self.game_text_area.setAlignment(Qt.AlignCenter)
-                # Process events to update the text area immediately
-                QApplication.processEvents()
-                # Sleep for a short duration to create the typing effect
-                time.sleep(0.0001)
+        # Start displaying the chunks from the beginning
+        self.display_chunk()
 
-            # Wait for a moment after each chunk
-            time.sleep(1)
+        # Re-enable the command input and reset placeholder text
+        self.command_input.setEnabled(True)
+        self.command_input.setPlaceholderText("Type a command...")
+        ic("Exiting display_text", threading.get_ident())
 
-            # Clear the area for the next chunk
-            if i + max_lines < len(text_lines):
-                self.game_text_area.clear()
+    def display_chunk(self):
+        ic("Entered display_chunk", threading.get_ident())
+        if self.current_chunk_index < len(self.chunks):
+            chunk = self.chunks[self.current_chunk_index]
+            ic("Current chunk content:", chunk)
+            centered_chunk = f'<div style="text-align: center;">{chunk}</div>'
+            
+            if self.current_chunk_index > 0:
+                ic("Appending chunk")
+                # Append the new chunk to the existing content
+                current_html = self.game_text_area.toHtml()
+                self.game_text_area.setHtml(current_html + centered_chunk)
+            else:
+                ic("Setting chunk")
+                # If it's the first chunk, set it as new content
+                self.game_text_area.setHtml(centered_chunk)
 
-        # Re-center the cursor after typing is complete
-        self.game_text_area.setAlignment(Qt.AlignCenter)
+            # Increment the chunk index
+            self.current_chunk_index += 1
+            ic("Setting timer")
 
-        # Ensure the scrollbar is adjusted properly at the end of all text
-        #self.game_text_area.verticalScrollBar().setValue(0)  # Reset scrollbar to the top
-        #self.game_text_area.ensureCursorVisible()
+            if self.current_chunk_index >= len(self.chunks):
+                # If this was the last chunk, reset the command input
+                if self.was_command_help:
+                    self.command_input.clear()
+                    self.command_input.setEnabled(True)
+                    self.command_input.setPlaceholderText("Type a command...")
+                else:
+                    self.command_input.clear()
+                    self.command_input.setEnabled(True)
+                    self.command_input.setPlaceholderText("Type 'Help' to start")
+            else:
+                # Set up the timer to call this method again after a delay
+                QTimer.singleShot(750, self.display_chunk)  # 500 ms delay
 
-    def update_quest_log(self, quests):
-        ic("Updating quest log")
-        self.inventory_list.clear()
-        for quest in quests:
-            self.inventory_list.addItem(quest)
+    def split_into_chunks(self, html_content):
+        # Split by paragraphs and unordered lists
+        ic("Splitting into chunks")
+        chunks = re.split(r'(</p>|</ul>)', html_content)
+        ic("Chunks:", chunks)
+
+        # Re-add the split tags to each chunk and filter out empty strings
+        chunks = [chunk + split_tag for chunk, split_tag in zip(chunks[0::2], chunks[1::2]) if chunk]
+        ic("Chunks after filtering:", chunks)
+
+        return chunks
+
+
+    def update_quest_log(self):
+        if hasattr(self, 'inventory_list'):
+            self.inventory_list.clear()
+            quests = self.game_manager.get_quests_data()
+            for quest in quests:
+                self.inventory_list.addItem(quest)
+
 
     def update_ui(self):
         ic("Updating UI")
-        # Set the dropdown to 'Quest Log'
-        quest_log_index = self.drop_down_menu.findText('Quest Log')
-        if quest_log_index >= 0:
-            self.drop_down_menu.setCurrentIndex(quest_log_index)
-            self.update_ui_from_dropdown(quest_log_index)
-        else:
-            print("Quest Log not found in dropdown.")
+        # Determine what type of data to display based on the current selection in the dropdown
+        current_selection = self.drop_down_menu.currentText()
+        if current_selection == "Quest Log":
+            self.update_quest_log()
+        elif current_selection == "Inventory":
+            self.populate_inventory()
 
     def update_scene_display(self):
-        scene_text = self.world_builder.build_scene_text()
+        scene_text = self.game_manager.world_builder.build_scene_text()
+        ic("Updating scene display")
+        ic(scene_text)
         self.display_text(scene_text)

@@ -5,6 +5,7 @@ from typing import Dict
 import pickle
 import os
 from icecream import ic
+import glob
 
 # Function to load text from a JSON file
 def load_text(file_name: str) -> Dict:
@@ -13,11 +14,11 @@ def load_text(file_name: str) -> Dict:
         with open(path, 'r', encoding='utf-8') as file:
             return json.load(file)
     except FileNotFoundError:
-        print(f"The file {file_name}.json was not found.")
+        ic(f"The file {file_name}.json was not found.")
     except json.JSONDecodeError:
-        print(f"The file {file_name}.json contains invalid JSON.")
+        ic(f"The file {file_name}.json contains invalid JSON.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        ic(f"An error occurred: {e}")
 
     return {} 
 
@@ -36,7 +37,7 @@ def load_json(file_name: str, key) -> Dict:
         ic(f"An error occurred: {e}")
     return []
 
-def save_game(state, filename='savegame.pkl'):
+def save_game_data(state, filename='savegame.pkl'):
     save_directory = "save_data"
     if not os.path.exists(save_directory):
         os.makedirs(save_directory)
@@ -49,30 +50,38 @@ def save_game(state, filename='savegame.pkl'):
     except Exception as e:
         ic(f"An error occurred while saving the game: {e}")
 
-    # Ensure the location is a dictionary with the 'world' key
-    if isinstance(state['player_sheet'].location, dict) and 'world' in state['player_sheet'].location:
-        world_name = state['player_sheet'].location['world']
+    # Determine the world name based on whether player_sheet is a dictionary or an object
+    world_name = None
+    if isinstance(state['player_sheet'], dict):
+        # Handling dictionary representation
+        player_location = state['player_sheet'].get('location', {})
+        world_name = player_location.get('world') if isinstance(player_location, dict) else None
+    else:
+        # Handling object representation
+        world_name = state['player_sheet'].location.get('world') if 'world' in state['player_sheet'].location else None
+
+    if world_name:
         working_world_path = f'data/worlds/working_{world_name}.json'
         try:
             with open(working_world_path, 'w') as f:
                 json.dump(state['world_data'], f, indent=4)
-            print(f"Working world data saved successfully as {working_world_path}.")
+            ic(f"Working world data saved successfully as {working_world_path}.")
         except Exception as e:
             ic(f"An error occurred while saving the working world data: {e}")
     else:
-        ic(f'Player location: {state["player_sheet"].location}')
         ic("The player's location is not in the correct format. Cannot save world data.")
 
 
+
 # Function to load game state
-def load_game(filename='savegame.pkl'):
+def load_game_data(filename='savegame.pkl'):
     try:
         with open(filename, 'rb') as f:
             return pickle.load(f)
     except FileNotFoundError:
-        print("Save file not found.")
+        ic("Save file not found.")
     except Exception as e:
-        print(f"An error occurred while loading the game: {e}")
+        ic(f"An error occurred while loading the game: {e}")
     return None
 
 def create_working_world_data(world_name):
@@ -91,25 +100,9 @@ def create_working_world_data(world_name):
 def load_working_world_data(world_name):
     # Directly use the provided world name to construct file paths
     working_world_path = f'data/worlds/working_{world_name}.json'
-    saved_game_path = f'save_data/working_{world_name}_savegame.pkl'
-    print(f"Loading working world data for {world_name}.")
 
-
-    # Check if there's a saved game specific to this world
-    if os.path.exists(saved_game_path):
-        print(f"Found saved game state for {world_name}.")
-        # Load the saved game state
-        try:
-            with open(saved_game_path, 'rb') as f:
-                saved_state = pickle.load(f)
-                print(f"Loaded saved game state for {world_name}.")
-                return saved_state['world_data']
-        except Exception as e:
-            print(f"Error loading saved game state for {world_name}: {e}")
-
-    # If no specific saved game state, create a new working copy
     if not os.path.exists(working_world_path):
-        print(f"No working world data found for {world_name}. Creating a new working copy.")
+        # If the working world file does not exist, create it from the base file
         create_working_world_data(world_name)
 
     # Load the working world data into memory and return it
@@ -119,11 +112,14 @@ def load_working_world_data(world_name):
 def load_all_worlds():
     world_directory = 'data/worlds'
     world_data = {}
+    ic("Loading world data...")
 
     try:
         for filename in os.listdir(world_directory):
+            ic(filename)
             if filename.endswith('.json') and not filename.startswith('working_'):
                 world_name = filename[:-5]  # Remove .json extension
+                ic(world_name)
                 with open(os.path.join(world_directory, filename), 'r') as file:
                     data = json.load(file)
                     world_display_name = data.get("name", "Unknown World")
@@ -132,3 +128,22 @@ def load_all_worlds():
         ic(f"An error occurred while loading world data: {e}")
 
     return world_data
+
+def convert_text_to_display(text):
+    # Convert newlines in the text to HTML paragraph tags
+    paragraphs = text.split('\n')
+    html_paragraphs = ['<p>{}</p>'.format(p.strip()) for p in paragraphs if p.strip()]
+
+    # Assemble the HTML content
+    html_content = "<html><body>{}</body></html>".format(''.join(html_paragraphs))
+
+    return html_content
+
+def delete_working_files():
+    # Delete all working files "working_*.json"
+    working_world_path = f'data/worlds/working_*.json'
+    working_world_files = glob.glob(working_world_path)
+    for file in working_world_files:
+        os.remove(file)
+    ic(f"Deleted {len(working_world_files)} working world files.")
+

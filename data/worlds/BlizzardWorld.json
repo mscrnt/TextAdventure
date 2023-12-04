@@ -1,6 +1,7 @@
 {
     "name": "Blizzard World",
     "description": "An immersive theme park bringing to life the legendary universes of Blizzard Entertainment. Each section of the park is dedicated to a beloved game series, offering unique attractions and experiences.",
+    "keywords": ["immersive", "theme park", "Blizzard"],
     "locations": [
         {
             "name": "Diablo Realm",
@@ -112,7 +113,10 @@
                 "north": "Nexus Park",
                 "east": "StarCraft Sector",
                 "south": "Warcraft Kingdom",
-                "west": "Lost Vikings Adventure"
+                "west": "Lost Vikings Adventure",
+                "sub 1": "Tristram Cathedral",
+                "sub 2": "Caldeum Market",
+                "sub 3": "Den of Evil"
             },
             "sublocations": [
                 {
@@ -186,11 +190,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "Diablo Realm",
-                        "exit": "Caldeum Market",
-                        "Chapel of the Damned": "Chapel of the Damned",
-                        "Sacristy of Shadows": "Sacristy of Shadows",
-                        "Crypt of Echoes": "Crypt of Echoes"
+                        "exit": "Diablo Realm",
+                        "Room 1": "Chapel of the Damned",
+                        "Room 2": "Sacristy of Shadows",
+                        "Room 3": "Crypt of Echoes"
                     },
                     "rooms": [
                         {
@@ -238,8 +241,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Tristram Cathedral",
-                                "exit": "Sacristy of Shadows"
+                                "exit": "Diablo Realm"
                             }
                         },
                         {
@@ -287,8 +289,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Chapel of the Damned",
-                                "exit": "Crypt of Echoes"
+                                "exit": "Diablo Realm"
                             }
                         },
                         {
@@ -336,8 +337,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Sacristy of Shadows",
-                                "exit": "Tristram Cathedral"
+                                "exit": "Diablo Realm"
                             }
                         }                                                                        
                     ]
@@ -417,11 +417,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "Diablo Realm",
-                        "exit": "Den of Evil",
-                        "Spice Bazaar": "Spice Bazaar",
-                        "Merchant's Alley": "Merchant's Alley",
-                        "Bazaar of the Arcane": "Bazaar of the Arcane"
+                        "exit": "Diablo Realm",
+                        "Room 1": "Spice Bazaar",
+                        "Room 2": "Merchant's Alley",
+                        "Room 3": "Bazaar of the Arcane"
                     },
                     "rooms": [
                         {
@@ -469,8 +468,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Caldeum Market",
-                                "exit": "Merchant's Alley"
+                                "exit": "Caldeum Market"
                             }
                         },
                         {
@@ -518,8 +516,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Spice Bazaar",
-                                "exit": "Artisan's Corner"
+                                "exit": "Caldeum Market"
                             }
                         },
                         {
@@ -582,8 +579,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Caldeum Market",
-                                "exit": "Mystic's Alley"
+                                "exit": "Caldeum Market"
                             }
                         }                                                                        
                     ]
@@ -655,11 +651,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "Diablo Realm",
-                        "exit": "Tristram Cathedral",
-                        "Chamber of Whispers": "Chamber of Whispers",
-                        "Hall of Shadows": "Hall of Shadows",
-                        "Cavern of Echoes": "Cavern of Echoes"
+                        "exit": "Diablo Realm",
+                        "Room 1": "Chamber of Whispers",
+                        "Room 2": "Hall of Shadows",
+                        "Room 3": "Cavern of Echoes"
                     },
                     "rooms": [
                         {
@@ -722,8 +717,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Den of Evil",
-                                "exit": "Hall of Shadows"
+                                "exit": "Den of Evil"
                             }
                         },
                         {
@@ -786,8 +780,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Chamber of Whispers",
-                                "exit": "Cavern of Echoes"
+                                "exit": "Den of Evil"
                             }
                         },
                         {
@@ -850,7 +843,6 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Hall of Shadows",
                                 "exit": "Den of Evil"
                             }
                         }                                                                        
@@ -863,7 +855,9 @@
             "description": "A vibrant area based on Heroes of the Storm, where characters and worlds from different Blizzard games converge in an exciting clash of themes.",
             "keywords": ["vibrant", "crossover", "dynamic"],
             "paths": {
-                "south": "Diablo Realm"
+                "south": "Diablo Realm",
+                "sub 1": "Blackheart's Revenge",
+                "sub 2": "Nexus Arcade"
             },
             "npcs": [
                 {
@@ -1026,11 +1020,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "Nexus Park",
-                        "exit": "Heroes Arcade",
-                        "Captain's Quarters": "Captain's Quarters",
-                        "The Galleon's Deck": "The Galleon's Deck",
-                        "The Crow's Nest": "The Crow's Nest"
+                        "exit": "Nexus Park",
+                        "Room 1": "Captain's Quarters",
+                        "Room 2": "The Galleon's Deck",
+                        "Room 3": "The Crow's Nest"
                     },
                     "rooms": [
                         {
@@ -1078,8 +1071,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Blackheart's Revenge",
-                                "exit": "The Galleon's Deck"
+                                "exit": "Nexus Park"
                             }
                         },
                         {
@@ -1127,8 +1119,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Captain's Quarters",
-                                "exit": "The Crow's Nest"
+                                "exit": "Nexus Park"
                             }
                         },
                         {
@@ -1176,8 +1167,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "The Galleon's Deck",
-                                "exit": "Blackheart's Revenge"
+                                "exit": "Nexus Park"
                             }
                         }                                                                        
                     ]
@@ -1249,11 +1239,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "Nexus Park",
-                        "exit": "Blackheart's Revenge",
-                        "Retro Gaming Zone": "Retro Gaming Zone",
-                        "Virtual Reality Arena": "Virtual Reality Arena",
-                        "eSports Arena": "eSports Arena"
+                        "exit": "Nexus Park",
+                        "Room 1": "Retro Gaming Zone",
+                        "Room 2": "Virtual Reality Arena",
+                        "Room 3": "eSports Arena"
                     },
                     "rooms": [
                         {
@@ -1301,8 +1290,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Heroes Arcade",
-                                "exit": "Virtual Reality Arena"
+                                "exit": "Heroes Arcade"
                             }
                         },
                         {
@@ -1350,8 +1338,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Retro Gaming Zone",
-                                "exit": "eSports Arena"
+                                "exit": "Heroes Arcade"
                             }
                         },
                         {
@@ -1399,7 +1386,6 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Virtual Reality Arena",
                                 "exit": "Heroes Arcade"
                             }
                         }                                                                        
@@ -1412,7 +1398,8 @@
             "description": "A tribute to The Lost Vikings, this area combines elements of puzzle-solving and exploration, reminiscent of the classic game.",
             "keywords": ["puzzle", "exploration", "nostalgic"],
             "paths": {
-                "east": "Diablo Realm"
+                "east": "Diablo Realm",
+                "sub 1": "Lost and Found Vikings"
             },
             "npcs": [
                 {
@@ -1566,11 +1553,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "Lost Vikings Adventure",
-                        "exit": "StarCraft Sector",
-                        "The Great Hall of Valhalla": "The Great Hall of Valhalla",
-                        "Runestone Puzzle Chamber": "Runestone Puzzle Chamber",
-                        "Viking Voyage Simulator": "Viking Voyage Simulator"
+                        "exit": "Lost Vikings Adventure",
+                        "Room 1": "The Great Hall of Valhalla",
+                        "Room 2": "Runestone Puzzle Chamber",
+                        "Room 3": "Viking Voyage Simulator"
                     },
                     "rooms": [
                         {
@@ -1618,8 +1604,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Lost and Found Vikings",
-                                "exit": "Runestone Puzzle Chamber"
+                                "exit": "Lost and Found Vikings"
                             }
                         },
                         {
@@ -1667,8 +1652,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "The Great Hall of Valhalla",
-                                "exit": "Viking Voyage Simulator"
+                                "exit": "Lost and Found Vikings"
                             }
                         },
                         {
@@ -1716,7 +1700,6 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Runestone Puzzle Chamber",
                                 "exit": "Lost and Found Vikings"
                             }
                         }                                                                        
@@ -1729,7 +1712,10 @@
             "description": "Futuristic and action-packed, this area draws inspiration from the StarCraft universe, featuring space-themed attractions and technology.",
             "keywords": ["futuristic", "space", "action"],
             "paths": {
-                "west": "Nexus Park"
+                "west": "Nexus Park",
+                "sub 1": "Command Center Lift Off",
+                "sub 2": "Blackheart's Revenge",
+                "sub 3": "Heroes Arcade"
             },
             "npcs": [
                 {
@@ -1887,11 +1873,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "StarCraft Sector",
-                        "exit": "Ghost Academy",
-                        "Strategic Operations Room": "Strategic Operations Room",
-                        "Battle Simulation Chamber": "Battle Simulation Chamber",
-                        "StarCraft Universe Exhibit": "StarCraft Universe Exhibit"
+                        "exit": "StarCraft Sector",
+                        "Room 1": "Strategic Operations Room",
+                        "Room 2": "Battle Simulation Chamber",
+                        "Room 3": "StarCraft Universe Exhibit"
                     },
                     "rooms": [
                         {
@@ -1939,8 +1924,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Command Center Lift Off",
-                                "exit": "Battle Simulation Chamber"
+                                "exit": "Command Center Lift Off"
                             }
                         },
                         {
@@ -1988,8 +1972,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Strategic Operations Room",
-                                "exit": "StarCraft Universe Exhibit"
+                                "exit": "Command Center Lift Off"
                             }
                         },
                         {
@@ -2037,7 +2020,6 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Battle Simulation Chamber",
                                 "exit": "Command Center Lift Off"
                             }
                         }                                                                                               
@@ -2103,11 +2085,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "StarCraft Sector",
-                        "exit": "Nexus Experience",
-                        "Zergling Interaction Zone": "Zergling Interaction Zone",
-                        "Protoss Fauna Sanctuary": "Protoss Fauna Sanctuary",
-                        "Terran Farmstead Experience": "Terran Farmstead Experience"
+                        "exit": "StarCraft Sector",
+                        "Room 1": "Zergling Interaction Zone",
+                        "Room 2": "Protoss Fauna Sanctuary",
+                        "Room 3": "Terran Farmstead Experience"
                     },
                     "rooms": [
                         {
@@ -2155,8 +2136,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Hatchery Petting Zoo",
-                                "exit": "Protoss Fauna Sanctuary"
+                                "exit": "Hatchery Petting Zoo"
                             }
                         },
                         {
@@ -2204,8 +2184,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Zergling Interaction Zone",
-                                "exit": "Terran Farmstead Experience"
+                                "exit": "Hatchery Petting Zoo"
                             }
                         },
                         {
@@ -2253,7 +2232,6 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Protoss Fauna Sanctuary",
                                 "exit": "Hatchery Petting Zoo"
                             }
                         }                                                                        
@@ -2319,11 +2297,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "StarCraft Sector",
-                        "exit": "Command Center Lift Off",
-                        "Galactic Battle Arena": "Galactic Battle Arena",
-                        "Strategy Command Room": "Strategy Command Room",
-                        "Heroes of the Koprulu Exhibit": "Heroes of the Koprulu Exhibit"
+                        "exit": "StarCraft Sector",
+                        "Room 1": "Galactic Battle Arena",
+                        "Room 2": "Strategy Command Room",
+                        "Room 3": "Heroes of the Koprulu Exhibit"
                     },
                     "rooms": [
                         {
@@ -2386,8 +2363,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Nexus Experience",
-                                "exit": "Strategy Command Room"
+                                "exit": "Nexus Experience"
                             }
                         },
                         {
@@ -2450,8 +2426,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Galactic Battle Arena",
-                                "exit": "Heroes of the Koprulu Exhibit"
+                                "exit": "Nexus Experience"
                             }
                         },
                         {
@@ -2514,7 +2489,6 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Strategy Command Room",
                                 "exit": "Nexus Experience"
                             }
                         }                                                                        
@@ -2527,7 +2501,10 @@
             "description": "A fantasy-themed area based on the Warcraft series, offering adventures in an epic landscape of magic and heroism.",
             "keywords": ["fantasy", "magic", "epic"],
             "paths": {
-                "north": "Diablo Realm"
+                "north": "Diablo Realm",
+                "sub 1": "Booty Bay",
+                "sub 2": "Ancient Curios",
+                "sub 3": "Darkmoon Faire"
             },
             "npcs": [
                 {
@@ -2681,11 +2658,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "Warcraft Kingdom",
-                        "exit": "Ancient Curios",
-                        "The Salty Sailor Tavern": "The Salty Sailor Tavern",
-                        "Merchant's Row": "Merchant's Row",
-                        "Dockside Promenade": "Dockside Promenade"
+                        "exit": "Warcraft Kingdom",
+                        "Room 1": "The Salty Sailor Tavern",
+                        "Room 2": "Merchant's Row",
+                        "Room 3": "Dockside Promenade"
                     },
                     "rooms": [
                         {
@@ -2748,8 +2724,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Booty Bay",
-                                "exit": "Merchant's Row"
+                                "exit": "Booty Bay"
                             }
                         },
                         {
@@ -2812,8 +2787,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "The Salty Sailor Tavern",
-                                "exit": "Dockside Promenade"
+                                "exit": "Booty Bay"
                             }
                         },
                         {
@@ -2876,7 +2850,6 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Merchant's Row",
                                 "exit": "Booty Bay"
                             }
                         }                                                                        
@@ -2949,11 +2922,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "Warcraft Kingdom",
-                        "exit": "Blackrock Mountain",
-                        "Enchanted Artifact Chamber": "Enchanted Artifact Chamber",
-                        "Tome and Relic Repository": "Tome and Relic Repository",
-                        "Mystic's Sanctum": "Mystic's Sanctum"
+                        "exit": "Warcraft Kingdom",
+                        "Room 1": "Enchanted Artifact Chamber",
+                        "Room 2": "Tome and Relic Repository",
+                        "Room 3": "Mystic's Sanctum"
                     },
                     "rooms": [
                         {
@@ -3001,8 +2973,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Ancient Curios",
-                                "exit": "Tome and Relic Repository"
+                                "exit": "Ancient Curios"
                             }
                         },
                         {
@@ -3050,8 +3021,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Enchanted Artifact Chamber",
-                                "exit": "Mystic's Sanctum"
+                                "exit": "Ancient Curios"
                             }
                         },
                         {
@@ -3103,7 +3073,6 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Tome and Relic Repository",
                                 "exit": "Ancient Curios"
                             }
                         }                                                                        
@@ -3169,11 +3138,10 @@
                         }
                     ],
                     "paths": {
-                        "entrance": "Warcraft Kingdom",
-                        "exit": "Booty Bay",
-                        "Mystical Midway": "Mystical Midway",
-                        "Magician's Alley": "Magician's Alley",
-                        "Enchanted Garden": "Enchanted Garden"
+                        "exit": "Warcraft Kingdom",
+                        "Room 1": "Mystical Midway",
+                        "Room 2": "Magician's Alley",
+                        "Room 3": "Enchanted Garden"
                     },
                     "rooms": [
                         {
@@ -3236,8 +3204,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Darkmoon Faire",
-                                "exit": "Magician's Alley"
+                                "exit": "Darkmoon Faire"
                             }
                         },
                         {
@@ -3300,8 +3267,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Mystical Midway",
-                                "exit": "Enchanted Garden"
+                                "exit": "Darkmoon Faire"
                             }
                         },
                         {
@@ -3364,7 +3330,6 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Magician's Alley",
                                 "exit": "Darkmoon Faire"
                             }
                         }                                                                        
