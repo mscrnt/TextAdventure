@@ -10,6 +10,7 @@ from PySide6.QtCore import QObject, Signal
 
 class WorldBuilder(QObject, IWorldBuilder):
     display_text_signal = Signal(str)
+    command_processed_signal = Signal() 
     last_spoken_npc = None
 
     def __init__(self, world_data, use_ai_assist=True):
@@ -44,16 +45,21 @@ class WorldBuilder(QObject, IWorldBuilder):
     def incoming_command(self, command):
         ic(f"Received command: {command}")
         try:
+            # Display the processing command message
             html_command = convert_text_to_display(f"Processing command: {command}")
             self.game_manager.display_text_signal.emit(html_command)
-            ic(f'Ai assist: {self.use_ai_assist}')
+
+            # Initialize response variable
+            response = ""
+
+            # Check if AI assist is enabled and process the command
             if self.use_ai_assist:
                 ic("Sending command to AI for processing.")
                 response = self.ai_assist.handle_player_command(command)
-                ic(f"AI response: {response}")
-                return response
+                ic(f"AI responsed: ")
             else:
                 ic("Processing command directly.")
+                # Dispatch the command based on the prefix
                 command_dispatch = {
                     "take": (self.take_item, command[len("take"):].strip()),
                     "move to": (self.move_player, command[len("move to"):].strip()),
@@ -71,17 +77,30 @@ class WorldBuilder(QObject, IWorldBuilder):
                     "give": (self.give_item, command[len("give"):].strip()),
                     "help": (self.display_help, "")
                 }
+
+                # Find the method to call based on the command prefix
                 for prefix, (method, argument) in command_dispatch.items():
                     if command.startswith(prefix):
-                        text = method(argument) if argument else method()
-                        html_text = convert_text_to_display(text)
-                        return html_text
-                text = f'Unknown command: {command}'
-                html_text = convert_text_to_display(text)
-                return html_text
+                        # Call the method and pass the argument if there is one
+                        response = method(argument) if argument else method()
+                        response = convert_text_to_display(response)
+                        break
+                else:
+                    # If no command matches, return an unknown command response
+                    response = convert_text_to_display(f'Unknown command: {command}')
+
+            # Emit the signal to indicate command processing is complete
+            self.command_processed_signal.emit()
+            return response
+
         except Exception as e:
+            # Handle any exceptions that occur during command processing
             ic(f"Error processing command: {e}")
-            return f"Error processing command: {e}"
+            response = convert_text_to_display(f"Error processing command: {e}")
+            # Emit the signal even when an error occurs
+            self.command_processed_signal.emit()
+            return response
+
 
     def fast_travel_to_world(self, world_name):
         available_worlds = [world.replace(" ", "").lower() for world in self.game_manager.player_sheet.get_fast_travel_worlds()]

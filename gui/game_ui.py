@@ -21,6 +21,7 @@ class GameUI(QWidget, IGameUI):
         self.world_builder = world_builder
         self.is_item_clicked_connected = False 
         self.was_command_help = False
+        self.is_command_processing = False
 
         if not self.game_manager:
             raise ValueError("GameUI requires a GameManager instance.")
@@ -50,6 +51,7 @@ class GameUI(QWidget, IGameUI):
         self.update_text_signal.connect(self.display_text)
         self.game_manager.display_text_signal.connect(self.display_text)
         self.world_builder.display_text_signal.connect(self.display_text)
+        self.world_builder.command_processed_signal.connect(self.enable_command_input)
 
     def on_game_loaded(self):
         ic("Game loaded")
@@ -258,10 +260,12 @@ class GameUI(QWidget, IGameUI):
     def process_command(self):
         ic("Entered process_command", threading.get_ident())
         ic(self.command_input.text())
+        self.is_command_processing = True
         command_text = self.command_input.text().strip().lower()
         self.command_input.clear()
         self.command_input.setPlaceholderText("Processing...")
-        self.command_input.setEnabled(False)
+        ic("disabling command input")
+        self.command_input.setDisabled(True)
         self.game_text_area.clear()
 
         # Create a worker instance with the GameManager and command_text
@@ -288,9 +292,13 @@ class GameUI(QWidget, IGameUI):
         self.thread.start()
 
     def display_text_wrapped(self, processed_content):
+        # Indicate that command processing is finished
+        self.is_command_processing = False
+
         # Execute this only in the main thread
         if QThread.currentThread() == QThread.currentThread().thread():
             self.display_text(processed_content)
+
 
     def display_item_information(self, item_widget):
         ic("Displaying item information")
@@ -337,6 +345,14 @@ class GameUI(QWidget, IGameUI):
             text = convert_text_to_display(f"{selected_name}:\n\nNo details available.")
             self.display_text(text)
 
+    def enable_command_input(self):
+        if not self.is_command_processing:
+            ic("From enable_command_input() Enabling command input")
+            self.command_input.setEnabled(True)
+            self.command_input.setPlaceholderText("Type a command...")
+            self.command_input.setFocus()
+
+
     def display_text(self, processed_content):
         ic("display_text thread ID", threading.get_ident())
         ic(processed_content)
@@ -366,46 +382,45 @@ class GameUI(QWidget, IGameUI):
 
         # Start displaying the chunks from the beginning
         self.display_chunk()
-
-        # Re-enable the command input and reset placeholder text
-        self.command_input.setEnabled(True)
-        self.command_input.setPlaceholderText("Type a command...")
         ic("Exiting display_text", threading.get_ident())
 
     def display_chunk(self):
         ic("Entered display_chunk", threading.get_ident())
         if self.current_chunk_index < len(self.chunks):
+            # Get the current chunk to display
             chunk = self.chunks[self.current_chunk_index]
             ic("Current chunk content:", chunk)
             centered_chunk = f'<div style="text-align: center;">{chunk}</div>'
-            
+
+            # Display the current chunk
             if self.current_chunk_index > 0:
                 ic("Appending chunk")
-                # Append the new chunk to the existing content
                 current_html = self.game_text_area.toHtml()
                 self.game_text_area.setHtml(current_html + centered_chunk)
             else:
                 ic("Setting chunk")
-                # If it's the first chunk, set it as new content
                 self.game_text_area.setHtml(centered_chunk)
 
-            # Increment the chunk index
+            # Increment the chunk index and set the timer for the next chunk if there are more
             self.current_chunk_index += 1
             ic("Setting timer")
-
-            if self.current_chunk_index >= len(self.chunks):
-                # If this was the last chunk, reset the command input
-                if self.was_command_help:
-                    self.command_input.clear()
-                    self.command_input.setEnabled(True)
-                    self.command_input.setPlaceholderText("Type a command...")
-                else:
-                    self.command_input.clear()
-                    self.command_input.setEnabled(True)
-                    self.command_input.setPlaceholderText("Type 'Help' to start")
+            if self.current_chunk_index < len(self.chunks):
+                QTimer.singleShot(750, self.display_chunk)  # Set timer for next chunk
             else:
-                # Set up the timer to call this method again after a delay
-                QTimer.singleShot(750, self.display_chunk)  # 500 ms delay
+                self.finalize_display()
+        else:
+            # If there are no more chunks to display, finalize the display
+            self.finalize_display()
+
+    def finalize_display(self):
+        # This method gets called when all chunks have been displayed
+        ic("Finalizing display")
+        self.is_displaying_chunk = False
+
+        # Only re-enable the command input if no other command is being processed.
+        if not self.is_command_processing:
+            ic("Enabling command input from finalize_display")
+            self.enable_command_input()
 
     def split_into_chunks(self, html_content):
         # Split by paragraphs and unordered lists
