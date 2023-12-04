@@ -183,7 +183,6 @@ class WorldBuilder(QObject, IWorldBuilder):
                     self.last_spoken_npc = npc_name
                     ic(f'Checking objectives for {npc_name}')
                     self.game_manager.quest_tracker.check_npc_quests(npc_name)
-                    self.game_manager.update_quests_ui()
                     # Handle the dialogue
                     return self.handle_npc_dialogue(npc)
 
