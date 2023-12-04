@@ -4,21 +4,25 @@ from PySide6.QtWidgets import QMainWindow, QTextEdit, QVBoxLayout, QWidget, QLab
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QPalette, QColor
 from icecream import ic
-from interfaces import IGameManager, IQuestTracker, IWorldBuilder, IPlayerSheet, IGameUI
+from interfaces import IGameUI
 from gui.game_ui import GameUI
+from engine.game_manager import GameManager
+from engine.world_builder import WorldBuilder
+from engine.quest_tracker import QuestTracker
+from engine.player_sheet import PlayerSheet
+
+
 
 class MainWindow(QMainWindow):
-    def __init__(self, game_manager: IGameManager, world_builder: IWorldBuilder, player_sheet: IPlayerSheet, quest_tracker: IQuestTracker, game_ui: IGameUI):
+    def __init__(self, use_ai=False):
         super().__init__()
-        self.game_manager = game_manager
-        # self.world_builder = world_builder
-        # self.player_sheet = player_sheet
-        # self.quest_tracker = quest_tracker
-        self.game_ui = game_ui
+        self.game_manager = None
+        self.world_builder = None
+        self.player_sheet = None
+        self.quest_tracker = None
+        self.game_ui = None
+        self.use_ai = use_ai
         ic("Initializing main window")
-
-        self.game_manager.gameLoaded.connect(self.game_ui.on_game_loaded)
-        self.game_ui.ui_ready_to_show.connect(self.switch_to_game_ui)
 
         # Set the main window's properties
         self.setWindowTitle("Odyssey")
@@ -39,10 +43,24 @@ class MainWindow(QMainWindow):
         self.init_splash_screen()
 
         # Initialize Main Game Interface
-        #self.init_game_interface()
+        self.init_game_interface()
 
         self.init_entry_point()
-        
+
+    def initialize_game_components(self):
+        if not self.game_manager:
+            self.game_manager = GameManager(use_ai=self.use_ai)
+            
+            # This now occurs only after the game_manager has been initialized
+            self.game_manager.initialize_game_data("Player")
+            self.game_manager.initialize_world_builder()
+
+            # Here, obtain the GameUI instance from game_manager instead of creating a new one
+            self.game_ui = self.game_manager.game_ui  
+            self.game_manager.gameLoaded.connect(self.game_ui.on_game_loaded)
+            self.game_ui.ui_ready_to_show.connect(self.switch_to_game_ui)
+
+
     def set_game_ui(self, game_ui: IGameUI):
         self.game_ui = game_ui
 
@@ -200,15 +218,17 @@ class MainWindow(QMainWindow):
         """
         ic("Switching to game UI")
         self.game_manager.gameLoaded.connect(self.game_ui.on_game_loaded)
-        self.setCentralWidget(self.game_ui)
+        self.setCentralWidget(self.game_manager.game_ui)  
+        self.game_manager.game_ui.show() 
+
 
     def start_new_game(self):
+        self.initialize_game_components()
         player_name = self.prompt_for_player_name()
         if player_name:
-            self.game_manager.initialize_game_data(player_name)  # Initialize game data
+            self.game_manager.initialize_game_data(player_name)
             if self.game_manager.start_new_game(player_name):
                 self.switch_to_game_ui()
-                ic("New game started successfully.")
             else:
                 ic("Failed to start new game.")
 
@@ -217,11 +237,11 @@ class MainWindow(QMainWindow):
         self.game_ui.game_manager.save_game()
 
     def select_save_file(self):
+        self.initialize_game_components()
         filename, _ = QFileDialog.getOpenFileName(self, "Load Game", "save_data/", "Save Files (*.pkl)")
         if filename:
             if self.game_manager.load_game(filename):
                 self.switch_to_game_ui()
-                ic(f"Game loaded successfully from {filename}.")
             else:
                 ic("Failed to load the game.")
 

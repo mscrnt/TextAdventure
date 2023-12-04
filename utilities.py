@@ -100,25 +100,9 @@ def create_working_world_data(world_name):
 def load_working_world_data(world_name):
     # Directly use the provided world name to construct file paths
     working_world_path = f'data/worlds/working_{world_name}.json'
-    saved_game_path = f'save_data/working_{world_name}_savegame.pkl'
-    ic(f"Loading working world data for {world_name}.")
 
-
-    # Check if there's a saved game specific to this world
-    if os.path.exists(saved_game_path):
-        ic(f"Found saved game state for {world_name}.")
-        # Load the saved game state
-        try:
-            with open(saved_game_path, 'rb') as f:
-                saved_state = pickle.load(f)
-                ic(f"Loaded saved game state for {world_name}.")
-                return saved_state['world_data']
-        except Exception as e:
-            ic(f"Error loading saved game state for {world_name}: {e}")
-
-    # If no specific saved game state, create a new working copy
     if not os.path.exists(working_world_path):
-        ic(f"No working world data found for {world_name}. Creating a new working copy.")
+        # If the working world file does not exist, create it from the base file
         create_working_world_data(world_name)
 
     # Load the working world data into memory and return it
@@ -140,7 +124,6 @@ def load_all_worlds():
                     data = json.load(file)
                     world_display_name = data.get("name", "Unknown World")
                     world_data[world_name] = world_display_name
-                    ic(world_data)
     except Exception as e:
         ic(f"An error occurred while loading world data: {e}")
 

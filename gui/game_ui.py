@@ -10,6 +10,7 @@ from utilities import convert_text_to_display
 from engine.worker import Worker
 import threading
 
+
 class GameUI(QWidget, IGameUI):
     ui_ready_to_show = Signal()
     update_text_signal = Signal(str)
@@ -20,15 +21,6 @@ class GameUI(QWidget, IGameUI):
         self.world_builder = world_builder
         self.is_item_clicked_connected = False 
         self.was_command_help = False
-
-        
-        # UI initialization logic
-        self.init_ui()
-
-        # Connect signals and slots
-        self.update_text_signal.connect(self.display_text)
-        self.game_manager.display_text_signal.connect(self.display_text)
-        self.world_builder.display_text_signal.connect(self.display_text)
 
         if not self.game_manager:
             raise ValueError("GameUI requires a GameManager instance.")
@@ -54,7 +46,10 @@ class GameUI(QWidget, IGameUI):
 
     def complete_initialization(self):
         self.initialize_drop_down_menu()
-        self.update_ui_from_dropdown(3) 
+        # Connect signals and slots
+        self.update_text_signal.connect(self.display_text)
+        self.game_manager.display_text_signal.connect(self.display_text)
+        self.world_builder.display_text_signal.connect(self.display_text)
 
     def on_game_loaded(self):
         ic("Game loaded")
@@ -111,6 +106,17 @@ class GameUI(QWidget, IGameUI):
         palette.setColor(QPalette.Text, Qt.black)  # Black text for input fields
         self.setPalette(palette)
 
+        self.inventory_list.setStyleSheet("""
+            QListWidget {
+                background-color: #333;  # Dark background color
+                border: 1px solid yellow;  # Yellow border as before
+                color: white;  # White text color
+            }
+            QListWidget::item:selected {
+                background-color: #555;  # Slightly lighter background for selected items
+                color: white;  # Ensure selected item text is white
+            }
+        """)
         # Set the style for the command input with a white background and black text
         self.command_input.setStyleSheet("""
             QLineEdit {
@@ -148,6 +154,7 @@ class GameUI(QWidget, IGameUI):
         self.game_text_area.setPalette(text_area_palette)
 
         self.complete_initialization()
+
 
 
     def initialize_drop_down_menu(self):
@@ -414,12 +421,11 @@ class GameUI(QWidget, IGameUI):
 
 
     def update_quest_log(self):
-        ic("Updating quest log")
-        quests = self.game_manager.get_quests_data()
-        ic(quests)
-        self.inventory_list.clear()
-        for quest in quests:
-            self.inventory_list.addItem(quest)
+        if hasattr(self, 'inventory_list'):
+            self.inventory_list.clear()
+            quests = self.game_manager.get_quests_data()
+            for quest in quests:
+                self.inventory_list.addItem(quest)
 
 
     def update_ui(self):

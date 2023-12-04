@@ -11,6 +11,141 @@
                 "target": "all-unread",
                 "completed": false
             }
-        ]
+        ],
+        "rewards": {
+            "items": [
+                {
+                    "name": "Mystery Box",
+                    "description": "A box filled with unknown contents.",
+                    "type": "Special",
+                    "collectable": true,
+                    "quantity": 1,
+                    "interactions": [
+                        {
+                            "action": "open",
+                            "result": {
+                                "randomItem": true,
+                                "experience": 50,
+                                "tokens": 20
+                            }
+                        }
+                    ]
+                }
+            ],
+            "experience": 100,
+            "tokens": 50
+        }
+    },
+    {
+        "name": "Echoes of Avalonia",
+        "slug": "echoesOfAvalonia",
+        "description": "Discover the voices of the past within the Grand Castle of Central Avalonia.",
+        "isActive": false,
+        "completed": false,
+        "objectives": [
+            {
+                "type": "speakToCharacter",
+                "target": "Monk Jaron",
+                "completed": false
+            }
+        ],
+        "rewards": {
+            "experience": 150,
+            "tokens": 75,
+            "items": [
+                {
+                    "name": "Echo Amulet",
+                    "description": "An amulet that resonates with the whispers of the ancient",
+                    "type": "Accessory",
+                    "collectable": true,
+                    "quantity": 1
+                }
+            ]
+        }
+    },
+    {
+        "name": "The Hidden Knowledge",
+        "slug": "theHiddenKnowledge",
+        "description": "Uncover the Lost Tome in the depths of the Royal Library's Secret Chamber.",
+        "isActive": false,
+        "completed": false,
+        "objectives": [
+            {
+                "type": "retrieveItem",
+                "target": "Enchanted Grimoire",
+                "targetType": "item",
+                "completed": false
+            }
+        ],
+        "rewards": {
+            "experience": 200,
+            "tokens": 100,
+            "items": [
+                {
+                    "name": "Tome of Endless Truths",
+                    "description": "A tome that guides its reader to ultimate knowledge.",
+                    "type": "Special",
+                    "collectable": true,
+                    "quantity": 1
+                }
+            ]
+        }
+    },
+    {
+        "name": "Royal Decrees",
+        "slug": "royalDecrees",
+        "description": "Aid King Aldor by delivering messages of peace and solidarity to the people of Central Avalonia.",
+        "isActive": false,
+        "completed": false,
+        "objectives": [
+            {
+                "type": "deliverItem",
+                "target": "Decree of the Realm",
+                "targetType": "item",
+                "targets": ["Central Avalonia Market", "Whispering Forest Entrance", "Sunken Shores Dock"],
+                "completed": false
+            }
+        ],
+        "rewards": {
+            "experience": 120,
+            "tokens": 60,
+            "items": [
+                {
+                    "name": "Medallion of Valor",
+                    "description": "A medallion that symbolizes one's service to the crown.",
+                    "type": "Accessory",
+                    "collectable": true,
+                    "quantity": 1
+                }
+            ]
+        }
+    },
+    {
+        "name": "Guardian of the Realms",
+        "slug": "guardianOfTheRealms",
+        "description": "Defend Avalonia from the shadow creatures emerging from the Ethereal Plains.",
+        "isActive": false,
+        "completed": false,
+        "objectives": [
+            {
+                "type": "defeatEnemies",
+                "targets": ["Shadow Beast", "Ethereal Wraith"],
+                "numberRequired": 3,
+                "completed": false
+            }
+        ],
+        "rewards": {
+            "experience": 300,
+            "tokens": 150,
+            "items": [
+                {
+                    "name": "Sword of Light",
+                    "description": "A sword imbued with the power to repel darkness.",
+                    "type": "Weapon",
+                    "collectable": true,
+                    "quantity": 1
+                }
+            ]
+        }
     }
 ]

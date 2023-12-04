@@ -10,12 +10,13 @@ from PySide6.QtCore import QObject, Signal
 
 class WorldBuilder(QObject, IWorldBuilder):
     display_text_signal = Signal(str)
+    last_spoken_npc = None
 
     def __init__(self, world_data, use_ai_assist=True):
         super().__init__()
         self.game_manager = None
         self.world_data = world_data
-        ic(f'WorldBuilder initialized with world data: {world_data}')
+        ic(f'WorldBuilder initialized with world data')
         self.use_ai_assist = use_ai_assist
         if self.use_ai_assist:
             ic(f"AI assist enabled: {self.use_ai_assist}")
@@ -173,14 +174,17 @@ class WorldBuilder(QObject, IWorldBuilder):
         normalized_npc_name = self.normalize_name(npc_name)
 
         # Get the current location data
-        current_location = self.game_manager.player_sheet.location
-        current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
-        location_data = self.find_location_data(current_location_str)
+        location_data = self.get_current_location_data()
 
         if 'npcs' in location_data:
             for npc in location_data['npcs']:
                 if self.normalize_name(npc['name']) == normalized_npc_name:
-                    # Found the NPC, now handle the dialogue
+                    # If we found the NPC, check quests for this NPC before initiating dialogue
+                    self.last_spoken_npc = npc_name
+                    ic(f'Checking objectives for {npc_name}')
+                    self.game_manager.quest_tracker.check_npc_quests(npc_name)
+                    self.game_manager.update_quests_ui()
+                    # Handle the dialogue
                     return self.handle_npc_dialogue(npc)
 
         return f"No one named '{npc_name}' found here."

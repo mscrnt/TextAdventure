@@ -1,12 +1,12 @@
 # engine/game_manager.py
 from icecream import ic
 from utilities import load_all_worlds, load_working_world_data, load_json, save_game_data, load_game_data
-from interfaces import IGameManager, IQuestTracker, IWorldBuilder, IPlayerSheet, IGameUI
+from interfaces import IGameManager, IQuestTracker, IWorldBuilder, IGameUI
 from engine.player_sheet import PlayerSheet
 from engine.quest_tracker import QuestTracker
 from engine.world_builder import WorldBuilder
+from gui.game_ui import GameUI
 from PySide6.QtCore import QObject, Signal, QTimer
-
 
 class GameManager(QObject, IGameManager):
     display_text_signal = Signal(str)
@@ -18,12 +18,13 @@ class GameManager(QObject, IGameManager):
         self.player_sheet = None
         ic("GameManager initialized")
 
-    def load_world_data(self):
-        world_full_names = load_all_worlds()
+    def initialize_world_builder(self):
+        if not hasattr(self, 'world_builder'):
+            self.world_builder = WorldBuilder(self.world_data, self.use_ai)
 
-        # Loop through each world name
-        for world_key in world_full_names.keys():
-            world_data = load_working_world_data(world_key)
+    def load_world_data(self, starting_world="OdysseyVR"):
+
+        world_data = load_working_world_data(starting_world)
 
         return world_data
 
@@ -33,18 +34,23 @@ class GameManager(QObject, IGameManager):
 
         # Load world data
         self.world_data = self.load_world_data()
+        ic(f'World data loaded')
+
+        # Initialize WorldBuilder with world data
+        self.world_builder = WorldBuilder(world_data=self.world_data, use_ai_assist=self.use_ai)
+        self.world_builder.set_game_manager(self)
 
         # Initialize QuestTracker
         self.quest_tracker = QuestTracker()
         self.quest_tracker.set_game_manager(self)
         self.quest_tracker.set_player_sheet(self.player_sheet)
 
-        # Load world data
-
-        # Initialize WorldBuilder with world data
-        self.world_builder = WorldBuilder(world_data=self.world_data, use_ai_assist=self.use_ai)
-        self.world_builder.set_game_manager(self)
-        ic("Game data initialized")
+        # Initialize GameUI with GameManager and WorldBuilder instances
+        self.game_ui = GameUI(self, self.world_builder)
+        self.game_ui.set_game_manager(self)
+        self.game_ui.init_ui()
+        # Emit gameLoaded signal only after UI is initialized
+        self.gameLoaded.connect(self.game_ui.on_game_loaded)
 
     # def set_player_sheet(self, player_sheet: IPlayerSheet):
     #     ic("Setting player sheet")
@@ -59,7 +65,7 @@ class GameManager(QObject, IGameManager):
             self.world_builder.game_manager = self
 
     def set_ui(self, ui: IGameUI):
-        self.ui = ui
+        self.game_ui = ui
 
         ic("GameManager initialized")
 
@@ -68,9 +74,11 @@ class GameManager(QObject, IGameManager):
         self.gameLoaded.emit()
 
     def start_new_game(self, player_name):
-        # Set the player name and reset its state
-        #self.player_sheet.set_player_name(player_name)
-        #self.player_sheet.reset_state()
+        # If UI needs to be updated or initialized for a new game
+        if self.game_ui:
+            self.game_ui.initialize_for_new_game()
+        else:
+            ic("UI is not initialized.")
 
         # Use the world data from GameManager
 
@@ -82,13 +90,6 @@ class GameManager(QObject, IGameManager):
             self.quest_tracker.initialize_for_new_game()
         else:
             ic("Quest tracker is not initialized.")
-
-
-        # If UI needs to be updated or initialized for a new game
-        if self.ui:
-            self.ui.initialize_for_new_game()
-        else:
-            ic("UI is not initialized.")
 
         QTimer.singleShot(0, self.emit_game_loaded)
         return True
@@ -239,6 +240,11 @@ class GameManager(QObject, IGameManager):
             ic("Activating Read Email quest")
             self.quest_tracker.activate_quest("Read Email") 
 
+        Echoes_of_Avalonia_quest = self.quest_tracker.get_quest("Echoes of Avalonia")
+        if Echoes_of_Avalonia_quest:
+            ic("Activating Echoes of Avalonia quest")
+            self.quest_tracker.activate_quest("Echoes of Avalonia")
+
 
     def update_quests_ui(self):
         ic("Updating quests UI")
@@ -312,7 +318,7 @@ class GameManager(QObject, IGameManager):
                 ic(f"Email {email_name} marked as read")
                 ic(email)
                 self.quest_tracker.check_all_quests()
-                self.ui.populate_emails()
+                self.game_ui.populate_emails()
                 break
 
     def save_game(self):

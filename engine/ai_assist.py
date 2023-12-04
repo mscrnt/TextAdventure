@@ -5,6 +5,7 @@ from icecream import ic
 import json
 import re
 
+
 class AIAssist:
     def __init__(self, player_sheet, world_builder):
         self.player_sheet = player_sheet
@@ -46,12 +47,15 @@ class AIAssist:
         # Step 2: Send command to GPT for interpretation
         interpret_prompt = self.construct_command_context_prompt(command, world_data, player_data)
         interpreted_command = self.generate_ai_response(interpret_prompt)
+        ic(f"Interpreted command: {interpreted_command}")
 
 
         # Step 3: Process the interpreted command to determine the game action
         action_response = self.determine_action_from_interpretation(interpreted_command)
 
         # Step 4: Execute the action and generate a narrative response
+        ic(f"Action response: {action_response}")
+        ic(f"Original command: {command}")
         return self.generate_narrative_response(action_response, command)
     
     def construct_command_context_prompt(self, command, world_data, player_data):
@@ -324,6 +328,7 @@ class AIAssist:
             f"- {items_description}\n"
             f"- {features_description}\n"
             f"- {containers_description}\n"
+            f"- {paths_description}\n"
             f"- {rooms_description}\n"
             f"- {npc_descriptions}\n\n"
             "Narrative Response:"

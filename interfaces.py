@@ -142,10 +142,6 @@ class IQuestTracker(ABC):
         """Check the status of all quests."""
         pass
 
-    @abstractmethod
-    def save_quests(self):
-        """Save quests data to a file."""
-        pass
 
 
 

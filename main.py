@@ -3,11 +3,6 @@ from PySide6.QtWidgets import QApplication
 import argparse
 from debug_config import DebugConfig
 from gui.main_window import MainWindow
-from gui.game_ui import GameUI
-from engine.game_manager import GameManager
-from engine.world_builder import WorldBuilder
-from engine.player_sheet import PlayerSheet
-from engine.quest_tracker import QuestTracker
 from utilities import delete_working_files
 
 # Argument parser setup
@@ -25,21 +20,8 @@ def main():
 
     app.aboutToQuit.connect(delete_working_files)
 
-    # Initialize components 
-    player_sheet = PlayerSheet("Player")
-    quest_tracker = QuestTracker() 
-    world_builder = WorldBuilder({}, use_ai)  
-    game_manager = GameManager(use_ai)
-
-    # Initialize GameUI
-    game_ui = GameUI(game_manager, world_builder)
-
-    # Initialize MainWindow with all components
-    main_window = MainWindow(game_manager, world_builder, player_sheet, quest_tracker, game_ui)
-
-    # Set up the game manager and UI relationships
-    game_manager.set_ui(game_ui)
-    game_ui.set_game_manager(game_manager)
+    # Initialize MainWindow without all components
+    main_window = MainWindow(use_ai)
 
     # Show the main window
     main_window.show()

@@ -13,9 +13,9 @@
                     "name": "Lost Player",
                     "description": "A lost player from real life, wandering aimlessly in Central Avalonia.",
                     "dialog": [
-                        "Where am I? How did I get here?",
-                        "I'm so lost. I need to find the way to log out.",
-                        "Why doesn't my logout button work?!"
+                        "This place... it feels like I've been here before, but everything's hazy. Can you help me remember?",
+                        "I've been trying to piece things together, but it's all a blur. The exit, it should be here, shouldn't it?",
+                        "Something's off; the world doesn't respond like it used to. Do you know the way out, the path back to reality?"
                     ]
                 }
             ],
@@ -23,7 +23,10 @@
                 "east": "Ethereal Plains",
                 "north": "Frostwing Mountains",
                 "west": "Whispering Forest",
-                "south": "Sunken Shores"
+                "south": "Sunken Shores",
+                "sub 1": "Grand Castle",
+                "sub 2": "Mystic Market",
+                "sub 3": "Hall of Elders"
             },
             "sublocations": [
                 {
@@ -51,9 +54,9 @@
                             "name": "Monk Jaron",
                             "description": "Monk Jaron is a serene and contemplative figure, often seen in the quieter parts of the Grand Castle. Cloaked in simple, unadorned robes, he carries an air of tranquility and wisdom. His eyes, gentle yet perceptive, seem to reflect a deep understanding of the mystical and the historical. He is a guardian of ancient knowledge, often found meditating or studying the arcane texts within the castle's walls.",
                             "dialog": [
-                                "Welcome, traveler, to the Grand Castle. May clarity guide your path.",
-                                "The ancients left many secrets within these walls.",
-                                "Seek wisdom, but beware the shadows that lurk in forgotten corners."
+                                "Ah, seeker of truths, you've journeyed far to reach these hallowed halls. What insights do you crave?",
+                                "The very stones of this castle hum with ancient spells. Heed their call, and you may yet unveil the secrets they guard.",
+                                "Be wary, traveler. The walls have eyes and the shadows, whispers. Not every secret wishes to be known."
                             ],
                             "interactions": [
                                 {
@@ -77,7 +80,10 @@
                         }
                     ],
                     "paths": {
-                        "exit": "Central Avalonia"
+                        "exit": "Central Avalonia",
+                        "room 1": "Throne Room",
+                        "room 2": "Royal Library",
+                        "room 3": "Secret Chamber"
                     },
                     "rooms": [
                         {
@@ -105,9 +111,9 @@
                                     "name": "King Aldor",
                                     "description": "King Aldor is a dignified and commanding figure, exuding the authority and responsibility of a ruler. His regal attire and kingly demeanor reflect his dedication to the welfare of Avalonia. He is a wise and just monarch, deeply respected by his subjects.",
                                     "dialog": [
-                                        "As ruler of Avalonia, I welcome you to our grand kingdom.",
-                                        "Our land is ancient, and its secrets are many.",
-                                        "Maintaining peace in Avalonia is my solemn duty."
+                                        "Greetings, brave soul. You stand within the heart of Avalonia, where the echoes of our past vie for a place in the future.",
+                                        "Legends speak of a time when the fabric between worlds was torn; perhaps such a time is near again. We must stand ready.",
+                                        "Peace is the fruit of vigilance. Take heed, for darkness encroaches upon our borders, seeking to extinguish our light."
                                     ],
                                     "interactions": [
                                         {
@@ -145,8 +151,9 @@
                                     "name": "Queen Mirabelle",
                                     "description": "Queen Mirabelle is the epitome of grace and benevolence. Her presence is both comforting and inspiring, and she carries an air of serene confidence. Her love for her people and the kingdom is evident in her every action, making her a beloved figure in Avalonia.",
                                     "dialog": [
-                                        "Avalonia thrives under our care and flourishes in peace.",
-                                        "My heart holds deep love for our people and our land."
+                                        "Avalonia is a tapestry of lives and dreams, woven through the ages. Each thread is precious to the weft of our existence.",
+                                        "In this realm, love and compassion are as vital as the strongest fortress wall. Remember this as you travel our lands.",
+                                        "My heart bears the imprint of every joy and sorrow of our people. Share with me your tale, wanderer, that I might keep it close."
                                     ],
                                     "inventory": [
                                         {
@@ -159,8 +166,7 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Grand Castle",
-                                "exit": "Royal Library"
+                                "exit": "Grand Castle"
                             }
                         },                                     
                         {
@@ -188,8 +194,9 @@
                                     "name": "Lady Elara",
                                     "description": "Lady Elara is a scholar of ancient history and arcane mysteries. She is often found deep in thought, surrounded by piles of dusty tomes and scrolls.",
                                     "dialog": [
-                                        "In these halls of knowledge, the wisdom of ages is at your fingertips.",
-                                        "Seek and you shall find; the library holds many secrets."
+                                        "The Library of Avalonia welcomes those with a thirst for knowledge. What mysterious folios do you seek today?",
+                                        "Some say the library is sentient, that it reveals its treasures only to the worthy. Perhaps it has chosen to whisper to you.",
+                                        "In these venerable scrolls and tomes lies the power to shape worlds. Tread carefully, for knowledge is a double-edged sword."
                                     ],
                                     "inventory": [
                                         {
@@ -237,8 +244,8 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Throne Room",
-                                "exit": "Secret Chamber"
+                                "exit": "Grand Castle",
+                                "entrance": "Secret Chamber"
                             }
                         },                        
                         {
@@ -302,8 +309,8 @@
                                 }
                             ],
                             "paths": {
-                                "entrance": "Royal Library",
-                                "exit": "Grand Castle"
+                                "exit": "Royal Library",
+                                "entrance": "Grand Castle"
                             }
                         }                        
                     ]
@@ -374,7 +381,10 @@
                         }
                     ],
                     "paths": {
-                        "exit": "Central Avalonia"
+                        "exit": "Central Avalonia",
+                        "room 1": "Enchanted Emporium",
+                        "room 2": "The Mystic's Corner",
+                        "room 3": "The Armorer's Forge"
                     },
                     "rooms": [
                         {
@@ -612,7 +622,10 @@
                     "description": "The Hall of Elders is a sanctum of ancient wisdom and revered traditions. Majestic in its design, the hall features towering columns, intricate murals depicting the history of Avalonia, and shelves lined with age-old tomes and artifacts. The air is filled with a serene silence, occasionally broken by the soft murmur of scholars and the rustling of parchment. This revered place serves as a meeting ground for the wisest elders of Avalonia and as a repository of knowledge gathered over centuries.",
                     "keywords": ["ancient wisdom", "majestic design", "history", "scholars", "repository of knowledge"],
                     "paths": {
-                        "exit": "Central Avalonia"
+                        "exit": "Central Avalonia",
+                        "room 1": "The Archives",
+                        "room 2": "The Study",
+                        "room 3": "The Library"
                     },
                     "npcs": [
                         {

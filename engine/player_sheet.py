@@ -18,6 +18,7 @@ class PlayerSheet:
         self.quests = []
         self.notes = []
         self.emails = []
+        self.tokens = 25
         ic("Player sheet initialized")
 
     @property
@@ -44,6 +45,7 @@ class PlayerSheet:
         self.quests = []
         self.notes = []
         self.emails = []
+        self.tokens = 25
         ic("Player state has been reset for a new game.")
 
     def add_item(self, item):
@@ -175,7 +177,8 @@ class PlayerSheet:
             'fast_travel_locations': self.fast_travel_locations,
             'quests': self.quests,
             'notes': self.notes,
-            'emails': self.emails
+            'emails': self.emails,
+            'tokens': self.tokens
         }
 
     def set_state(self, state):

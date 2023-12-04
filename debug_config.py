@@ -33,14 +33,14 @@ class DebugConfig:
             ic.disable()
 
         # Set custom exception handler
-        sys.excepthook = DebugConfig.handle_exception
+        #sys.excepthook = DebugConfig.handle_exception
 
-    @staticmethod
-    def handle_exception(exc_type, exc_value, exc_traceback):
-        if not issubclass(exc_type, KeyboardInterrupt):
-            ic("Uncaught exception:", {
-                'type': exc_type, 
-                'value': exc_value, 
-                'traceback': traceback.format_tb(exc_traceback)
-            })
+    # @staticmethod
+    # def handle_exception(exc_type, exc_value, exc_traceback):
+    #     if not issubclass(exc_type, KeyboardInterrupt):
+    #         ic("Uncaught exception:", {
+    #             'type': exc_type, 
+    #             'value': exc_value, 
+    #             'traceback': traceback.format_tb(exc_traceback)
+    #         })
 
