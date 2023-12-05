@@ -44,6 +44,7 @@ class WorldBuilder(QObject, IWorldBuilder):
 
     def incoming_command(self, command):
         ic(f"Received command: {command}")
+        command = self.normalize_name(command)
         try:
             # Display the processing command message
             html_command = convert_text_to_display(f"Processing command: {command}")
@@ -250,6 +251,7 @@ class WorldBuilder(QObject, IWorldBuilder):
         return f"You attempt to solve the puzzle: {puzzle['name']}."
 
     def load_world_data(self, world_name):
+        world_name = self.normalize_name(world_name)
         try:
             with open(f'data/worlds/{world_name}.json', 'r') as f:
                 return json.load(f)
@@ -345,21 +347,12 @@ class WorldBuilder(QObject, IWorldBuilder):
 
 
     def open_container(self, container_name):
-        container_name = self.normalize_name(container_name)
-
-        current_location = self.game_manager.player_sheet.location
-        current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
-        location_data = self.find_location_data(current_location_str)
-
-        if location_data and 'containers' in location_data:
-            for container in location_data['containers']:
-                if self.normalize_name(container['name']) == container_name:
-                    container['isOpen'] = True  
-                    ic(f"Container opened: {container_name}, isOpen: {container['isOpen']}")
-                    ic(f"Container opened: {container_name}, isOpen: {container['isOpen']}")
-                    return self.list_container_contents(container)
-
+        container = self.get_container_data(container_name)
+        if container:
+            container['isOpen'] = True
+            return self.list_container_contents(container)
         return f"No container named '{container_name}' found here."
+
 
     def list_container_contents(self, container):
         contents_text = f"{container['name']} contains:\n"
@@ -390,49 +383,40 @@ class WorldBuilder(QObject, IWorldBuilder):
         return transport_text
 
     def take_item(self, item_name):
-        normalized_item_name = self.normalize_name(item_name)
+        item_name = self.normalize_name(item_name)
+        current_location_data = self.get_current_location_data()
+        item = self.get_item_data(item_name, current_location_data)
 
-        current_location = self.game_manager.player_sheet.location
-        current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
-        location_data = self.find_location_data(current_location_str)
-
-        # Check if the item is in an open container
-        item_taken = self._take_item_from_open_container(normalized_item_name, location_data)
-        if item_taken:
-            ic(f"Item taken: {item_taken}")
-            return item_taken
-
-        # If not in a container, try taking directly from the location
-        for item in location_data.get('items', []):
-            if self.normalize_name(item['name']) == normalized_item_name:
-                # Remove the item from the location
-                location_data['items'].remove(item)
-                self.update_world_data(current_location_str, {'items': location_data['items']})
+        if item:
+            if item.get('collectable', True):
                 self.game_manager.player_sheet.add_item(item)
-                ic(f"Item taken: {item['name']}")
+                # Check if the item is in a container
+                if self.is_item_in_open_container(item_name, current_location_data):
+                    self.remove_item_from_container(item, current_location_data)
+                else:
+                    current_location_data['items'].remove(item)
+                self.update_world_data(current_location_data['name'], {'items': current_location_data['items']})
                 return f"You have taken {item['name']}."
+            else:
+                return f"{item['name']} cannot be taken."
 
-        ic(f"Item not found: {item_name}")
-        return "You cannot take that item."
+        return f"{item_name} not found."
 
-
-    def _take_item_from_open_container(self, item_name, location_data):
-        normalized_item_name = self.normalize_name(item_name)  
+    def is_item_in_open_container(self, item_name, location_data):
+        normalized_item_name = self.normalize_name(item_name)
         for container in location_data.get('containers', []):
             if container.get('isOpen', False):
                 for item in container.get('contains', []):
                     if self.normalize_name(item['name']) == normalized_item_name:
-                        if not item.get('collectable', True):
-                            return f"{item['name']} cannot be taken."
-                        container['contains'].remove(item)
-                        self.update_world_data(location_data['name'], {'containers': location_data['containers']})
-                        self.game_manager.player_sheet.add_item(item)
-                        ic(f"You have taken {item['name']} from {container['name']}.")
-                        return f"You have taken {item['name']} from {container['name']}."
+                        return True
+        return False
 
-        ic(f"Item not found: {item_name}")
-        return None
-
+    def remove_item_from_container(self, item, location_data):
+        for container in location_data.get('containers', []):
+            if container.get('isOpen', False):
+                if item in container.get('contains', []):
+                    container['contains'].remove(item)
+                    break
 
     
     def is_container_open(self):
@@ -454,19 +438,12 @@ class WorldBuilder(QObject, IWorldBuilder):
     def close_container(self):
         open_container_name = self.is_container_open()
         if open_container_name:
-            current_location = self.game_manager.player_sheet.location
-            location_data = self.find_location_data(current_location)
-            
-            if location_data and 'containers' in location_data:
-                for container in location_data['containers']:
-                    if container['name'] == open_container_name:
-                        container['isOpen'] = False  
-                        ic(f"Container closed: {open_container_name}, isOpen: {container['isOpen']}")
-                        ic(f"Container closed: {open_container_name}, isOpen: {container['isOpen']}")
-                        return f"You have closed {open_container_name}."
-        
-        ic("No container open.")
-        return "You are not in an open container."
+            container = self.get_container_data(open_container_name)
+            if container:
+                container['isOpen'] = False
+                return f"You have closed {open_container_name}."
+        return "No container open."
+
 
     def move_player(self, location_name):
         # Get the current location data from the player's current location
@@ -524,77 +501,26 @@ class WorldBuilder(QObject, IWorldBuilder):
         ic(f"Could not find path to: {sanitized_location_name} from {current_location_str}")
         return f"Cannot determine how to move to '{location_name}'."
 
-
-
     def examine_item(self, item_name):
-        # Normalize the item name for comparison
-        normalized_item_name = self.normalize_name(item_name)
+        current_location_data = self.get_current_location_data()
+        item = self.get_item_data(item_name, current_location_data)
 
-        # Get the current location data
-        current_location = self.game_manager.player_sheet.location
-        current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
-        location_data = self.find_location_data(current_location_str)
-
-        # Check if the item is in an open container
-        item_description = self._examine_item_in_open_container(item_name, location_data)
-        if item_description:
-            ic(f"Item description: {item_description}")
-            return item_description
-
-        # If not in a container, try examining directly from the location
-        for item in location_data.get('items', []):
-            if self.normalize_name(item['name']) == normalized_item_name:
-                ic(f"Item description: {item['description']}")
-                return f"{item['name']}: {item['description']}"
-
+        if item:
+            return f"{item['name']}: {item['description']}"
         return f"{item_name} not found."
-
-    def _examine_item_in_open_container(self, item_name, location_data):
-        normalized_item_name = self.normalize_name(item_name)  
-        for container in location_data.get('containers', []):
-            if container.get('isOpen', False):
-                for item in container.get('contains', []):
-                    if self.normalize_name(item['name']) == normalized_item_name: 
-                        ic(f"Item description: {item['description']}")
-                        return f"{item['name']}: {item['description']}"
-
-        return None
-
 
     def where_am_i(self):
         # Extract location name from the player's location
         location = self.game_manager.player_sheet.location
-        location_str = location.get("location/sublocation", "Unknown Location") if isinstance(location, dict) else location
+        location_name = location.get("location/sublocation", "Unknown Location") if isinstance(location, dict) else location
 
-        # Use the extracted string to find location data
-        location_data = self.find_location_data(location_str)
-        location_description = location_data['description'] if location_data else "You are in an unknown location."
-
-        # Initialize container_info
-        container_info = ""
-
-        # Check for any open container in the current location
-        open_container_name = self.is_container_open()
-        if open_container_name:
-            container_info = f" Inside '{open_container_name}' container."
-
-        ic(f"Location: {location_str}, {location_description}. {container_info}")
-        return f"You are at {location_str}. {location_description}.{container_info}"
-
+        return f"You are in {location_name}."
 
     def look_around(self):
-        # Get the current location data
         current_location_data = self.get_current_location_data()
-
-        # Check if we're in a room within a sublocation
-        if current_location_data and 'type' in current_location_data and current_location_data['type'] == 'room':
-            # If in a room, build scene text for the room
-            return self.build_room_scene_text(current_location_data)
-        elif current_location_data:
-            # If not in a room, build the normal scene text
-            return self.build_scene_text(current_location_data)
-        else:
-            return "It's too dark to see anything."
+        if current_location_data:
+            return self.create_scene_description(current_location_data)
+        return "It's too dark to see anything."
 
     
     def show_sublocations(self, location_data):
@@ -751,3 +677,35 @@ class WorldBuilder(QObject, IWorldBuilder):
             'quantity': quantity
         }
         container.setdefault('contains', []).append(new_item)
+
+
+    def get_container_data(self, container_name):
+        location_data = self.get_current_location_data()
+        if 'containers' in location_data:
+            for container in location_data['containers']:
+                if self.normalize_name(container['name']) == self.normalize_name(container_name):
+                    return container
+        return None
+    
+    def get_item_data(self, item_name, location_data):
+        # Check in location items
+        for item in location_data.get('items', []):
+            if self.normalize_name(item['name']) == self.normalize_name(item_name):
+                return item
+
+        # Check in open containers
+        for container in location_data.get('containers', []):
+            if container.get('isOpen', False):
+                for item in container.get('contains', []):
+                    if self.normalize_name(item['name']) == self.normalize_name(item_name):
+                        return item
+        return None
+    
+    def create_scene_description(self, location_data):
+        description = f"You are at {location_data['name']}. {location_data['description']}\n"
+        if 'keywords' in location_data:
+            description += f"Keywords: {', '.join(location_data['keywords'])}\n"
+        description += self.list_items(location_data)
+        description += self.list_npcs(location_data)
+        description += self.list_containers(location_data)
+        return description.strip()
