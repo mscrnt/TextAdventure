@@ -53,11 +53,6 @@
                         {
                             "name": "Monk Jaron",
                             "description": "Monk Jaron is a serene and contemplative figure, often seen in the quieter parts of the Grand Castle. Cloaked in simple, unadorned robes, he carries an air of tranquility and wisdom. His eyes, gentle yet perceptive, seem to reflect a deep understanding of the mystical and the historical. He is a guardian of ancient knowledge, often found meditating or studying the arcane texts within the castle's walls.",
-                            "dialog": [
-                                "Ah, seeker of truths, you've journeyed far to reach these hallowed halls. What insights do you crave?",
-                                "The very stones of this castle hum with ancient spells. Heed their call, and you may yet unveil the secrets they guard.",
-                                "Be wary, traveler. The walls have eyes and the shadows, whispers. Not every secret wishes to be known."
-                            ],
                             "interactions": [
                                 {
                                     "type": "quest",
@@ -66,6 +61,14 @@
                                 {
                                     "type": "trade",
                                     "description": "Exchange herbs for potions."
+                                },
+                                {
+                                    "type": "talk",
+                                    "dialog": [
+                                        "The Grand Castle is a place of history and mystery, where the past speaks to those who listen.",
+                                        "The walls have eyes and the shadows, whispers. Not every secret wishes to be known.",
+                                        "The very stones of this castle hum with ancient spells. Heed their call, and you may yet unveil the secrets they guard."
+                                    ]
                                 }
                             ],
                             "inventory": [
@@ -95,7 +98,7 @@
                                     "name": "Ceremonial Sword",
                                     "description": "A beautifully crafted sword used in royal ceremonies, displayed prominently in the room.",
                                     "type": "Weapon",
-                                    "collectable": false,
+                                    "collectable": true,
                                     "quantity": 1
                                 },
                                 {
@@ -103,7 +106,13 @@
                                     "description": "An elaborate tapestry depicting the history of Avalonia, hanging on the walls of the Throne Room.",
                                     "type": "Decor",
                                     "collectable": false,
-                                    "quantity": 2
+                                    "quantity": 2,
+                                    "interactions": [
+                                        {
+                                            "type": "touch",
+                                            "description": "The large Historic Tapestry falls to the ground, angering the queen."
+                                        }
+                                    ]
                                 }
                             ],
                             "npcs": [
