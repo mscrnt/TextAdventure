@@ -27,11 +27,10 @@ class AIAssist:
                 messages=[{"role": "system", "content": prompt}],
                 model="gpt-3.5-turbo-1106",
                 max_tokens=max_tokens,
-                temperature=0.2,
-                top_p=.5,
+                temperature=0.4,
                 stop=["</HTML>"],  # Example stop sequence
-                frequency_penalty=.5,  # Adjust as needed
-                presence_penalty=.3   # Adjust as needed
+                frequency_penalty=.7,  # Adjust as needed
+                presence_penalty=.5   # Adjust as needed
             )
             print(f"AI generated response: {response.choices[0].message.content.strip()}")
             return response.choices[0].message.content.strip()
