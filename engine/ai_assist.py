@@ -27,10 +27,11 @@ class AIAssist:
                 messages=[{"role": "system", "content": prompt}],
                 model="gpt-3.5-turbo-1106",
                 max_tokens=max_tokens,
-                temperature=0.4,
+                temperature=0.2,
+                top_p=.5,
                 stop=["</HTML>"],  # Example stop sequence
-                frequency_penalty=.7,  # Adjust as needed
-                presence_penalty=.5   # Adjust as needed
+                frequency_penalty=.5,  # Adjust as needed
+                presence_penalty=.3   # Adjust as needed
             )
             print(f"AI generated response: {response.choices[0].message.content.strip()}")
             return response.choices[0].message.content.strip()
@@ -302,35 +303,34 @@ class AIAssist:
         rooms = [room for room in location_data.get('rooms', []) if room.get('visible', True)]
 
         # Construct descriptions
-        items_description = "Visible items: " + ", ".join([item['name'] for item in visible_items]) if visible_items else "No visible items."
-        features_description = "Visible features: " + ", ".join(visible_features) if visible_features else "No visible features."
-        paths_description = "Available paths: " + ", ".join(paths.keys()) if paths else "No visible paths."
-        exits_description = "Exits: " + ", ".join(exits) if exits else "No visible exits."
-        containers_description = "Containers: " + ", ".join([container['name'] for container in containers]) if containers else "No visible containers."
-        rooms_description = "Rooms: " + "; ".join([f"{room['name']}: {room['description']}" for room in rooms]) if rooms else "No visible rooms."
+        items_description = "Visible items include: " + ", ".join([item['name'] for item in visible_items]) if visible_items else "There are no items visibly present."
+        features_description = "Notable features: " + ", ".join(visible_features) if visible_features else "The area is devoid of distinct features."
+        paths_description = "Paths available: " + ", ".join(paths.keys()) if paths else "The area offers no discernible paths."
+        exits_description = "Possible exits: " + ", ".join(exits) if exits else "No apparent exits are present."
+        containers_description = "Within sight, there are containers: " + ", ".join([container['name'] for container in containers]) if containers else "No containers are in view."
+        rooms_description = "Rooms within the vicinity: " + "; ".join([f"{room['name']} characterized by {room['description']}" for room in rooms]) if rooms else "No rooms can be seen."
 
         # Construct NPC descriptions
         npcs = location_data.get('npcs', [])
-        npc_descriptions = "NPCs: " + "; ".join([f"{npc['name']}: {npc['description']}" for npc in npcs]) if npcs else "No NPCs in sight."
+        npc_descriptions = "Inhabiting NPCs: " + "; ".join([f"{npc['name']} appears as {npc['description']}" for npc in npcs]) if npcs else "There are no NPCs in sight."
 
         # HTML format example
         html_format_example = "<html><body></body></html>"
 
         # Construct the actual prompt
         prompt = (
-            f"Based on the following information, and replying in html format, generate a narrative response for a role-playing game:\n"
+            f"Salutations. I am Athena, your narrative assistant, here to weave the tale of your current situation. Please consider the following details for a rich narrative experience in the 'Odyssey'. All information is transmitted in HTML format for your viewing pleasure, analogous to this sample: {html_format_example}:\n"
             f"- Game context: {game_context}\n"
-            f"- HTML format example: {html_format_example}\n"
-            f"- Player's original command: '{original_command}'\n"
-            f"- Action taken: {action_response}\n"
-            f"- Current location: {current_location}\n"
-            f"- Location description: {location_data.get('description', 'An unknown location.')}\n"
+            f"- Your original invocation: '{original_command}'\n"
+            f"- Resulting actions: {action_response}\n"
+            f"- Present locale: {current_location}\n"
+            f"- Locale synopsis: {location_data.get('description', 'This location remains shrouded in mystery.')}\n"
             f"- {items_description}\n"
             f"- {features_description}\n"
             f"- {containers_description}\n"
             f"- {paths_description}\n"
             f"- {rooms_description}\n"
             f"- {npc_descriptions}\n\n"
-            "Narrative Response:"
+            "Allow me to delineate the following narration in HTML Format:"
         )
         return prompt
