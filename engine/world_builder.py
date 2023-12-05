@@ -121,6 +121,7 @@ class WorldBuilder(QObject, IWorldBuilder):
             if main_entry_location:
                 new_location = {"world": formatted_world_name, "location/sublocation": main_entry_location['name']}
                 self.game_manager.player_sheet.location = new_location
+                self.update_game_state_for_fast_travel(formatted_world_name)  
                 self.game_manager.update_location(new_location)  # Update the game manager with the new location
 
                 # Since where_am_i might try to directly modify the UI, it should return a plain string, which can be formatted and emitted as a signal
