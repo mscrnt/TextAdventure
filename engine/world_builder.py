@@ -65,7 +65,7 @@ class WorldBuilder(QObject, IWorldBuilder):
             else:
                 ic("Processing command directly.")
                 # Handlers that need the whole command
-                full_command_handlers = {"open", "close", "talk to", "take", "give", "examine"}
+                full_command_handlers = {"open", "close", "talk to", "take", "give"}
                 target_only_handlers = {"move to", "go to", "fast travel to"}
 
                 # For handlers that require only the command action unlike 'interact_with'
@@ -108,31 +108,16 @@ class WorldBuilder(QObject, IWorldBuilder):
         if action in ["talk to", "trade with", "quest"]:
             ic(f"Interacting with NPC: {remaining_command}")
             return self._interact_with_npc(remaining_command, action, current_location_data)
-        elif action in ["take", "examine"]:
-            ic(f"Interacting with item: {remaining_command}")
-            item_normalized = self.normalize_name(remaining_command)
-            return self._interact_with_item(item_normalized, action, current_location_data)
         elif action in ["open", "close"]:
             ic(f"Interacting with container: {remaining_command}")
             container_normalized = self.normalize_name(remaining_command)
             return self._toggle_container(container_normalized, action, current_location_data)
-        elif action == "give":
-            ic(f"Interacting with give command: {remaining_command}")
-            # Assuming the format "give quantity item_name"
-            try:
-                # Split the remaining portion to separate quantity and item
-                give_parts = remaining_command.split(maxsplit=1)
-                quantity = int(give_parts[0])
-                item_name = give_parts[1]
-                item_normalized = self.normalize_name(item_name)
-                ic(f"Giving {quantity} of {item_normalized}")
-                return self._handle_give_action(item_normalized, quantity, current_location_data)
-            except (IndexError, ValueError):
-                ic("Give command parts are incorrect")
-                return "Invalid 'give' command format. Please specify quantity and item name."
+        elif action in ["give", "take"]:
+            ic(f"Interacting with {action} command: {remaining_command}")
+            return self._transfer_item(remaining_command, action, current_location_data)
         else:
             return "Unknown interaction."
-            
+        
     def _interact_with_npc(self, npc_name, action, location_data):
         normalized_npc_name = self.normalize_name(npc_name)
 
@@ -141,17 +126,16 @@ class WorldBuilder(QObject, IWorldBuilder):
         if not npc:
             return f"No one named '{npc_name}' found here."
 
-        # Check available interactions for the NPC
-        for interaction in npc.get('interactions', []):
-            if action == 'talk to' and interaction['type'] == 'talk':
-                dialog = "\n".join(interaction.get('dialog', []))
-                return f"{npc['name']} says: \"{dialog}\""
-            elif action in ['trade with', 'quest'] and interaction['type'] == action.replace(" with", ""):
-                return f"{npc['name']} interaction: {interaction['description']}"
-
-        return f"{npc['name']} cannot perform this action."
-
-
+        # Handle different actions
+        if action == 'talk to':
+            dialog = "\n".join(npc.get('dialog', ["I have nothing to say."]))
+            return f"{npc['name']} says: \"{dialog}\""
+        elif action in ['trade with', 'give', 'take']:
+            # Additional logic for trading, giving, and taking goes here
+            return self._handle_npc_interaction(npc, action, location_data)
+        else:
+            return f"{npc['name']} cannot perform the action '{action}'."
+        
     def _interact_with_item(self, item_name, action, location_data):
         normalized_item_name = self.normalize_name(item_name)
 
@@ -160,35 +144,61 @@ class WorldBuilder(QObject, IWorldBuilder):
         if not item:
             return f"No item named '{item_name}' found here."
 
-        if action == 'examine':
-            return f"{item['name']}: {item.get('description', 'No description available.')}"
-        elif action == 'take':
+        if action == 'take':
             if item.get('collectable', False):
                 self.game_manager.player_sheet.add_item(item)
-                # Remove the item from the location or container
                 self.remove_item_from_environment(item, location_data)
                 return f"You have taken {item['name']}."
             else:
                 return f"{item['name']} cannot be taken."
-
-        return f"You can't {action} {item['name']}."
-    
-    def _give_item(self, item_name, quantity, current_location_data):
-        # Here implement fetching player inventory and checking for item and quantity
-        player_inventory = self.get_player_inventory()  # This is conceptual, actual code may differ.
-
-        # Check if player has enough of the item
-        if player_inventory.get(item_name, 0) >= quantity:
-            # Deduct the item from the player's inventory
-            player_inventory[item_name] -= quantity
-
-            # Check if any NPCs or containers in the location can receive the item
-            # Assuming there's a method for adding items to the recipient
-            # ...
-
-            return f"Gave {quantity} of '{item_name}' to ..."
+        elif action == 'give':
+            # Logic for giving an item to a container
+            return self._place_item_in_container(item, location_data)
         else:
-            return f"You do not have {quantity} of '{item_name}' to give."
+            return f"You can't {action} with {item['name']}."
+        
+    def _transfer_item(self, command, action, current_location_data):
+        # Parse the command to get quantity, item, and target
+        try:
+            transfer_parts = command.split(maxsplit=2)
+            quantity = int(transfer_parts[0])
+            item_name = transfer_parts[1]
+            target_name = transfer_parts[2] if len(transfer_parts) > 2 else None
+        except (IndexError, ValueError):
+            return "Invalid command format. Please specify quantity, item name, and target."
+
+        # Normalize names for comparison
+        item_normalized = self.normalize_name(item_name)
+        target_normalized = self.normalize_name(target_name) if target_name else None
+
+        # Fetch player inventory and target (NPC or container)
+        player_inventory = self.get_player_inventory()
+        target = self.get_target(target_normalized, current_location_data)
+
+        if action == "give":
+            # Check if player has enough of the item
+            if player_inventory.get(item_normalized, 0) < quantity:
+                return f"You don't have enough {item_name} to give."
+            
+            # Add item to target's inventory/container
+            self.add_item_to_target(target, item_normalized, quantity)
+            # Deduct the item from the player's inventory
+            player_inventory[item_normalized] -= quantity
+
+        elif action == "take":
+            # Check if target has the item and enough quantity
+            if not self.target_has_item(target, item_normalized, quantity):
+                return f"{target_name} doesn't have enough {item_name}."
+
+            # Add item to player's inventory
+            self.add_item_to_player_inventory(player_inventory, item_normalized, quantity)
+            # Remove the item from target's inventory/container
+            self.remove_item_from_target(target, item_normalized, quantity)
+
+        else:
+            return "Unknown action."
+
+        return f"You {action} {quantity} {item_name} {'to' if action == 'give' else 'from'} {target_name}."
 
     def remove_item_from_environment(self, item, location_data):
         # Remove the item from the location or container

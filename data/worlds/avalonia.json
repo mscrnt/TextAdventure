@@ -12,10 +12,23 @@
                 {
                     "name": "Lost Player",
                     "description": "A lost player from real life, wandering aimlessly in Central Avalonia.",
-                    "dialog": [
-                        "This place... it feels like I've been here before, but everything's hazy. Can you help me remember?",
-                        "I've been trying to piece things together, but it's all a blur. The exit, it should be here, shouldn't it?",
-                        "Something's off; the world doesn't respond like it used to. Do you know the way out, the path back to reality?"
+                    "interactions": [
+                        {
+                            "type": "guidance",
+                            "description": "Offer guidance on how to escape the virtual world."
+                        },
+                        {
+                            "type": "talk",
+                            "dialog": [
+                                "I'm lost! How do I get out of here?",
+                                "I've been wandering for hours. Can you help me find my way back?",
+                                "I'm stuck in this game! How do I get out?"
+                            ]
+                        },
+                        {
+                            "type": "quest",
+                            "description": "Talk to Monk Jaron in the Grand Castle."
+                        }
                     ]
                 }
             ],
