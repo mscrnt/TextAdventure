@@ -5,7 +5,6 @@ from icecream import ic
 import json
 import re
 
-
 class AIAssist:
     def __init__(self, player_sheet, world_builder):
         self.player_sheet = player_sheet
@@ -302,34 +301,35 @@ class AIAssist:
         rooms = [room for room in location_data.get('rooms', []) if room.get('visible', True)]
 
         # Construct descriptions
-        items_description = "Visible items include: " + ", ".join([item['name'] for item in visible_items]) if visible_items else "There are no items visibly present."
-        features_description = "Notable features: " + ", ".join(visible_features) if visible_features else "The area is devoid of distinct features."
-        paths_description = "Paths available: " + ", ".join(paths.keys()) if paths else "The area offers no discernible paths."
-        exits_description = "Possible exits: " + ", ".join(exits) if exits else "No apparent exits are present."
-        containers_description = "Within sight, there are containers: " + ", ".join([container['name'] for container in containers]) if containers else "No containers are in view."
-        rooms_description = "Rooms within the vicinity: " + "; ".join([f"{room['name']} characterized by {room['description']}" for room in rooms]) if rooms else "No rooms can be seen."
+        items_description = "Visible items: " + ", ".join([item['name'] for item in visible_items]) if visible_items else "No visible items."
+        features_description = "Visible features: " + ", ".join(visible_features) if visible_features else "No visible features."
+        paths_description = "Available paths: " + ", ".join(paths.keys()) if paths else "No visible paths."
+        exits_description = "Exits: " + ", ".join(exits) if exits else "No visible exits."
+        containers_description = "Containers: " + ", ".join([container['name'] for container in containers]) if containers else "No visible containers."
+        rooms_description = "Rooms: " + "; ".join([f"{room['name']}: {room['description']}" for room in rooms]) if rooms else "No visible rooms."
 
         # Construct NPC descriptions
         npcs = location_data.get('npcs', [])
-        npc_descriptions = "Inhabiting NPCs: " + "; ".join([f"{npc['name']} appears as {npc['description']}" for npc in npcs]) if npcs else "There are no NPCs in sight."
+        npc_descriptions = "NPCs: " + "; ".join([f"{npc['name']}: {npc['description']}" for npc in npcs]) if npcs else "No NPCs in sight."
 
         # HTML format example
         html_format_example = "<html><body></body></html>"
 
         # Construct the actual prompt
         prompt = (
-            f"Salutations. I am Athena, your narrative assistant, here to weave the tale of your current situation. Please consider the following details for a rich narrative experience in the 'Odyssey'. All information is transmitted in HTML format for your viewing pleasure, analogous to this sample: {html_format_example}:\n"
+            f"Based on the following information, and replying in html format, generate a narrative response for a role-playing game:\n"
             f"- Game context: {game_context}\n"
-            f"- Your original invocation: '{original_command}'\n"
-            f"- Resulting actions: {action_response}\n"
-            f"- Present locale: {current_location}\n"
-            f"- Locale synopsis: {location_data.get('description', 'This location remains shrouded in mystery.')}\n"
+            f"- HTML format example: {html_format_example}\n"
+            f"- Player's original command: '{original_command}'\n"
+            f"- Action taken: {action_response}\n"
+            f"- Current location: {current_location}\n"
+            f"- Location description: {location_data.get('description', 'An unknown location.')}\n"
             f"- {items_description}\n"
             f"- {features_description}\n"
             f"- {containers_description}\n"
             f"- {paths_description}\n"
             f"- {rooms_description}\n"
             f"- {npc_descriptions}\n\n"
-            "Allow me to delineate the following narration in HTML Format:"
+            "Narrative Response:"
         )
         return prompt
