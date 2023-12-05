@@ -13,7 +13,7 @@ class PlayerSheet:
         self.health = 100
         self.action_points = 10
         self.inventory = []
-        self._location = {"world": "OdysseyVR", "location/sublocation": "Home"}
+        self._location = {"world": "OdysseyVR", "location/sublocation": "Lobby"}
         self.fast_travel_locations = []
         self.quests = []
         self.notes = []

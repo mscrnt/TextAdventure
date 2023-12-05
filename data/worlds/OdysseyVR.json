@@ -3,7 +3,7 @@
     "description": "Odyssey VR, the innovative operating system by NexaSphere, offers a captivating social media experience in virtual reality. It serves as a gateway to connect, explore, and interact in diverse virtual landscapes, blending elements of social networking with immersive environments.",
         "locations": [
         {
-            "name": "Home",
+            "name": "Lobby",
             "description": "Your personal VR space in Odyssey VR. This customizable home is where you can display items and memories collected during your virtual adventures. It's a reflection of your style and interests, a personal haven in the expansive digital universe of NexaSphere.",
             "main-entry": true,
             "keywords": ["personal", "customizable", "interactive"],

@@ -46,31 +46,24 @@ def save_game_data(state, filename='savegame.pkl'):
     try:
         with open(file_path, 'wb') as f:
             pickle.dump(state, f)
-        ic(f"Game saved successfully as {file_path}.")
+        print(f"Game saved successfully as {file_path}.")
     except Exception as e:
-        ic(f"An error occurred while saving the game: {e}")
+        print(f"An error occurred while saving the game: {e}")
 
-    # Determine the world name based on whether player_sheet is a dictionary or an object
-    world_name = None
-    if isinstance(state['player_sheet'], dict):
-        # Handling dictionary representation
-        player_location = state['player_sheet'].get('location', {})
-        world_name = player_location.get('world') if isinstance(player_location, dict) else None
-    else:
-        # Handling object representation
-        world_name = state['player_sheet'].location.get('world') if 'world' in state['player_sheet'].location else None
-
-    if world_name:
+    # Ensure the location is a dictionary with the 'world' key
+    if isinstance(state['player_sheet'].location, dict) and 'world' in state['player_sheet'].location:
+        world_name = state['player_sheet'].location['world']
+        print(f"Saving world data for: {world_name}")
         working_world_path = f'data/worlds/working_{world_name}.json'
         try:
             with open(working_world_path, 'w') as f:
                 json.dump(state['world_data'], f, indent=4)
-            ic(f"Working world data saved successfully as {working_world_path}.")
+            print(f"Working world data saved successfully as {working_world_path}.")
         except Exception as e:
-            ic(f"An error occurred while saving the working world data: {e}")
+            print(f"An error occurred while saving the working world data: {e}")
     else:
-        ic("The player's location is not in the correct format. Cannot save world data.")
-
+        print(f'Player location: {state["player_sheet"].location}')
+        print("The player's location is not in the correct format. Cannot save world data.")
 
 
 # Function to load game state
@@ -100,7 +93,23 @@ def create_working_world_data(world_name):
 def load_working_world_data(world_name):
     # Directly use the provided world name to construct file paths
     working_world_path = f'data/worlds/working_{world_name}.json'
+    saved_game_path = f'save_data/working_{world_name}_savegame.pkl'
+    print(f"Loading working world data for {world_name}.")
 
+
+    # Check if there's a saved game specific to this world
+    if os.path.exists(saved_game_path):
+        print(f"Found saved game state for {world_name}.")
+        # Load the saved game state
+        try:
+            with open(saved_game_path, 'rb') as f:
+                saved_state = pickle.load(f)
+                print(f"Loaded saved game state for {world_name}.")
+                return saved_state['world_data']
+        except Exception as e:
+            print(f"Error loading saved game state for {world_name}: {e}")
+
+    # If no specific saved game state, create a new working copy
     if not os.path.exists(working_world_path):
         # If the working world file does not exist, create it from the base file
         create_working_world_data(world_name)

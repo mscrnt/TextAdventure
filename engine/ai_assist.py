@@ -5,7 +5,6 @@ from icecream import ic
 import json
 import re
 
-
 class AIAssist:
     def __init__(self, player_sheet, world_builder):
         self.player_sheet = player_sheet
