@@ -55,7 +55,7 @@
                             "description": "Close the cube."
                         }
                     ],
-                    "contains": []
+                    "inventory": []
                 }
             ],
 "npcs": [

@@ -45,6 +45,13 @@ class WorldBuilder(QObject, IWorldBuilder):
     def incoming_command(self, command):
         ic(f"Received command: {command}")
 
+        # Check if any container is open
+        if self.is_container_open() and not any(cmd in command for cmd in ['open', 'close']):
+            # Restrict commands to only container interactions
+            allowed_commands = ['give', 'take', 'open', 'close', 'examine']
+            if not any(cmd in command for cmd in allowed_commands):
+                return convert_text_to_display("You must close the open container before doing that.")
+
         # Display the processing command message
         html_command = convert_text_to_display(f"Processing command: {command}")
         self.game_manager.display_text_signal.emit(html_command)
@@ -105,7 +112,23 @@ class WorldBuilder(QObject, IWorldBuilder):
             # Emit the signal even when an error occurs
             self.command_processed_signal.emit()
             return response
-        
+
+    def is_container_open(self):
+        current_location = self.game_manager.player_sheet.location
+        if isinstance(current_location, dict):
+            current_location = current_location.get("location/sublocation", "Unknown Location")
+        location_data = self.find_location_data(current_location)
+
+        if location_data and 'containers' in location_data:
+            for container in location_data['containers']:
+                if container.get('isOpen', False):
+                    ic(f"Container open: {container['name']}")
+                    ic(f"Container open: {container['name']}")
+                    return container['name']  
+                
+        ic("No container open.")
+        return None # No container open
+
     def simple_command_handler(self, command):
         # Implement the logic for simple commands
         if command == "look" or command == "look around":
@@ -117,51 +140,158 @@ class WorldBuilder(QObject, IWorldBuilder):
         else:
             return f"Unknown simple command: {command}"
 
-    def interact_with(self, action, target_name):
-        ic(f"Interacting with: {command}")
+    def interact_with(self, *args):
+        full_command = ' '.join(args)
+        ic(f"Handling command: {full_command}")
 
-        # Define regex patterns for various interaction commands
-        patterns = {
-            r"^(talk to) (.+)$": "talk to",
-            r"^(give) (.+)$": "give",
-            r"^(take) (.+)$": "take",
-            r"^(open) (.+)$": "open",
-            r"^(close) (.+)$": "close"
+        # Define regex patterns for interaction commands
+        command_patterns = {
+            r"^(talk to) (.+)$": self.handle_talk_to,
+            r"^(give|take) (.+)$": self.handle_give_take,
+            r"^(open) (.+)$": self.handle_open,
+            r"^(close) (.+)$": self.handle_close
         }
         
-        # Initialize action and target_name
-        action = None
-        target_name = None
-
-        # Check each pattern to see if there's a match
-        for pattern, action_keyword in patterns.items():
-            match = re.match(pattern, command, re.IGNORECASE)
+        # Iterate through patterns to find a match
+        for pattern, handler in command_patterns.items():
+            ic(f"Checking pattern: {pattern}")
+            match = re.match(pattern, full_command, re.IGNORECASE)
             if match:
-                action = action_keyword
-                target_name = match.groups()[1]
-                break
+                ic(f"Match found: {match}")
+                # Pass only the necessary groups to the handler
+                if handler in [self.handle_open, self.handle_close]:
+                    return handler(match.group(2))  # Only pass the target name
+                else:
+                    return handler(*match.groups())
 
-        # If no pattern matches, return a message indicating an unknown command
-        if action is None or target_name is None:
-            return convert_text_to_display(f"Unknown command: {command}")
+        return convert_text_to_display(f"Unknown interaction command: {full_command}")
 
-        ic(f"Action: {action}, Target: {target_name}")
-
+    def handle_close(self, target_name=None):
+        # Get the current location data
         current_location_data = self.get_current_location_data()
 
-        # Unified interaction logic for NPCs, items, and containers
-        target = self.find_interaction_target(target_name, current_location_data)
-        ic(f"Target: {target}")
+        if target_name:
+            # Normalize the target name
+            normalized_target_name = self.normalize_name(target_name)
+            # Find the specific container by normalized name
+            container = next((obj for obj in current_location_data.get('containers', [])
+                            if self.normalize_name(obj['name']) == normalized_target_name), None)
+
+            if not container:
+                return convert_text_to_display(f"There is no '{target_name}' to close here.")
+        else:
+            # Find the first open container if no specific name is provided
+            container = next((obj for obj in current_location_data.get('containers', [])
+                            if obj.get('isOpen', False)), None)
+
+            if not container:
+                return convert_text_to_display("There are no open containers to close.")
+
+        # Check if the container is already closed
+        if not container.get('isOpen', True):
+            return convert_text_to_display(f"The '{container['name']}' is already closed.")
+
+        # Close the container
+        container['isOpen'] = False
+
+        return convert_text_to_display(f"You have closed the '{container['name']}'.")
+
+    def handle_open(self, target_name):
+        # Get the current location data
+        current_location_data = self.get_current_location_data()
+
+        # Normalize the target name
+        normalized_target_name = self.normalize_name(target_name)
+        # Find the container in the current location by normalized name
+        container = next((obj for obj in current_location_data.get('containers', [])
+                        if self.normalize_name(obj['name']) == normalized_target_name), None)
+
+        if not container:
+            return convert_text_to_display(f"There is no '{target_name}' to open here.")
+
+        # Check if the container is already open
+        if container.get('isOpen', False):
+            contents = self.list_container_contents(container)
+            return convert_text_to_display(f"The '{target_name}' is already open.\n{contents}")
+        else:
+            # Open the container
+            container['isOpen'] = True
+            contents = self.list_container_contents(container)
+            return convert_text_to_display(f"You have opened the '{target_name}'.\n{contents}")
+
+    def execute_interaction(self, interaction, target):
+        if interaction['type'] == 'talk to':
+            dialog = "\n".join(interaction.get('dialog', ["It has nothing to say."]))
+            return f"{target['name']} says: \"{dialog}\""
+        elif interaction['type'] == 'open':
+            if target.get('isOpen', False):
+                return f"{target['name']} is already open."
+            else:
+                target['isOpen'] = True
+                return f"{target['name']} is now open."
+        elif interaction['type'] == 'close':
+            if not target.get('isOpen', False):
+                return f"{target['name']} is already closed."
+            else:
+                target['isOpen'] = False
+                return f"{target['name']} is now closed."
+
+    def handle_talk_to(self, command, npc_name):
+        ic(f"Handling 'talk to' command with NPC: {npc_name}")
+
+        # Get the current location data
+        location_data = self.get_current_location_data()
+
+        # Find the NPC in the current location
+        target_npc = self.find_interaction_target(npc_name, location_data)
+
+        if target_npc:
+            # Execute the 'talk to' interaction if the NPC is found
+            interaction = {'type': 'talk to'}
+            return self.execute_interaction(interaction, target_npc)
+        else:
+            # NPC not found in the current location
+            return convert_text_to_display(f"Cannot find '{npc_name}' to talk to.")
+
+    def handle_give_take(self, action, details):
+        ic(f"Handling '{action}' command with details: {details}")
+
+        # Split the details into parts
+        target_name, quantity, item_name = self.parse_give_take_details(details.split())
+
+        # Get the current location data
+        location_data = self.get_current_location_data()
+
+        if not target_name:
+            # Find an open container if no target is specified
+            open_containers = [c for c in location_data.get('containers', []) if c.get('isOpen', False)]
+            target = open_containers[0] if open_containers else None
+        else:
+            # Find the specified target
+            target = self.find_interaction_target(target_name, location_data)
+
         if not target:
-            return f"No valid target named '{target_name}' found."
+            return convert_text_to_display(f"Cannot find '{target_name}' to {action}.")
 
-        for interaction in target.get('interactions', []):
-            if interaction['type'].lower() == action:
-                return self.execute_interaction(interaction, target)
+        if action == "give":
+            # Logic to handle the give command
+            return self.process_give_command(target, item_name, quantity)
+        elif action == "take":
+            # Logic to handle the take command
+            return self.process_take_command(target, item_name, quantity)
 
-        # If no interaction matches, or the target type does not match the action
-        target_type = target.get('type', 'object')
-        return f"The {target_type} '{target_name}' cannot perform the action '{action}'."
+    def parse_give_take_details(self, parts):
+        # Check if the last part is a digit (quantity), and adjust accordingly
+        if parts[-1].isdigit():
+            quantity = int(parts[-1])
+            item = ' '.join(parts[:-1])  # All parts except the last one
+            target = None  # No explicit target specified
+        else:
+            item = ' '.join(parts)
+            quantity = 1  # Default quantity
+            target = None  # No explicit target specified
+
+        return target, quantity, item
 
     def find_interaction_target(self, target_name, location_data):
         normalized_target_name = self.normalize_name(target_name)
@@ -186,24 +316,133 @@ class WorldBuilder(QObject, IWorldBuilder):
 
         return None
 
-    def execute_interaction(self, interaction, target):
-        if interaction['type'] == 'talk to':
-            dialog = "\n".join(interaction.get('dialog', ["It has nothing to say."]))
-            return f"{target['name']} says: \"{dialog}\""
-        elif interaction['type'] == 'open':
-            if target.get('isOpen', False):
-                return f"{target['name']} is already open."
-            else:
-                target['isOpen'] = True
-                return f"{target['name']} is now open."
-        elif interaction['type'] == 'close':
+    def process_take_command(self, target, item_name, quantity):
+        ic(f"Processing take command: taking {quantity} of {item_name} from {target['name']}")
+
+        # Check if the target has the item and in sufficient quantity
+        if not self.target_has_item(target, item_name, quantity):
+            return convert_text_to_display(f"The {target['name']} does not have {quantity} of {item_name}.")
+
+        # If the target is a container, check if it is open
+        if target.get('type') == 'container':
             if not target.get('isOpen', False):
-                return f"{target['name']} is already closed."
-            else:
-                target['isOpen'] = False
-                return f"{target['name']} is now closed."
-        
-   
+                return convert_text_to_display(f"The {target['name']} is closed. You cannot take items from it.")
+
+        # Remove the item from the target's inventory and add it to the player's inventory
+        self.remove_item_from_target(target, item_name, quantity)
+        self.add_item_to_player_inventory(item_name, quantity)
+
+        return convert_text_to_display(f"Took {quantity} of {item_name} from {target['name']}.")
+
+    def add_item_to_player_inventory(self, item_name, quantity):
+        # Access the player's inventory
+        player_inventory = self.game_manager.player_sheet.inventory
+
+        # Check if the player already has the item
+        for item in player_inventory:
+            if item['name'] == item_name:
+                # If the item exists, update the quantity
+                item['quantity'] += quantity
+                return
+
+        # If the item is not in the inventory, add it as a new entry
+        new_item = {'name': item_name, 'quantity': quantity}
+        player_inventory.append(new_item)
+
+
+    def remove_item_from_target(self, target, item_name, quantity):
+        # Access the target's inventory
+        target_inventory = target.get('inventory', [])
+
+        # Iterate through the inventory to find and remove the item
+        for item in target_inventory:
+            if item['name'] == item_name:
+                if item['quantity'] > quantity:
+                    # Reduce the quantity of the item
+                    item['quantity'] -= quantity
+                    return
+                elif item['quantity'] == quantity:
+                    # Remove the item completely if the quantity matches
+                    target_inventory.remove(item)
+                    return
+
+    def target_has_item(self, target, item_name, quantity):
+        # Access the target's inventory. This structure is an example.
+        target_inventory = target.get('inventory', [])
+
+        # Search for the item and check its quantity
+        for item in target_inventory:
+            if item['name'] == item_name and item['quantity'] >= quantity:
+                return True
+
+        # If the item is not found in the required quantity
+        return False
+
+    def process_give_command(self, target, item_name, quantity):
+        ic(f"Processing give command: giving {quantity} of {item_name} to {target['name']}")
+
+        # Validate if the player has the item and in sufficient quantity
+        if not self.player_has_item(item_name, quantity):
+            return convert_text_to_display(f"You do not have {quantity} of {item_name} to give.")
+
+        # If the target is a container, check if it is open
+        if target.get('type') == 'container':
+            if not target.get('isOpen', False):
+                return convert_text_to_display(f"The {target['name']} is closed. You cannot put items in it.")
+
+        # Remove the item from the player's inventory and add it to the target's inventory
+        self.remove_item_from_player(item_name, quantity)
+        self.add_item_to_target_inventory(target, item_name, quantity)
+
+        return convert_text_to_display(f"Gave {quantity} of {item_name} to {target['name']}.")
+
+    def remove_item_from_player(self, item_name, quantity):
+        # Access the player's inventory
+        player_inventory = self.game_manager.player_sheet.inventory
+
+        # Iterate through the inventory to find and remove the item
+        for item in player_inventory:
+            if item['name'] == item_name:
+                if item['quantity'] > quantity:
+                    # Reduce the quantity of the item
+                    item['quantity'] -= quantity
+                    return
+                elif item['quantity'] == quantity:
+                    # Remove the item completely if the quantity matches
+                    player_inventory.remove(item)
+                    return
+
+    def player_has_item(self, item_name, quantity):
+        ic(f"Checking if player has {quantity} of {item_name}")
+        # Normalize the item name for comparison
+        normalized_item_name = self.normalize_name(item_name)
+        player_inventory = self.game_manager.player_sheet.inventory
+        ic(f"Player inventory: {player_inventory}")
+
+        for item in player_inventory:
+            ic(f"Checking item: {item}")
+            # Normalize the name of the item in the inventory before comparison
+            if self.normalize_name(item['name']) == normalized_item_name and item['quantity'] >= quantity:
+                return True
+
+        return False
+
+    def add_item_to_target_inventory(self, target, item_name, quantity):
+        # Assuming the target's inventory is a list of item dictionaries
+        target_inventory = target.get('inventory', [])
+
+        # Check if the item already exists in the target's inventory
+        for item in target_inventory:
+            if item['name'] == item_name:
+                # If the item exists, just update the quantity
+                item['quantity'] += quantity
+                return
+
+        # If the item is not in the inventory, add it as a new entry
+        new_item = {'name': item_name, 'quantity': quantity}
+        target_inventory.append(new_item)
+
+
     def list_container_contents(self, container):
         contents_text = f"{container['name']} contains:\n"
         for item in container.get('contains', []):
