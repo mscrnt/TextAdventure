@@ -44,10 +44,6 @@ class WorldBuilder(QObject, IWorldBuilder):
 
     def incoming_command(self, command):
         ic(f"Received command: {command}")
-        # Split the command into action and target
-        command_parts = command.split(maxsplit=1)
-        command_action = command_parts[0].lower()
-        command_target = command_parts[1] if len(command_parts) > 1 else ""
 
         # Display the processing command message
         html_command = convert_text_to_display(f"Processing command: {command}")
@@ -64,23 +60,39 @@ class WorldBuilder(QObject, IWorldBuilder):
                 ic(f"AI responsed: {response}")
             else:
                 ic("Processing command directly.")
-                # Handlers that need the whole command
-                full_command_handlers = {"open", "close", "talk to", "take", "give"}
-                target_only_handlers = {"move to", "go to", "fast travel to"}
 
-                # For handlers that require only the command action unlike 'interact_with'
-                if command_action in full_command_handlers:
-                    response = self.interact_with(command)
-                elif command_action in target_only_handlers:
-                    response = self.move_player(self.normalize_name(command_target))
-                elif command_action == "look around" or command_action == "look":
-                    response = self.look_around()
-                elif command_action == "whereami" or command_action == "where am i":
-                    response = self.where_am_i()
-                elif command_action == "help":
-                    response = self.display_help()
+                # Regular expressions for different command patterns
+                patterns = {
+                    r"^fast travel to (.+)$": self.fast_travel_to_world,
+                    r"^(move to|go to) (.+)$": self.move_player,
+                    r"^(give) (\d+) (.+)$": self.interact_with,  # for 'give 3 apples'
+                    r"^(give) (.+)$": self.interact_with,        # for 'give sword'
+                    r"^(take) (\d+) (.+)$": self.interact_with,  # for 'take 2 potions'
+                    r"^(take) (.+)$": self.interact_with,        # for 'take key'
+                    r"^(examine) (.+)$": self.examine_item,
+                    r"^(talk to) (.+)$": self.interact_with,
+                    r"^(open|close) (.+)$": self.interact_with,
+                    r"^(look around|look|whereami|where am i|help)$": self.simple_command_handler
+                }
+
+                # Iterate through patterns to find a match
+                for pattern, handler in patterns.items():
+                    ic(f"Checking pattern: {pattern}")
+                    ic(f"Checking handler: {handler}")
+                    match = re.match(pattern, command, re.IGNORECASE)
+                    ic(f"Match: {match}")
+                    if match:
+                        groups = match.groups()
+                        if handler in [self.move_player, self.fast_travel_to_world]:
+                            # For move_player and interact_with, pass only the required arguments
+                            response = handler(groups[1])  # groups[1] will contain the target
+                        else:
+                            # For other commands, pass all captured groups
+                            response = handler(*groups)
+                        break
                 else:
                     response = convert_text_to_display(f'Unknown command: {command}')
+
 
             # Emit the signal to indicate command processing is complete
             self.command_processed_signal.emit()
@@ -94,148 +106,104 @@ class WorldBuilder(QObject, IWorldBuilder):
             self.command_processed_signal.emit()
             return response
         
-    def interact_with(self, command):
+    def simple_command_handler(self, command):
+        # Implement the logic for simple commands
+        if command == "look" or command == "look around":
+            return self.look_around()
+        elif command == "whereami" or command == "where am i":
+            return self.where_am_i()
+        elif command == "help":
+            return self.display_help()
+        else:
+            return f"Unknown simple command: {command}"
+
+    def interact_with(self, action, target_name):
         ic(f"Interacting with: {command}")
-        # Split the command into action and remaining parts
-        command_parts = command.split(maxsplit=1)
-        ic(f"Command parts: {command_parts}")
-        ic(f"Command parts length: {len(command_parts)}")
-        action = command_parts[0].lower()
-        remaining_command = command_parts[1] if len(command_parts) > 1 else None
+
+        # Define regex patterns for various interaction commands
+        patterns = {
+            r"^(talk to) (.+)$": "talk to",
+            r"^(give) (.+)$": "give",
+            r"^(take) (.+)$": "take",
+            r"^(open) (.+)$": "open",
+            r"^(close) (.+)$": "close"
+        }
+        
+        # Initialize action and target_name
+        action = None
+        target_name = None
+
+        # Check each pattern to see if there's a match
+        for pattern, action_keyword in patterns.items():
+            match = re.match(pattern, command, re.IGNORECASE)
+            if match:
+                action = action_keyword
+                target_name = match.groups()[1]
+                break
+
+        # If no pattern matches, return a message indicating an unknown command
+        if action is None or target_name is None:
+            return convert_text_to_display(f"Unknown command: {command}")
+
+        ic(f"Action: {action}, Target: {target_name}")
 
         current_location_data = self.get_current_location_data()
 
-        if action in ["talk to", "trade with", "quest"]:
-            ic(f"Interacting with NPC: {remaining_command}")
-            return self._interact_with_npc(remaining_command, action, current_location_data)
-        elif action in ["open", "close"]:
-            ic(f"Interacting with container: {remaining_command}")
-            container_normalized = self.normalize_name(remaining_command)
-            return self._toggle_container(container_normalized, action, current_location_data)
-        elif action in ["give", "take"]:
-            ic(f"Interacting with {action} command: {remaining_command}")
-            return self._transfer_item(remaining_command, action, current_location_data)
-        else:
-            return "Unknown interaction."
-        
-    def _interact_with_npc(self, npc_name, action, location_data):
-        normalized_npc_name = self.normalize_name(npc_name)
+        # Unified interaction logic for NPCs, items, and containers
+        target = self.find_interaction_target(target_name, current_location_data)
+        ic(f"Target: {target}")
+        if not target:
+            return f"No valid target named '{target_name}' found."
 
-        # Find the NPC in the current location
-        npc = next((n for n in location_data.get('npcs', []) if self.normalize_name(n['name']) == normalized_npc_name), None)
-        if not npc:
-            return f"No one named '{npc_name}' found here."
+        for interaction in target.get('interactions', []):
+            if interaction['type'].lower() == action:
+                return self.execute_interaction(interaction, target)
 
-        # Handle different actions
-        if action == 'talk to':
-            dialog = "\n".join(npc.get('dialog', ["I have nothing to say."]))
-            return f"{npc['name']} says: \"{dialog}\""
-        elif action in ['trade with', 'give', 'take']:
-            # Additional logic for trading, giving, and taking goes here
-            return self._handle_npc_interaction(npc, action, location_data)
-        else:
-            return f"{npc['name']} cannot perform the action '{action}'."
-        
-    def _interact_with_item(self, item_name, action, location_data):
-        normalized_item_name = self.normalize_name(item_name)
+        # If no interaction matches, or the target type does not match the action
+        target_type = target.get('type', 'object')
+        return f"The {target_type} '{target_name}' cannot perform the action '{action}'."
 
-        # Search for the item in the current location and open containers
-        item = self.get_item_data(normalized_item_name, location_data)
-        if not item:
-            return f"No item named '{item_name}' found here."
+    def find_interaction_target(self, target_name, location_data):
+        normalized_target_name = self.normalize_name(target_name)
 
-        if action == 'take':
-            if item.get('collectable', False):
-                self.game_manager.player_sheet.add_item(item)
-                self.remove_item_from_environment(item, location_data)
-                return f"You have taken {item['name']}."
+        # Check NPCs
+        for npc in location_data.get('npcs', []):
+            ic(f"Checking NPC: {npc['name']}")
+            if self.normalize_name(npc['name']) == normalized_target_name:
+                return npc
+
+        # Check items
+        for item in location_data.get('items', []):
+            ic(f"Checking item: {item['name']}")
+            if self.normalize_name(item['name']) == normalized_target_name:
+                return item
+
+        # Check containers
+        for container in location_data.get('containers', []):
+            ic(f"Checking container: {container['name']}")
+            if self.normalize_name(container['name']) == normalized_target_name:
+                return container
+
+        return None
+
+    def execute_interaction(self, interaction, target):
+        if interaction['type'] == 'talk to':
+            dialog = "\n".join(interaction.get('dialog', ["It has nothing to say."]))
+            return f"{target['name']} says: \"{dialog}\""
+        elif interaction['type'] == 'open':
+            if target.get('isOpen', False):
+                return f"{target['name']} is already open."
             else:
-                return f"{item['name']} cannot be taken."
-        elif action == 'give':
-            # Logic for giving an item to a container
-            return self._place_item_in_container(item, location_data)
-        else:
-            return f"You can't {action} with {item['name']}."
+                target['isOpen'] = True
+                return f"{target['name']} is now open."
+        elif interaction['type'] == 'close':
+            if not target.get('isOpen', False):
+                return f"{target['name']} is already closed."
+            else:
+                target['isOpen'] = False
+                return f"{target['name']} is now closed."
         
-    def _transfer_item(self, command, action, current_location_data):
-        # Parse the command to get quantity, item, and target
-        try:
-            transfer_parts = command.split(maxsplit=2)
-            quantity = int(transfer_parts[0])
-            item_name = transfer_parts[1]
-            target_name = transfer_parts[2] if len(transfer_parts) > 2 else None
-        except (IndexError, ValueError):
-            return "Invalid command format. Please specify quantity, item name, and target."
-
-        # Normalize names for comparison
-        item_normalized = self.normalize_name(item_name)
-        target_normalized = self.normalize_name(target_name) if target_name else None
-
-        # Fetch player inventory and target (NPC or container)
-        player_inventory = self.get_player_inventory()
-        target = self.get_target(target_normalized, current_location_data)
-
-        if action == "give":
-            # Check if player has enough of the item
-            if player_inventory.get(item_normalized, 0) < quantity:
-                return f"You don't have enough {item_name} to give."
-            
-            # Add item to target's inventory/container
-            self.add_item_to_target(target, item_normalized, quantity)
-            # Deduct the item from the player's inventory
-            player_inventory[item_normalized] -= quantity
-
-        elif action == "take":
-            # Check if target has the item and enough quantity
-            if not self.target_has_item(target, item_normalized, quantity):
-                return f"{target_name} doesn't have enough {item_name}."
-
-            # Add item to player's inventory
-            self.add_item_to_player_inventory(player_inventory, item_normalized, quantity)
-            # Remove the item from target's inventory/container
-            self.remove_item_from_target(target, item_normalized, quantity)
-
-        else:
-            return "Unknown action."
-
-        return f"You {action} {quantity} {item_name} {'to' if action == 'give' else 'from'} {target_name}."
-
-    def remove_item_from_environment(self, item, location_data):
-        # Remove the item from the location or container
-        item_name = item['name']
-        normalized_item_name = self.normalize_name(item_name)
-
-        if self.is_item_in_open_container(normalized_item_name, location_data):
-            for container in location_data.get('containers', []):
-                if container.get('isOpen', False):
-                    container['contains'] = [i for i in container.get('contains', []) if self.normalize_name(i['name']) != normalized_item_name]
-        else:
-            location_data['items'] = [i for i in location_data.get('items', []) if self.normalize_name(i['name']) != normalized_item_name]
-
-
-    def _toggle_container(self, container_name, action, location_data):
-        normalized_container_name = self.normalize_name(container_name)
-
-        # Search for the container in the current location
-        container = next((c for c in location_data.get('containers', []) if self.normalize_name(c['name']) == normalized_container_name), None)
-        if not container:
-            return f"No container named '{container_name}' found here."
-
-        if action == 'open':
-            if container.get('isOpen', False):
-                return f"{container['name']} is already open."
-            container['isOpen'] = True
-            contents = self.list_container_contents(container)
-            return f"You open {container['name']}. Contents: {contents}"
-
-        elif action == 'close':
-            if not container.get('isOpen', False):
-                return f"{container['name']} is already closed."
-            container['isOpen'] = False
-            return f"You close {container['name']}."
-
-        return f"Cannot perform the action '{action}' on {container['name']}."
-    
+   
     def list_container_contents(self, container):
         contents_text = f"{container['name']} contains:\n"
         for item in container.get('contains', []):
@@ -253,14 +221,6 @@ class WorldBuilder(QObject, IWorldBuilder):
             ic(f"No data found for current location: {current_location_str}")
         return location_data
 
-    def get_container_data(self, container_name):
-        location_data = self.get_current_location_data()
-        if 'containers' in location_data:
-            for container in location_data['containers']:
-                if self.normalize_name(container['name']) == self.normalize_name(container_name):
-                    return container
-        return None
-    
     def find_location_data(self, location_name):
         if isinstance(location_name, dict):
             location_name = location_name.get("location/sublocation", "Unknown Location")
@@ -367,24 +327,16 @@ class WorldBuilder(QObject, IWorldBuilder):
 
 
     def build_scene_text(self, location_data):
-        location_data = self.get_current_location_data()
         if not location_data:
             return "You are in an unknown location."
 
-        scene_text = ""
-        if 'type' in location_data and location_data['type'] == 'room':
-            scene_text += self.describe_room(location_data) + "\n"
-            scene_text += self.list_entities('items', location_data) + "\n" if 'items' in location_data else ""
-            scene_text += self.list_entities('npcs', location_data) + "\n" if 'npcs' in location_data else ""
-            scene_text += self.list_entities('containers', location_data) + "\n" if 'containers' in location_data else ""
-        else:
-            scene_text += self.describe_location(location_data) + "\n"
-            scene_text += self.list_entities('items', location_data) + "\n" if 'items' in location_data else ""
-            scene_text += self.list_entities('containers', location_data) + "\n" if 'containers' in location_data else ""
-            scene_text += self.list_entities('npcs', location_data) + "\n" if 'npcs' in location_data else ""
-            scene_text += self.list_entities('paths', location_data) + "\n" if 'paths' in location_data else ""
-            scene_text += self.list_entities('sublocations', location_data) + "\n" if 'sublocations' in location_data else ""
-            scene_text += self.list_entities('rooms', location_data) + "\n" if 'rooms' in location_data else ""
+        scene_text = self.describe_location(location_data) + "\n"
+        scene_text += self.list_entities('items', location_data) + "\n"
+        scene_text += self.list_entities('containers', location_data) + "\n"
+        scene_text += self.list_entities('npcs', location_data) + "\n"
+        scene_text += self.list_entities('paths', location_data) + "\n"
+        scene_text += self.list_entities('sublocations', location_data) + "\n"
+        scene_text += self.list_entities('rooms', location_data) + "\n"
 
         return scene_text.strip()
     

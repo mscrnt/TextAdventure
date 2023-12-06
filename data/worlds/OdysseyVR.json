@@ -36,52 +36,25 @@
                     "type": "Interactive",
                     "collectable": true,
                     "quantity": 1
-                },
-                {
-                    "name": "Virtual Zen Garden",
-                    "description": "A customizable and interactive Zen garden for meditation and relaxation, with virtual sand and stones.",
-                    "type": "Decor",
-                    "collectable": false,
-                    "quantity": 1
-                },
-                {
-                    "name": "Interactive Art Gallery",
-                    "description": "Showcase digital art. Swap and arrange pieces as desired.",
-                    "type": "Decor",
-                    "collectable": false,
-                    "quantity": 1
-                },
-                {
-                    "name": "Cosmic Window",
-                    "description": "Displays various cosmic scenes, from galaxies to alien worlds.",
-                    "type": "Decor",
-                    "collectable": false,
-                    "quantity": 1
                 }
             ],
             "containers": [
-                {
-                    "name": "Virtual Trophy Case",
-                    "description": "Showcase VR trophies and achievements.",
-                    "type": "Container",
-                    "isOpen": false,
-                    "collectable": false,
-                    "contains": []
-                },
                 {
                     "name": "Cube",
                     "description": "Store and revisit favorite VR moments.",
                     "type": "Container",
                     "isOpen": false,
                     "collectable": false,
-                    "contains": []
-                },
-                {
-                    "name": "Gadget Locker",
-                    "description": "Store virtual gadgets and tools.",
-                    "type": "Container",
-                    "isOpen": false,
-                    "collectable": false,
+                    "interactions": [
+                        {
+                            "type": "open",
+                            "description": "Open the cube to view its contents."
+                        },
+                        {
+                            "type": "close",
+                            "description": "Close the cube."
+                        }
+                    ],
                     "contains": []
                 }
             ],
@@ -90,38 +63,21 @@
                     "name": "Athena",
                     "description": "Athena, the AI digital assistant, provides guidance, game tips, and helpful information. She appears as a friendly holographic avatar and adapts to the user's preferences.",
                     "keywords": ["AI", "avatar", "assistant", "guide", "helper", "hologram", "holographic", "interactive", "virtual"],
-                    "dialog": [
-                        "Welcome to Odyssey VR! How can I assist you today?",
-                        "Here are some tips for customizing your virtual home.",
-                        "I can help you connect with friends or explore new virtual landscapes.",
-                        "Need assistance with any in-game challenges or quests? I'm here to help!",
-                        "Feeling lost? I can guide you to any location within Odyssey VR.",
-                        "If you're looking for something fun to do, I can suggest some popular activities and events."
-                    ],
                     "interactions": [
                         {
                             "type": "Tutorial",
                             "description": "Provides a step-by-step guide to new players about navigating and using Odyssey VR's features."
                         },
                         {
-                            "type": "Assistance",
-                            "description": "Offers real-time assistance and answers questions about the virtual world."
-                        },
-                        {
-                            "type": "Customization Help",
-                            "description": "Guides users through customizing their personal VR space and managing their virtual items."
-                        },
-                        {
-                            "type": "Quest Guide",
-                            "description": "Offers hints and guidance for completing quests and challenges within Odyssey VR."
-                        },
-                        {
-                            "type": "Navigation Assistant",
-                            "description": "Helps players find their way to different locations and points of interest in the virtual world."
-                        },
-                        {
-                            "type": "Event Coordinator",
-                            "description": "Informs players about ongoing and upcoming events and activities in Odyssey VR."
+                            "type": "talk to",
+                            "dialog": [
+                                "Welcome to Odyssey VR! How can I assist you today?",
+                                "Here are some tips for customizing your virtual home.",
+                                "I can help you connect with friends or explore new virtual landscapes.",
+                                "Need assistance with any in-game challenges or quests? I'm here to help!",
+                                "Feeling lost? I can guide you to any location within Odyssey VR.",
+                                "If you're looking for something fun to do, I can suggest some popular activities and events."
+                            ]
                         }
                     ],
                     "inventory": []

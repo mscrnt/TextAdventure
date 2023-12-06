@@ -18,7 +18,7 @@
                             "description": "Offer guidance on how to escape the virtual world."
                         },
                         {
-                            "type": "talk",
+                            "type": "talk to",
                             "dialog": [
                                 "I'm lost! How do I get out of here?",
                                 "I've been wandering for hours. Can you help me find my way back?",
@@ -33,13 +33,9 @@
                 }
             ],
             "paths": {
-                "east": "",
-                "north": "",
-                "west": "",
-                "south": "",
-                "sub 1": "Grand Castle",
-                "sub 2": "Mystic Market",
-                "sub 3": "Hall of Elders"
+                "Grand Castle": "Grand Castle",
+                "Mystic Market": "Mystic Market",
+                "Hall of Elders": "Hall of Elders"
             },
             "sublocations": [
                 {
@@ -76,7 +72,7 @@
                                     "description": "Exchange herbs for potions."
                                 },
                                 {
-                                    "type": "talk",
+                                    "type": "talk to",
                                     "dialog": [
                                         "The Grand Castle is a place of history and mystery, where the past speaks to those who listen.",
                                         "The walls have eyes and the shadows, whispers. Not every secret wishes to be known.",
