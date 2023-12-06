@@ -78,11 +78,14 @@
                                 "Feeling lost? I can guide you to any location within Odyssey VR.",
                                 "If you're looking for something fun to do, I can suggest some popular activities and events."
                             ]
+                        },
+                        {
+                            "type": "give",
+                            "description": "Give Athena an item."
                         }
                     ],
                     "inventory": []
-                }
-                
+                } 
             ],
             "rooms": [],
             "sublocations": []

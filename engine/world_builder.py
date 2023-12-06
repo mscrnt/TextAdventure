@@ -70,7 +70,7 @@ class WorldBuilder(QObject, IWorldBuilder):
 
                 # Regular expressions for different command patterns
                 patterns = {
-                    r"^fast travel to (.+)$": self.fast_travel_to_world,
+                    r"^(fast travel to) (.+)$": self.fast_travel_to_world,
                     r"^(move to|go to) (.+)$": self.move_player,
                     r"^(give) (\d+) (.+)$": self.interact_with,  # for 'give 3 apples'
                     r"^(give) (.+)$": self.interact_with,        # for 'give sword'
@@ -220,21 +220,37 @@ class WorldBuilder(QObject, IWorldBuilder):
             return convert_text_to_display(f"You have opened the '{target_name}'.\n{contents}")
 
     def execute_interaction(self, interaction, target):
-        if interaction['type'] == 'talk to':
-            dialog = "\n".join(interaction.get('dialog', ["It has nothing to say."]))
-            return f"{target['name']} says: \"{dialog}\""
-        elif interaction['type'] == 'open':
+        interaction_type = interaction['type']
+
+        if interaction_type == 'talk to':
+            # Extract dialogues specific to the NPC
+            npc_dialogues = target.get('interactions', [])
+            for npc_interaction in npc_dialogues:
+                if npc_interaction['type'] == 'talk to':
+                    dialog = "\n".join(npc_interaction.get('dialog', ["It has nothing to say."]))
+                    return f"{target['name']} says: \"{dialog}\""
+
+        elif interaction_type == 'open':
             if target.get('isOpen', False):
                 return f"{target['name']} is already open."
             else:
                 target['isOpen'] = True
                 return f"{target['name']} is now open."
-        elif interaction['type'] == 'close':
+
+        elif interaction_type == 'close':
             if not target.get('isOpen', False):
                 return f"{target['name']} is already closed."
             else:
                 target['isOpen'] = False
                 return f"{target['name']} is now closed."
+
+        elif interaction_type == 'give':
+            return f"{target['name']} takes the {interaction['item']} from you."
+
+        elif interaction_type == 'take':
+            return f"You take the {interaction['item']} from {target['name']}."
+
+        return "Interaction not recognized."
 
     def handle_talk_to(self, command, npc_name):
         ic(f"Handling 'talk to' command with NPC: {npc_name}")
@@ -274,24 +290,37 @@ class WorldBuilder(QObject, IWorldBuilder):
             return convert_text_to_display(f"Cannot find '{target_name}' to {action}.")
 
         if action == "give":
-            # Logic to handle the give command
-            return self.process_give_command(target, item_name, quantity)
+            response = self.process_give_command(target, item_name, quantity)
         elif action == "take":
-            # Logic to handle the take command
-            return self.process_take_command(target, item_name, quantity)
+            response = self.process_take_command(target, item_name, quantity)
+
+        return convert_text_to_display(response)
 
     def parse_give_take_details(self, parts):
-        # Check if the last part is a digit (quantity), and adjust accordingly
-        if parts[-1].isdigit():
-            quantity = int(parts[-1])
-            item = ' '.join(parts[:-1])  # All parts except the last one
-            target = None  # No explicit target specified
-        else:
-            item = ' '.join(parts)
-            quantity = 1  # Default quantity
-            target = None  # No explicit target specified
+        ic(f"Parsing give/take details: {parts}")
+        quantity = 1  # Default quantity
+        item_name = None
+        target = None
 
-        return target, quantity, item
+        # Check if the word 'to' is present, indicating giving to an NPC
+        if 'to' in parts:
+            to_index = parts.index('to|from')
+            # Parse quantity if specified
+            if parts[0].isdigit():
+                quantity = int(parts.pop(0))
+                item_name = ' '.join(parts[:to_index - 1])  # Adjust index due to popping quantity
+            else:
+                item_name = ' '.join(parts[:to_index])
+            target = ' '.join(parts[to_index + 1:])  # NPC name comes after 'to'
+        else:
+            # No 'to' present, giving to a container
+            if parts[0].isdigit():
+                quantity = int(parts.pop(0))
+            item_name = ' '.join(parts)
+
+        ic(f"Quantity: {quantity}, Item name: {item_name}, Target: {target}")
+        return target, quantity, item_name
+
 
     def find_interaction_target(self, target_name, location_data):
         normalized_target_name = self.normalize_name(target_name)
@@ -319,133 +348,122 @@ class WorldBuilder(QObject, IWorldBuilder):
     def process_take_command(self, target, item_name, quantity):
         ic(f"Processing take command: taking {quantity} of {item_name} from {target['name']}")
 
-        # Check if the target has the item and in sufficient quantity
+        # Check if the target has the item
         if not self.target_has_item(target, item_name, quantity):
             return convert_text_to_display(f"The {target['name']} does not have {quantity} of {item_name}.")
 
         # If the target is a container, check if it is open
-        if target.get('type') == 'container':
-            if not target.get('isOpen', False):
-                return convert_text_to_display(f"The {target['name']} is closed. You cannot take items from it.")
+        if target.get('type') == 'container' and not target.get('isOpen', False):
+            return convert_text_to_display(f"The {target['name']} is closed. You cannot take items from it.")
 
-        # Remove the item from the target's inventory and add it to the player's inventory
-        self.remove_item_from_target(target, item_name, quantity)
-        self.add_item_to_player_inventory(item_name, quantity)
+        # Transfer the item
+        return self.transfer_item(target, self.game_manager.player_sheet, item_name, quantity)
 
-        return convert_text_to_display(f"Took {quantity} of {item_name} from {target['name']}.")
-
-    def add_item_to_player_inventory(self, item_name, quantity):
-        # Access the player's inventory
-        player_inventory = self.game_manager.player_sheet.inventory
-
-        # Check if the player already has the item
-        for item in player_inventory:
-            if item['name'] == item_name:
-                # If the item exists, update the quantity
-                item['quantity'] += quantity
-                return
-
-        # If the item is not in the inventory, add it as a new entry
-        new_item = {'name': item_name, 'quantity': quantity}
-        player_inventory.append(new_item)
-
-
-    def remove_item_from_target(self, target, item_name, quantity):
-        # Access the target's inventory
-        target_inventory = target.get('inventory', [])
-
-        # Iterate through the inventory to find and remove the item
-        for item in target_inventory:
-            if item['name'] == item_name:
-                if item['quantity'] > quantity:
-                    # Reduce the quantity of the item
-                    item['quantity'] -= quantity
-                    return
-                elif item['quantity'] == quantity:
-                    # Remove the item completely if the quantity matches
-                    target_inventory.remove(item)
-                    return
 
     def target_has_item(self, target, item_name, quantity):
-        # Access the target's inventory. This structure is an example.
-        target_inventory = target.get('inventory', [])
+        ic(f"Checking if {target} has {quantity} of {item_name}")
+        normalized_item_name = self.normalize_name(item_name)
 
-        # Search for the item and check its quantity
+        # Determine if target is a player or NPC/container, and get the corresponding inventory
+        ic(f"Target: {target}")
+        if self.is_player_entity(target):
+            ic("Target is player entity")
+            target_inventory = target.inventory  # If it's a player entity
+        else:
+            ic("Target is not player entity")
+            target_inventory = target.get('inventory', [])  # If it's an NPC/container
+
+        ic(f"Target inventory: {target_inventory}")
+
+        # Check if the target has the item in the required quantity
         for item in target_inventory:
-            if item['name'] == item_name and item['quantity'] >= quantity:
+            ic(f"Checking item: {item['name']}")
+            if self.normalize_name(item['name']) == normalized_item_name and item['quantity'] >= quantity:
+                ic(f"Found item: {item['name']}")
                 return True
 
-        # If the item is not found in the required quantity
+        ic(f"Item not found: {item_name}")
         return False
+
+
+    def is_player_entity(self, entity):
+        ic(f"Checking if {entity} is player entity")
+        return entity == self.game_manager.player_sheet
+
+    def transfer_item(self, source, target, item_name, quantity):
+        normalized_item_name = self.normalize_name(item_name)
+        ic(f"Transferring {quantity} of {normalized_item_name} from {source} to {target}")
+
+        # Determine if source and target are players or NPCs/containers
+        source_inventory = source.inventory if self.is_player_entity(source) else source.get('inventory', [])
+        target_inventory = target.inventory if self.is_player_entity(target) else target.get('inventory', [])
+
+        # Find and adjust the item in the source inventory
+        item_removed = False
+        for item in source_inventory:
+            if self.normalize_name(item['name']) == normalized_item_name and item['quantity'] >= quantity:
+                # Clone the item to transfer
+                item_to_transfer = item.copy()
+                item_to_transfer['quantity'] = quantity
+
+                # Adjust quantity or remove the item from source
+                item['quantity'] -= quantity
+                if item['quantity'] <= 0:
+                    source_inventory.remove(item)
+                item_removed = True
+
+                # Add item to target
+                self.add_item_to_inventory(target_inventory, item_to_transfer)
+                return f"Transferred {quantity} of {item_name}"
+
+        if not item_removed:
+            return f"Item not found in source inventory: {item_name}"
+
+    def add_item_to_inventory(self, inventory, item_to_add):
+        # Check if item already exists in the inventory
+        for item in inventory:
+            if item['name'] == item_to_add['name']:
+                item['quantity'] += item_to_add['quantity']
+                return
+        # Add new item if it doesn't exist
+        inventory.append(item_to_add)
 
     def process_give_command(self, target, item_name, quantity):
-        ic(f"Processing give command: giving {quantity} of {item_name} to {target['name']}")
+        ic(f"Processing give command: giving {quantity} of {item_name} to {target}")
 
-        # Validate if the player has the item and in sufficient quantity
-        if not self.player_has_item(item_name, quantity):
-            return convert_text_to_display(f"You do not have {quantity} of {item_name} to give.")
-
-        # If the target is a container, check if it is open
-        if target.get('type') == 'container':
-            if not target.get('isOpen', False):
-                return convert_text_to_display(f"The {target['name']} is closed. You cannot put items in it.")
-
-        # Remove the item from the player's inventory and add it to the target's inventory
-        self.remove_item_from_player(item_name, quantity)
-        self.add_item_to_target_inventory(target, item_name, quantity)
-
-        return convert_text_to_display(f"Gave {quantity} of {item_name} to {target['name']}.")
-
-    def remove_item_from_player(self, item_name, quantity):
-        # Access the player's inventory
-        player_inventory = self.game_manager.player_sheet.inventory
-
-        # Iterate through the inventory to find and remove the item
-        for item in player_inventory:
-            if item['name'] == item_name:
-                if item['quantity'] > quantity:
-                    # Reduce the quantity of the item
-                    item['quantity'] -= quantity
-                    return
-                elif item['quantity'] == quantity:
-                    # Remove the item completely if the quantity matches
-                    player_inventory.remove(item)
-                    return
-
-    def player_has_item(self, item_name, quantity):
+        # Check if the player has the item
         ic(f"Checking if player has {quantity} of {item_name}")
-        # Normalize the item name for comparison
-        normalized_item_name = self.normalize_name(item_name)
-        player_inventory = self.game_manager.player_sheet.inventory
-        ic(f"Player inventory: {player_inventory}")
+        if not self.target_has_item(self.game_manager.player_sheet, item_name, quantity):
+            ic(f"Player does not have {quantity} of {item_name}")
+            return convert_text_to_display(f"You do not have {quantity} of {item_name} to give.")
+        
+        # Handle case when target is a container
+        if isinstance(target, dict) and target.get('type') == 'Container':
+            ic(f"{target} is a container")
+            if target.get('isOpen', False):
+                # Transfer the item from the player to the container
+                response = self.transfer_item(self.game_manager.player_sheet, target, item_name, quantity)
+            else:
+                response = f"The {target['name']} is closed. You cannot put items in it."
+        elif isinstance(target, dict) and target.get('type') == 'NPC':
+            ic(f"{target} is an NPC")
+            # Verify 'give' as a valid interaction for the NPC
+            can_give_item = any(interaction['type'] == 'give' for interaction in target.get('interactions', []))
 
-        for item in player_inventory:
-            ic(f"Checking item: {item}")
-            # Normalize the name of the item in the inventory before comparison
-            if self.normalize_name(item['name']) == normalized_item_name and item['quantity'] >= quantity:
-                return True
+            if can_give_item:
+                # Transfer the item from the player to the NPC using transfer_item function
+                response = self.transfer_item(self.game_manager.player_sheet, target, item_name, quantity)
+            else:
+                response = f"{target['name']} cannot receive items."
+        else:
+            response = f"You cannot give items to {target}."
 
-        return False
+        return convert_text_to_display(response)
 
-    def add_item_to_target_inventory(self, target, item_name, quantity):
-        # Assuming the target's inventory is a list of item dictionaries
-        target_inventory = target.get('inventory', [])
-
-        # Check if the item already exists in the target's inventory
-        for item in target_inventory:
-            if item['name'] == item_name:
-                # If the item exists, just update the quantity
-                item['quantity'] += quantity
-                return
-
-        # If the item is not in the inventory, add it as a new entry
-        new_item = {'name': item_name, 'quantity': quantity}
-        target_inventory.append(new_item)
-
-
+    
     def list_container_contents(self, container):
         contents_text = f"{container['name']} contains:\n"
-        for item in container.get('contains', []):
+        for item in container.get('inventory', []):
             contents_text += f"- {item['name']} ({item['quantity']}) - {item['description']}\n"
         ic(f"Contents text: {contents_text}")
         return contents_text.strip()
@@ -782,16 +800,30 @@ class WorldBuilder(QObject, IWorldBuilder):
         return None
     
     def create_scene_description(self, location_data):
-        description = f"You are at {location_data['name']}. {location_data['description']}\n"
-        if 'keywords' in location_data:
-            description += f"Keywords: {', '.join(location_data['keywords'])}\n"
+        # Introductory description of the scene
+        description = f"As you gaze around the {location_data['name']}, you find yourself immersed in {location_data['description']}. It's truly a sight to behold.\n\n"
 
-        # Utilize the list_entities method for various entities
-        if 'items' in location_data:
+        # Adding a touch of narrative to keywords
+        if 'keywords' in location_data:
+            description += f"This place feels {', '.join(location_data['keywords'])}, creating a unique atmosphere that resonates with your senses.\n\n"
+
+        # Descriptive listing of various entities
+        if 'items' in location_data and location_data['items']:
+            description += "Scattered around, you notice a few items:\n"
             description += self.list_entities('items', location_data) + "\n"
-        if 'npcs' in location_data:
+        else:
+            description += "Strangely, there are no items to be found here.\n"
+
+        if 'npcs' in location_data and location_data['npcs']:
+            description += "Amongst the digital mirage, some figures catch your attention:\n"
             description += self.list_entities('npcs', location_data) + "\n"
-        if 'containers' in location_data:
+        else:
+            description += "The area is devoid of any digital inhabitants, adding to the tranquility.\n"
+
+        if 'containers' in location_data and location_data['containers']:
+            description += "You also spot some containers, perhaps holding secrets or treasures:\n"
             description += self.list_entities('containers', location_data) + "\n"
+        else:
+            description += "There are no containers here, making the space feel more open.\n"
 
         return description.strip()

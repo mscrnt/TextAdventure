@@ -72,6 +72,7 @@ Rooms are specialized sublocations that exist within the hierarchy of a sublocat
     "name": "Room Name",
     "description": "Description of the room.",
     "keywords": ["keyword1", "keyword2"],
+    "visible": true or false,
     "paths": {
         "entrance": "Parent Sublocation",
         "exit": "Connecting Room or Sublocation"
@@ -90,6 +91,7 @@ Rooms are specialized sublocations that exist within the hierarchy of a sublocat
 - **name**: A string representing the room's name.
 - **description**: A description of the room's atmosphere, features, and any lore-related elements.
 - **keywords**: Key terms associated with the room.
+- **visible**: Boolean indicating if the room is visible to the player. If set to `false`, the room will be hidden until the player triggers an event that reveals it.
 - **paths**: Directions leading into and out of the room. The "entrance" key leads back to the parent sublocation, while "exit" can lead to another room or back to the sublocation.
 - **items**: Items that can be found or interacted with in the room.
 - **npcs**: NPCs present within the room, each with their dialogue and interactions.
@@ -118,6 +120,12 @@ Remember, when specifying paths for rooms, ensure that they are consistent with 
     "description": "Description of the item.",
     "type": "Item Type",
     "collectable": true or false,
+    "interactions": [
+        {
+            "type": "Interaction Type",
+            "description": "Description of the interaction."
+        }
+    ],
     "quantity": Number
 }
 ```
@@ -128,6 +136,7 @@ Remember, when specifying paths for rooms, ensure that they are consistent with 
 - **description**: What the item is or does.
 - **type**: Category of the item (e.g., "Weapon", "Food").
 - **collectable**: Boolean indicating if the item can be collected.
+- **interactions**: An array of interactions available with the item, such as using it or combining it with another item.
 - **quantity**: How many of this item are available.
 
 ## Adding Containers
@@ -144,7 +153,13 @@ Remember, when specifying paths for rooms, ensure that they are consistent with 
     "type": "Container",
     "isOpen": false,
     "collectable": false,
-    "contains": [
+    "interactions": [
+        {
+            "type": "Interaction Type",
+            "description": "Description of the interaction."
+        }
+    ],
+    "invtentoy": [
         // Item objects
     ]
 }
@@ -168,8 +183,11 @@ Remember, when specifying paths for rooms, ensure that they are consistent with 
 {
     "name": "NPC Name",
     "description": "Description of the NPC.",
-    "dialog": ["dialog line 1", "dialog line 2"],
     "interactions": [
+        {
+            "type": "talk to",
+            "dialogue": "Dialogue text.",
+        },
         {
             "type": "Interaction Type",
             "description": "Description of the interaction."
@@ -185,8 +203,9 @@ Remember, when specifying paths for rooms, ensure that they are consistent with 
 
 - **name**: The NPC's name.
 - **description**: A brief description of the NPC, including their appearance and role.
-- **dialog**: An array of strings, each representing a line of dialog the NPC can say.
 - **interactions**: An array of interactions available with the NPC, such as quests or trades.
+- ***type 'talk to'***: Required to trigger the NPC's dialogue.
+- **dialogue**: The NPC's dialogue.
 - **inventory**: An array of items that the NPC carries and can offer to the player.
 
 

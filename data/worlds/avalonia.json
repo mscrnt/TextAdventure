@@ -65,7 +65,8 @@
                             "interactions": [
                                 {
                                     "type": "quest",
-                                    "description": "Retrieve the Lost Tome from Secret Chamber in the Royal Library."
+                                    "description": "Learn the secrets of the Grand Castle.",
+                                    "questSlug": "echoesOfAvalonia"
                                 },
                                 {
                                     "type": "trade",
