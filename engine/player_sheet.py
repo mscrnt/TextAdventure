@@ -194,3 +194,7 @@ class PlayerSheet:
     def is_quest_completed(self, quest_name):
         quest = self.get_quest(quest_name)
         return quest is not None and quest.get('completed', False)
+
+    def get_tokens(self):
+        ic("Getting tokens")
+        return self.tokens

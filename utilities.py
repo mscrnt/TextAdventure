@@ -8,6 +8,13 @@ from icecream import ic
 import glob
 import re
 
+def normalize_name(name):
+    ic(f"Normalizing name: {name}")
+    normalized_name = re.sub(r'^the\s+', '', name, flags=re.IGNORECASE)
+    normalized_name = re.sub(r'\s+', ' ', normalized_name).strip().lower()
+    ic(f"Normalized name: {normalized_name}")
+    return normalized_name
+
 # Function to load text from a JSON file
 def load_text(file_name: str) -> Dict:
     path = f'data/dialog/{file_name}.json'
@@ -157,9 +164,3 @@ def delete_working_files():
         os.remove(file)
     ic(f"Deleted {len(working_world_files)} working world files.")
 
-def normalize_name(name):
-    ic(f"Normalizing name: {name}")
-    normalized_name = re.sub(r'^the\s+', '', name, flags=re.IGNORECASE)
-    normalized_name = re.sub(r'\s+', ' ', normalized_name).strip().lower()
-    ic(f"Normalized name: {normalized_name}")
-    return normalized_name

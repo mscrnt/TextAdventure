@@ -205,12 +205,12 @@ class GameUI(QWidget, IGameUI):
         self.inventory_list.itemClicked.connect(self.display_item_information)
         self.is_item_clicked_connected = True
 
-
     def populate_inventory(self):
         ic("Populating inventory")
         items = self.game_manager.get_inventory_data()
         ic("Inventory items:, items")
         self.inventory_list.clear()  # Clear the list before adding new items
+        self.inventory_list.addItem(f"Tokens: {self.game_manager.player_sheet.get_tokens() if self.game_manager.player_sheet else 0}")
         for item_string in items:
             self.inventory_list.addItem(item_string)
             ic("Item added to inventory list widget:", item_string)
@@ -451,6 +451,13 @@ class GameUI(QWidget, IGameUI):
             self.update_quest_log()
         elif current_selection == "Inventory":
             self.populate_inventory()
+        elif current_selection == "Fast Travel":
+            self.populate_fast_travel_locations()
+        elif current_selection == "Notes":
+            self.populate_notes()
+        elif current_selection == "Emails":
+            self.populate_emails()
+
 
     def update_scene_display(self):
         scene_text = self.game_manager.world_builder.build_scene_text()

@@ -68,7 +68,7 @@
         "completed": false,
         "objectives": [
             {
-                "type": "retrieveItem",
+                "type": "collect",
                 "target": "Enchanted Grimoire",
                 "targetType": "item",
                 "completed": false
@@ -95,7 +95,7 @@
         "completed": false,
         "objectives": [
             {
-                "type": "deliverItem",
+                "type": "giveItem",
                 "target": "Decree of the Realm",
                 "targetType": "item",
                 "targets": ["Central Avalonia Market", "Whispering Forest Entrance", "Sunken Shores Dock"],
@@ -109,33 +109,6 @@
                     "name": "Medallion of Valor",
                     "description": "A medallion that symbolizes one's service to the crown.",
                     "type": "Accessory",
-                    "collectable": true,
-                    "quantity": 1
-                }
-            ]
-        }
-    },
-    {
-        "name": "Guardian of the Realms",
-        "slug": "guardianOfTheRealms",
-        "description": "Defend Avalonia from the shadow creatures emerging from the Ethereal Plains.",
-        "isActive": false,
-        "completed": false,
-        "objectives": [
-            {
-                "type": "defeatEnemies",
-                "targets": ["Shadow Beast", "Ethereal Wraith"],
-                "numberRequired": 3,
-                "completed": false
-            }
-        ],
-        "rewards": {
-            "tokens": 150,
-            "items": [
-                {
-                    "name": "Sword of Light",
-                    "description": "A sword imbued with the power to repel darkness.",
-                    "type": "Weapon",
                     "collectable": true,
                     "quantity": 1
                 }

@@ -86,31 +86,8 @@ class QuestTracker(IQuestTracker):
                     if objectives_completed:
                         quest_data['completed'] = True
                         self.player_sheet.update_quest(quest_data)
+                        self.game_manager.game_ui.update_quest_log()
                         ic(f"Quest {quest_data['name']} marked completed in player sheet")
-
-
-    # def check_npc_quests(self, npc_name):
-    #     ic("Checking quests related to NPC:", npc_name)
-    #     for quest_data in self.player_sheet.quests:
-    #         # Check only active and not yet completed quests
-    #         if quest_data['isActive'] and not quest_data['completed']:
-    #             ic("Checking quest:", quest_data['name'])
-    #             quest_class = self.quest_class_for_slug(quest_data['slug'])
-    #             if quest_class:
-    #                 # Initialize the quest object from its class
-    #                 quest_object = quest_class(self.game_manager, quest_data)
-    #                 ic(quest_object)
-    #                 # Check if any objectives are related to speaking to the specified NPC
-    #                 for obj in quest_object.objectives:
-    #                     if isinstance(obj, SpeakToCharacterObjective) and obj.objective_data['target'] == npc_name:
-    #                         ic(f"Quest {quest_data['name']} has a SpeakToCharacterObjective for {npc_name}")
-    #                         objectives_completed = quest_object.check_objectives()
-    #                         if objectives_completed:
-    #                             # Mark the quest as completed
-    #                             quest_data['completed'] = True
-    #                             self.player_sheet.update_quest(quest_data)
-    #                             ic(f"Quest {quest_data['name']} marked completed in player sheet")
-
 
 # Base class for all objectives
 class BaseObjective:
@@ -179,17 +156,7 @@ class SpeakToCharacterObjective(BaseObjective):
             return True
         ic("Objective not met")
         return False
-
-
-class DefeatEnemyObjective(BaseObjective):
-    def check_objective(self):
-        enemy_name = self.objective_data['target']
-        defeated_enemies = self.game_manager.combat_manager.get_defeated_enemies()
-        if enemy_name in defeated_enemies:
-            self.complete()
-            return True
-        return False
-    
+ 
 class CollectObjective(BaseObjective):
     def check_objective(self):
         target_type = self.objective_data.get('targetType', 'item')  # Assuming 'item' as default
@@ -212,9 +179,17 @@ class CollectObjective(BaseObjective):
 
     def check_resource_collected(self):
         resource_name = self.objective_data['target']
-        required_amount = self.objective_data.get('amount', 1)  # Assuming 1 as default if not specified
+        required_amount = self.objective_data.get('amount', 1)
         current_amount = self.game_manager.resource_manager.get_resource_amount(resource_name)
         if current_amount >= required_amount:
+            self.complete()
+            return True
+        return False
+    
+class GiveItemObjective(BaseObjective):
+    def check_objective(self):
+        item = self.game_manager.player_sheet.get_inventory_item_details(self.objective_data['target'])
+        if item:
             self.complete()
             return True
         return False
@@ -234,10 +209,10 @@ class BaseQuest:
             return ReadEmailObjective(self.game_manager, objective_data)
         elif objective_type == 'speakToCharacter':
             return SpeakToCharacterObjective(self.game_manager, objective_data)
-        elif objective_type == 'defeatEnemy':
-            return DefeatEnemyObjective(self.game_manager, objective_data)
         elif objective_type == 'collect':
             return CollectObjective(self.game_manager, objective_data)
+        elif objective_type == 'giveItem':
+            return GiveItemObjective(self.game_manager, objective_data)
         else:
             raise ValueError(f"Unknown objective type: {objective_type}")
         

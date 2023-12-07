@@ -4,9 +4,10 @@ import json
 from icecream import ic
 import re
 from engine.ai_assist import AIAssist 
-from utilities import convert_text_to_display, load_working_world_data
+from utilities import convert_text_to_display, load_working_world_data, normalize_name
 from interfaces import IWorldBuilder, IGameManager
 from PySide6.QtCore import QObject, Signal
+#from engine.npc import NPCManager
 
 class WorldBuilder(QObject, IWorldBuilder):
     display_text_signal = Signal(str)
@@ -17,6 +18,7 @@ class WorldBuilder(QObject, IWorldBuilder):
         super().__init__()
         self.game_manager = None
         self.world_data = world_data
+        self.normalize_name = normalize_name
         ic(f'WorldBuilder initialized with world data')
         self.use_ai_assist = use_ai_assist
         if self.use_ai_assist:
@@ -44,6 +46,12 @@ class WorldBuilder(QObject, IWorldBuilder):
 
     def incoming_command(self, command):
         ic(f"Received command: {command}")
+
+        # Bypass if command is help
+        if command == "help":
+            text = convert_text_to_display(self.display_help())
+            return text
+
 
         # Check if any container is open
         if self.is_container_open() and not any(cmd in command for cmd in ['open', 'close']):
@@ -265,25 +273,28 @@ class WorldBuilder(QObject, IWorldBuilder):
         ic(f"Target NPC: {target_npc}")
 
         if target_npc:
-            # Execute the 'talk to' interaction if the NPC is found
-            interaction = {'type': 'talk to'}
-            response = self.execute_interaction(interaction, target_npc)
+            # Increment dialogue index and cycle through dialogues
+            if 'current_dialogue_index' not in target_npc:
+                target_npc['current_dialogue_index'] = 0
+            dialogue = target_npc['interactions'][1]['dialog'][target_npc['current_dialogue_index']]
+            target_npc['current_dialogue_index'] = (target_npc['current_dialogue_index'] + 1) % len(target_npc['interactions'][1]['dialog'])
+
+            # Execute the 'talk to' interaction
+            response = dialogue
             ic(f"Response: {response}")
 
-            # New code to handle triggers
+            # Handle triggers and quests
             if 'triggers' in target_npc:
                 self.handle_npc_triggers(target_npc['triggers'])
 
-            # Check and update quests after talking to the NPC
-            ic(f'npc_name: {npc_name}')
-            ic(f'last spoken npc: {self.last_spoken_npc}')
             self.game_manager.quest_tracker.check_all_quests()
             ic(f"Quests after talking to NPC: {self.game_manager.player_sheet.quests}")
 
-            return response
+            return convert_text_to_display(response)
         else:
             # NPC not found in the current location
             return convert_text_to_display(f"Cannot find '{npc_name}' to talk to.")
+
 
     def handle_npc_triggers(self, triggers):
         for trigger_list in triggers:
@@ -326,6 +337,8 @@ class WorldBuilder(QObject, IWorldBuilder):
             response = self.process_give_command(target, item_name, quantity)
         elif action == "take":
             response = self.process_take_command(target, item_name, quantity)
+
+        self.game_manager.game_ui.update_ui()
 
         return convert_text_to_display(response)
 
@@ -630,12 +643,12 @@ class WorldBuilder(QObject, IWorldBuilder):
 
         return scene_text.strip()
     
-    def normalize_name(self, name):
-        ic(f"Normalizing name: {name}")
-        normalized_name = re.sub(r'^the\s+', '', name, flags=re.IGNORECASE)
-        normalized_name = re.sub(r'\s+', ' ', normalized_name).strip().lower()
-        ic(f"Normalized name: {normalized_name}")
-        return normalized_name
+    # def normalize_name(self, name):
+    #     ic(f"Normalizing name: {name}")
+    #     normalized_name = re.sub(r'^the\s+', '', name, flags=re.IGNORECASE)
+    #     normalized_name = re.sub(r'\s+', ' ', normalized_name).strip().lower()
+    #     ic(f"Normalized name: {normalized_name}")
+    #     return normalized_name
 
     def describe_room(self, room_data):
         description = f"You are in {room_data['name']}. {room_data['description']}"

@@ -1,5 +1,6 @@
 # engine/ai_assist.py
 
+from utilities import normalize_name
 from openai import OpenAI
 from icecream import ic
 import json
@@ -104,10 +105,14 @@ class AIAssist:
             },
             "give": {
                 "description": "Give an item to an NPC or place it in a container.",
-                "examples": ["give potion to guard", "put sword in chest"],
+                "examples": ["give potion to guard", "put 5 potion in chest"],
                 "parsing_guideline": "Identify the item and recipient (NPC or container) from the command.",
                 "command_to_perform": "give",
-                "command_format": "give <quantity> <item>, e.g., give 3 health potions"
+                "command_format": [
+                    "give <item> to <NPC>, e.g., give potion to guard",
+                    "give <item>, e.g., give sword",
+                    "give <quantity> <item> to <npc>, e.g., give 5 potion to guard",
+                ]
             },
             "fast travel to": {
                 "description": "Instantly travel to a different world or major location.",
@@ -183,16 +188,28 @@ class AIAssist:
 
 
         elif command in ["take", "give"]:
+            details = details.strip("'")
             return self.world_builder.handle_give_take(command, details)
 
         elif command == "examine":
+            details = details.strip("'")
             return self.world_builder.examine_item(details)
 
-        elif command in ["open", "close"]:
-            return self.world_builder.handle_open_close(command, details)
+        elif command in ["open"]:
+            details = details.strip("'") 
+            return self.world_builder.handle_open(details)
+        
+        elif command in ["close"]:
+            details = details.strip("'")
+            return self.world_builder.handle_close(details)
 
         elif command == "fast travel to":
-            return self.world_builder.fast_travel_to_world(details)
+            # Strip any extraneous characters like quotes from details
+            ic('fast travel command detected')
+            world_name = details.strip("'")
+            ic(f'Command: {command}, World name: {world_name}')
+            return self.world_builder.fast_travel_to_world(world_name)
+
 
         elif command in ["look around", "where am i", "help"]:
             return self.world_builder.simple_command_handler(command)
