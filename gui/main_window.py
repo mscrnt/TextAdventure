@@ -47,12 +47,13 @@ class MainWindow(QMainWindow):
 
         self.init_entry_point()
 
-    def initialize_game_components(self):
+    def initialize_game_components(self, player_name):
+        ic(f'player_name: {player_name}')
         if not self.game_manager:
             self.game_manager = GameManager(use_ai=self.use_ai)
             
             # This now occurs only after the game_manager has been initialized
-            self.game_manager.initialize_game_data("Player")
+            self.game_manager.initialize_game_data(player_name)
             self.game_manager.initialize_world_builder()
 
             # Here, obtain the GameUI instance from game_manager instead of creating a new one
@@ -225,9 +226,13 @@ class MainWindow(QMainWindow):
 
 
     def start_new_game(self):
-        self.initialize_game_components()
-        self.player_name = self.prompt_for_player_name() # Store the player name
+        # Prompt for the player's name first
+        self.player_name = self.prompt_for_player_name() 
+
         if self.player_name:
+            # Initialize game components only if a name was entered
+            self.initialize_game_components(self.player_name)
+
             # Add intro animation here
             self.intro_animation = IntroAnimation(self)
             self.setCentralWidget(self.intro_animation)
@@ -236,18 +241,36 @@ class MainWindow(QMainWindow):
         else:
             ic("No player name entered.")
 
+
+
     # Method to save the game
     def trigger_save_game(self):
         self.game_ui.game_manager.save_game()
 
     def select_save_file(self):
-        self.initialize_game_components()
         filename, _ = QFileDialog.getOpenFileName(self, "Load Game", "save_data/", "Save Files (*.pkl)")
         if filename:
+            # Create a new game manager instance
+            self.game_manager = GameManager(use_ai=self.use_ai)
+
             if self.game_manager.load_game(filename):
-                self.switch_to_game_ui()
+                # Initialize UI components for the loaded game
+                self.initialize_ui_for_loaded_game()
             else:
                 ic("Failed to load the game.")
+
+    def initialize_ui_for_loaded_game(self):
+        # Initialize world builder and quest tracker
+        self.game_manager.initialize_world_builder()
+        self.game_manager.initialize_quest_tracker()
+
+        # Create and set up GameUI
+        self.game_ui = GameUI(self.game_manager)
+        self.game_manager.gameLoaded.connect(self.game_ui.on_game_loaded)
+        self.game_ui.ui_ready_to_show.connect(self.switch_to_game_ui)
+        
+        # Show the game UI
+        self.switch_to_game_ui()
 
     def prompt_for_player_name(self):
         dialog = QInputDialog(self)

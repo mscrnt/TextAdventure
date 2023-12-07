@@ -11,7 +11,7 @@ from PySide6.QtCore import QObject, Signal
 class WorldBuilder(QObject, IWorldBuilder):
     display_text_signal = Signal(str)
     command_processed_signal = Signal() 
-    last_spoken_npc = None
+    last_spoken_npc = ""
 
     def __init__(self, world_data, use_ai_assist=True):
         super().__init__()
@@ -77,7 +77,7 @@ class WorldBuilder(QObject, IWorldBuilder):
                     r"^(take) (\d+) (.+)$": self.interact_with,  # for 'take 2 potions'
                     r"^(take) (.+)$": self.interact_with,        # for 'take key'
                     r"^(examine) (.+)$": self.examine_item,
-                    r"^(talk to) (.+)$": self.interact_with,
+                    r"^(talk to|speak to) (.+)$": self.interact_with,
                     r"^(open|close) (.+)$": self.interact_with,
                     r"^(look around|look|whereami|where am i|help)$": self.simple_command_handler
                 }
@@ -254,6 +254,7 @@ class WorldBuilder(QObject, IWorldBuilder):
 
     def handle_talk_to(self, command, npc_name):
         self.last_spoken_npc = npc_name
+        ic(f"Last spoken NPC: {self.last_spoken_npc}")
         ic(f"Handling 'talk to' command with NPC: {npc_name}")
 
         # Get the current location data
@@ -269,8 +270,14 @@ class WorldBuilder(QObject, IWorldBuilder):
             response = self.execute_interaction(interaction, target_npc)
             ic(f"Response: {response}")
 
+            # New code to handle triggers
+            if 'triggers' in target_npc:
+                self.handle_npc_triggers(target_npc['triggers'])
+
             # Check and update quests after talking to the NPC
-            self.game_manager.quest_tracker.check_npc_quests(npc_name)
+            ic(f'npc_name: {npc_name}')
+            ic(f'last spoken npc: {self.last_spoken_npc}')
+            self.game_manager.quest_tracker.check_all_quests()
             ic(f"Quests after talking to NPC: {self.game_manager.player_sheet.quests}")
 
             return response
@@ -278,6 +285,22 @@ class WorldBuilder(QObject, IWorldBuilder):
             # NPC not found in the current location
             return convert_text_to_display(f"Cannot find '{npc_name}' to talk to.")
 
+    def handle_npc_triggers(self, triggers):
+        for trigger_list in triggers:
+            for trigger in trigger_list:
+                if trigger['trigger'] == 'talk to':
+                    self.process_trigger(trigger)
+
+    def process_trigger(self, trigger):
+        if trigger['type'] == 'fast travel':
+            fast_travel_location = {
+                'name': trigger['name'],
+                'description': trigger['description'],
+                'world_name': trigger['world'],
+                'location': trigger['location']
+            }
+            self.game_manager.player_sheet.add_fast_travel_location(fast_travel_location)
+            ic(f"Fast travel location added: {trigger['name']}")
 
     def handle_give_take(self, action, details):
         ic(f"Handling '{action}' command with details: {details}")

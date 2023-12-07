@@ -25,14 +25,12 @@
                             "action": "open",
                             "result": {
                                 "randomItem": true,
-                                "experience": 50,
                                 "tokens": 20
                             }
                         }
                     ]
                 }
             ],
-            "experience": 100,
             "tokens": 50
         }
     },
@@ -50,7 +48,6 @@
             }
         ],
         "rewards": {
-            "experience": 150,
             "tokens": 75,
             "items": [
                 {
@@ -78,7 +75,6 @@
             }
         ],
         "rewards": {
-            "experience": 200,
             "tokens": 100,
             "items": [
                 {
@@ -107,7 +103,6 @@
             }
         ],
         "rewards": {
-            "experience": 120,
             "tokens": 60,
             "items": [
                 {
@@ -135,7 +130,6 @@
             }
         ],
         "rewards": {
-            "experience": 300,
             "tokens": 150,
             "items": [
                 {

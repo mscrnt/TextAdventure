@@ -66,6 +66,11 @@ class PlayerSheet:
         ic(location_name)
         self.fast_travel_locations = [location for location in self.fast_travel_locations if location["name"] != location_name]
 
+    def add_tokens(self, token):
+        ic("Adding token")
+        ic(token)
+        self.tokens += token
+
     def add_note(self, note):
         ic("Adding note")
         ic(note)
@@ -123,11 +128,7 @@ class PlayerSheet:
 
     def add_fast_travel_location(self, location, world_name=None):
         ic("Adding fast travel location")
-        #ic(location)
-        # If world_name is provided, use it; otherwise, try to get it from the location
         world_name = world_name or location.get('world_name')
-        #ic(f'location: {location}')
-        # Store both the location and world name in a new dictionary
         location_with_world = {
             'location': location,
             'world_name': world_name

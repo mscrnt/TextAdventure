@@ -63,6 +63,16 @@
                     "name": "Athena",
                     "description": "Athena, the AI digital assistant, provides guidance, game tips, and helpful information. She appears as a friendly holographic avatar and adapts to the user's preferences.",
                     "keywords": ["AI", "avatar", "assistant", "guide", "helper", "hologram", "holographic", "interactive", "virtual"],
+                    "triggers": [[
+                        {
+                            "type": "fast travel",
+                            "name": "Central Avalonia",
+                            "description": "Central Avalonia Fast Travel Unlocked: \n\n Type 'fast travel to avalonia' to go.",
+                            "world": "Avalonia",
+                            "location": "Central Avalonia",
+                            "trigger": "talk to"
+                        }
+                    ]],
                     "interactions": [
                         {
                             "type": "Tutorial",

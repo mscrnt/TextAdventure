@@ -3,6 +3,7 @@
 import json
 from icecream import ic
 from interfaces import IGameManager, IQuestTracker, IPlayerSheet
+from utilities import normalize_name
 
 class QuestTracker(IQuestTracker):
     def __init__(self):
@@ -58,7 +59,7 @@ class QuestTracker(IQuestTracker):
     def quest_class_for_slug(self, quest_slug):
         quest_classes = {
             'initialQuest': initialQuest,
-            'Echoes of Avalonia': echoesOfAvalonia,
+            'echoesOfAvalonia': echoesOfAvalonia,  # Make sure this matches the slug in your JSON
             'the-hidden-knowledge': TheHiddenKnowledge,
             'royal-decrees': RoyalDecrees,
             'guardian-of-the-realms': GuardianOfTheRealms
@@ -83,32 +84,32 @@ class QuestTracker(IQuestTracker):
                     objectives_completed = quest_object.check_objectives()
                     ic(f"Objectives completed for quest {quest_data['name']}:", objectives_completed)
                     if objectives_completed:
-                        ic(f"Marking quest {quest_data['name']} as completed")
                         quest_data['completed'] = True
                         self.player_sheet.update_quest(quest_data)
                         ic(f"Quest {quest_data['name']} marked completed in player sheet")
 
-    def check_npc_quests(self, npc_name):
-        ic("Checking quests related to NPC:", npc_name)
-        for quest_data in self.player_sheet.quests:
-            # Check only active and not yet completed quests
-            if quest_data['isActive'] and not quest_data['completed']:
-                ic("Checking quest:", quest_data['name'])
-                quest_class = self.quest_class_for_slug(quest_data['slug'])
-                if quest_class:
-                    # Initialize the quest object from its class
-                    quest_object = quest_class(self.game_manager, quest_data)
-                    ic(quest_object)
-                    # Check if any objectives are related to speaking to the specified NPC
-                    for obj in quest_object.objectives:
-                        if isinstance(obj, SpeakToCharacterObjective) and obj.objective_data['target'] == npc_name:
-                            ic(f"Quest {quest_data['name']} has a SpeakToCharacterObjective for {npc_name}")
-                            objectives_completed = quest_object.check_objectives()
-                            if objectives_completed:
-                                # Mark the quest as completed
-                                quest_data['completed'] = True
-                                self.player_sheet.update_quest(quest_data)
-                                ic(f"Quest {quest_data['name']} marked completed in player sheet")
+
+    # def check_npc_quests(self, npc_name):
+    #     ic("Checking quests related to NPC:", npc_name)
+    #     for quest_data in self.player_sheet.quests:
+    #         # Check only active and not yet completed quests
+    #         if quest_data['isActive'] and not quest_data['completed']:
+    #             ic("Checking quest:", quest_data['name'])
+    #             quest_class = self.quest_class_for_slug(quest_data['slug'])
+    #             if quest_class:
+    #                 # Initialize the quest object from its class
+    #                 quest_object = quest_class(self.game_manager, quest_data)
+    #                 ic(quest_object)
+    #                 # Check if any objectives are related to speaking to the specified NPC
+    #                 for obj in quest_object.objectives:
+    #                     if isinstance(obj, SpeakToCharacterObjective) and obj.objective_data['target'] == npc_name:
+    #                         ic(f"Quest {quest_data['name']} has a SpeakToCharacterObjective for {npc_name}")
+    #                         objectives_completed = quest_object.check_objectives()
+    #                         if objectives_completed:
+    #                             # Mark the quest as completed
+    #                             quest_data['completed'] = True
+    #                             self.player_sheet.update_quest(quest_data)
+    #                             ic(f"Quest {quest_data['name']} marked completed in player sheet")
 
 
 # Base class for all objectives
@@ -161,14 +162,22 @@ class ReadEmailObjective(BaseObjective):
 class SpeakToCharacterObjective(BaseObjective):
     def check_objective(self):
         ic("Checking speak to character objective")
-        target_npc_name = self.objective_data['target']
+        # Normalize the target NPC name and last spoken NPC name
+        target = self.objective_data['target']
+        ic(f'Objective data: {target}')
         last_spoken_npc = self.game_manager.world_builder.last_spoken_npc
-        ic(f'target_npc_name: {target_npc_name}')
-        ic(f'last_spoken_npc: {last_spoken_npc}')
+        ic(f'Last spoken NPC: {last_spoken_npc}')
+        target_npc_name = normalize_name(self.objective_data['target'])
+        last_spoken_npc = normalize_name(self.game_manager.world_builder.last_spoken_npc)
+        
+        ic(f'Normalized Target NPC name: {target_npc_name}')
+        ic(f'Normalized Last spoken NPC: {last_spoken_npc}')
+        
         if last_spoken_npc == target_npc_name:
-            ic("Last spoken NPC matches objective target")
+            ic("Objective met, completing objective")
             self.complete()
             return True
+        ic("Objective not met")
         return False
 
 
@@ -234,15 +243,14 @@ class BaseQuest:
         
     def check_objectives(self):
         all_objectives_completed = all(obj.check_objective() for obj in self.objectives)
-        ic("All objectives completed:", all_objectives_completed)
-
+        ic(f"All objectives completed for quest '{self.quest_data['name']}': {all_objectives_completed}")
         if all_objectives_completed:
             self.complete()  
             return True
-
         return False
 
     def complete(self):
+        ic(f"Completing quest: {self.quest_data['name']}")
         self.quest_data['completed'] = True
         self.distribute_rewards()
         ic(f"Quest completed: {self.quest_data}")
