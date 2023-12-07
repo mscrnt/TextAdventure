@@ -62,16 +62,16 @@
                         {
                             "name": "Monk Jaron",
                             "description": "Monk Jaron is a serene and contemplative figure, often seen in the quieter parts of the Grand Castle. Cloaked in simple, unadorned robes, he carries an air of tranquility and wisdom. His eyes, gentle yet perceptive, seem to reflect a deep understanding of the mystical and the historical. He is a guardian of ancient knowledge, often found meditating or studying the arcane texts within the castle's walls.",
-                            "interactions": [
+                            "triggers": [
                                 {
                                     "type": "quest",
-                                    "description": "Learn the secrets of the Grand Castle.",
-                                    "questSlug": "echoesOfAvalonia"
-                                },
-                                {
-                                    "type": "trade",
-                                    "description": "Exchange herbs for potions."
-                                },
+                                    "name": "Recover the Ancient Artifact",
+                                    "description": "Recover an ancient artifact from the castle's Secret Chamber.",
+                                    "questSlug": "recoverAncientArtifact",
+                                    "trigger": "talk to"
+                                }
+                            ],
+                            "interactions": [
                                 {
                                     "type": "talk to",
                                     "dialog": [

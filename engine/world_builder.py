@@ -253,6 +253,7 @@ class WorldBuilder(QObject, IWorldBuilder):
         return "Interaction not recognized."
 
     def handle_talk_to(self, command, npc_name):
+        self.last_spoken_npc = npc_name
         ic(f"Handling 'talk to' command with NPC: {npc_name}")
 
         # Get the current location data
@@ -260,14 +261,23 @@ class WorldBuilder(QObject, IWorldBuilder):
 
         # Find the NPC in the current location
         target_npc = self.find_interaction_target(npc_name, location_data)
+        ic(f"Target NPC: {target_npc}")
 
         if target_npc:
             # Execute the 'talk to' interaction if the NPC is found
             interaction = {'type': 'talk to'}
-            return self.execute_interaction(interaction, target_npc)
+            response = self.execute_interaction(interaction, target_npc)
+            ic(f"Response: {response}")
+
+            # Check and update quests after talking to the NPC
+            self.game_manager.quest_tracker.check_npc_quests(npc_name)
+            ic(f"Quests after talking to NPC: {self.game_manager.player_sheet.quests}")
+
+            return response
         else:
             # NPC not found in the current location
             return convert_text_to_display(f"Cannot find '{npc_name}' to talk to.")
+
 
     def handle_give_take(self, action, details):
         ic(f"Handling '{action}' command with details: {details}")

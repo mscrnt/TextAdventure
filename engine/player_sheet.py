@@ -9,9 +9,6 @@ class PlayerSheet:
     """
     def __init__(self, name):
         self.name = name
-        self.level = 1
-        self.health = 100
-        self.action_points = 10
         self.inventory = []
         self._location = {"world": "OdysseyVR", "location/sublocation": "Lobby"}
         self.fast_travel_locations = []
@@ -36,9 +33,6 @@ class PlayerSheet:
 
     def reset_state(self):
         """Reset the player's state to the initial values."""
-        self.level = 1
-        self.health = 100
-        self.action_points = 10
         self.inventory = []
         self._location = {"world": "OdysseyVR", "location/sublocation": "Home"}
         self.fast_travel_locations = []
@@ -169,9 +163,6 @@ class PlayerSheet:
         """Return a serializable representation of the player sheet."""
         return {
             'name': self.name,
-            'level': self.level,
-            'health': self.health,
-            'action_points': self.action_points,
             'inventory': self.inventory,
             'location': self._location,
             'fast_travel_locations': self.fast_travel_locations,
@@ -186,3 +177,19 @@ class PlayerSheet:
             self.__dict__.update(state.__dict__)
         else:
             raise TypeError("state must be an instance of PlayerSheet")
+
+    def get_quest(self, quest_name):
+        ic(f"Getting quest: {quest_name}")
+        return next((quest for quest in self.quests if quest['name'] == quest_name), None)
+
+    def get_all_quests(self):
+        ic("Getting all quests")
+        return self.quests
+
+    def is_quest_active(self, quest_name):
+        quest = self.get_quest(quest_name)
+        return quest is not None and quest.get('isActive', False)
+
+    def is_quest_completed(self, quest_name):
+        quest = self.get_quest(quest_name)
+        return quest is not None and quest.get('completed', False)

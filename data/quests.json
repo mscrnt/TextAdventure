@@ -39,13 +39,13 @@
     {
         "name": "Echoes of Avalonia",
         "slug": "echoesOfAvalonia",
-        "description": "Discover the voices of the past within the Grand Castle of Central Avalonia.",
+        "description": "Speak to your AI Assistant, Athena, to learn more about your new surroundings.",
         "isActive": false,
         "completed": false,
         "objectives": [
             {
                 "type": "speakToCharacter",
-                "target": "Monk Jaron",
+                "target": "Athena",
                 "completed": false
             }
         ],
