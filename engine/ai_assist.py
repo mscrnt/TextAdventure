@@ -48,7 +48,6 @@ class AIAssist:
         interpreted_command = self.generate_ai_response(interpret_prompt)
         ic(f"Interpreted command: {interpreted_command}")
 
-
         # Step 3: Process the interpreted command to determine the game action
         action_response = self.determine_action_from_interpretation(interpreted_command)
 
@@ -56,6 +55,7 @@ class AIAssist:
         ic(f"Action response: {action_response}")
         ic(f"Original command: {command}")
         return self.generate_narrative_response(action_response, command)
+
     
     def construct_command_context_prompt(self, command, world_data, player_data):
         # Dictionary of available commands, their descriptions, and examples
@@ -71,7 +71,7 @@ class AIAssist:
                 "description": "Initiate a conversation with an NPC.",
                 "examples": ["talk to the guard", "speak to the merchant", "chat with the innkeeper"],
                 "parsing_guideline": "Identify the NPC to be spoken to from the command.",
-                "command_to_perform": "talk to",
+                "command_to_perform": "talk to, speak to",
                 "command_format": "talk to <NPC>, e.g., talk to the guard"
             },
             "take": {
@@ -109,12 +109,12 @@ class AIAssist:
                 "command_to_perform": "give",
                 "command_format": "give <quantity> <item>, e.g., give 3 health potions"
             },
-            "where am i": {
-                "description": "Provide the player's current location and description.",
-                "examples": ["where am I", "what is this place"],
-                "parsing_guideline": "Recognize this as a request for current location information.",
-                "command_to_perform": "where am i",
-                "command_format": "where am I, e.g., where am I"
+            "fast travel to": {
+                "description": "Instantly travel to a different world or major location.",
+                "examples": ["fast travel to Shadowlands", "teleport to Mystic Peaks", "I want to fast travel to the Great Bazaar"],
+                "parsing_guideline": "Identify the target world or major location for fast travel from the command.",
+                "command_to_perform": "fast travel to",
+                "command_format": "fast travel to <world/location>, e.g., fast travel to Shadowlands"
             },
             "look around": {
                 "description": "Describe the surroundings in the current location.",
@@ -123,28 +123,20 @@ class AIAssist:
                 "command_to_perform": "look around",
                 "command_format": "look around, e.g., look around"
             },
-            "interact with": {
-                "description": "Interact with an object in the current location.",
-                "examples": ["interact with the statue", "use the lever", "pull the lever"],
-                "parsing_guideline": "Identify the object to interact with from the command.",
-                "command_to_perform": "interact with",
-                "command_format": "interact with <object>, e.g., interact with the statue"
-            },
-            "fast travel to": {
-                "description": "Instantly travel to a different world or major location.",
-                "examples": ["fast travel to Shadowlands", "teleport to Mystic Peaks", "I want to fast travel to the Great Bazaar"],
-                "parsing_guideline": "Identify the target world or major location for fast travel from the command.",
-                "command_to_perform": "fast travel to",
-                "command_format": "fast travel to <world/location>, e.g., fast travel to Shadowlands"
+            "where am i": {
+                "description": "Provide the player's current location and description.",
+                "examples": ["where am I", "what is this place"],
+                "parsing_guideline": "Recognize this as a request for current location information.",
+                "command_to_perform": "where am i",
+                "command_format": "where am i, e.g., where am i"
             },
             "help": {
-                "description": "Display the list of available commands.",
-                "examples": ["help", "what can I do"],
-                "parsing_guideline": "Acknowledge as a request for available command information.",
+                "description": "Display the help menu.",
+                "examples": ["help", "I need help"],
+                "parsing_guideline": "Interpret as a request for the help menu.",
                 "command_to_perform": "help",
                 "command_format": "help, e.g., help"
             }
-            # Add other commands here
         }
 
         # Extract relevant player and world data for context
@@ -181,64 +173,29 @@ class AIAssist:
         command, details, quantity = self.parse_interpreted_command(interpreted_command)
         print(f"Extracted command: {command}, details: {details}, quantity: {quantity}")
 
-        # Directly use the extracted command in your checks
         if command == "move to":
-            destination = details  
-            print(f"Extracted destination: {destination}")
-            return self.world_builder.move_player(destination) if destination else "Cannot determine destination."
-
-        elif command == "take":
-            item_name = details  
-            print(f"Extracted item name: {item_name}")
-            return self.world_builder.take_item(item_name) if item_name else "Cannot determine item to take."
-
-        elif command == "examine":
-            target = details 
-            print(f"Extracted target: {target}")
-            return self.world_builder.examine_item(target) if target else "Cannot determine what to examine."
-
-        elif command == "open":
-            container_name = details
-            print(f"Extracted container name: {container_name}")
-            return self.world_builder.open_container(container_name) if container_name else "Cannot determine container to open."
-
-        elif command == "interact with":
-            object_name = details
-            print(f"Extracted object name: {object_name}")
-            return self.world_builder.interact_with(object_name) if object_name else "Cannot determine object to interact with."
+            return self.world_builder.move_player(details)
 
         elif command == "talk to":
-            npc_name = details
-            print(f"Extracted NPC name: {npc_name}")
-            return self.world_builder.talk_to_npc(npc_name) if npc_name else "Cannot determine NPC to talk to."
+            # Ensure that only the NPC name is passed to handle_talk_to
+            npc_name = details.strip("'")  # Strip any extraneous characters like quotes
+            return self.world_builder.handle_talk_to(command, npc_name)
 
-        elif command == "close":
-            print("Command to close container received")
-            return self.world_builder.close_container()
 
-        elif command == "give":
-            item_info = details  
-            print(f"Extracted item info: {item_info}, quantity: {quantity}")
-            combined_command = f"{quantity} {item_info}"
-            print(f"Combined command: {combined_command}")
-            return self.world_builder.give_item(combined_command) if item_info else "Cannot determine item to give."
-        
+        elif command in ["take", "give"]:
+            return self.world_builder.handle_give_take(command, details)
+
+        elif command == "examine":
+            return self.world_builder.examine_item(details)
+
+        elif command in ["open", "close"]:
+            return self.world_builder.handle_open_close(command, details)
+
         elif command == "fast travel to":
-            world_name = details 
-            print(f"Extracted world name for fast travel: {world_name}")
-            return self.world_builder.fast_travel_to_world(world_name) if world_name else "Cannot determine destination for fast travel."
+            return self.world_builder.fast_travel_to_world(details)
 
-        elif command == "where am i":
-            print("Command to identify current location received")
-            return self.world_builder.where_am_i()
-
-        elif command == "look around":
-            print("Command to look around received")
-            return self.world_builder.look_around()
-
-        elif command == "help":
-            print("Command to display help received")
-            return self.world_builder.display_help()
+        elif command in ["look around", "where am i", "help"]:
+            return self.world_builder.simple_command_handler(command)
 
         else:
             print(f"Unknown command received: {command}")
