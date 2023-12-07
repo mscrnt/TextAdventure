@@ -193,6 +193,13 @@ class GameManager(QObject, IGameManager):
         else:
             ic("Warning: Health Potion not found in global items.")
 
+        # Load the worlds data to create the working world data
+        _world_full_names = load_all_worlds()
+
+        for _world_key, _world_display_name in _world_full_names.items():
+            # Until i can figure out a better way to ensure that all worlds have a working world data file...
+            _single_world_data = load_working_world_data(_world_key)
+
         # Assuming 'Odyssey VR' is the key name for the world in your data structure
         odyssey_vr_key = 'OdysseyVR'  # Adjust if the key is different in your data
 
