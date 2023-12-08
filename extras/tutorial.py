@@ -16,13 +16,13 @@ class Tutorial(QObject):
         self.game_ui.special_command_signal.connect(self.check_text_input)
         self.current_step = 0
         self.steps = [
-            ("intro", "Welcome to Exitium, a place you're now in. Take a seat and let's begin."),
-            ("inventory", "Click on 'Excalibur' in your inventory to continue."),
-            ("notes", "Notes are next. Use the dropdown to select notes. Click on 'Thief's Confession' to continue."),
-            ("quest log", "Next up is the quest log. Use the dropdown to select the quest log. Click on 'Read Email' to continue."),
-            ("emails", "Use the dropdown to select emails. Select an email to read."),
-            ("help", "Type 'help' in the text input to continue."),
-            ("talk to Athena", "Type 'talk to Athena' in the text input to continue."),
+            ("intro", "Welcome to Odyssey. \n  In this tutorial will guide you through the basics of the game. \n It's pretty short, so don't worrry."),
+            ("inventory", "Please click on 'Excalibur' in your inventory to begin."),
+            ("notes", "When you click on an inventory item, It will show you the name and a short discription of the item \n \n Next up are Notes. Use the dropdown to select notes. Click on 'Thief's Confession' to continue."),
+            ("quest log", "When you find note, they will appear in that section. They usually have hints to tell you what to do. Similar to your inventory, it will show you the name of the note and the contents. \n \n Now, let's move  onto the quest log. Use the dropdown to select the quest log. Click on 'Read Email' to continue."),
+            ("emails", "As you complete the objectives, they will be marked as complete. \n\n Now to move on to Emails. Use the dropdown to select emails, then select an email to read."),
+            ("help", "When you receive an email, they will appear in your inbox. \n \n Now, let's type 'help' in the command input box bellow to continue."),
+            ("talk to Athena", "Finally, type 'talk to Athena' in the text input to continue."),
         ]
         self.step_completed.connect(self.next_step)
         ic("Tutorial initialized")
