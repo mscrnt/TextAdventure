@@ -33,7 +33,7 @@ class Tutorial(QObject):
         self.game_ui.update_ui_from_dropdown(self.game_ui.drop_down_menu.currentIndex())
         self.display_instruction(self.steps[self.current_step][1])
         ic(f"Current step: {self.steps[self.current_step][0]}")
-        QTimer.singleShot(3000, self.next_step)  # Wait 10 seconds before moving to the next step
+        QTimer.singleShot(10000, self.next_step)  # Wait 10 seconds before moving to the next step
 
     # In the next_step method, connect the step_completed signal to the next step only after a user interaction.
     def next_step(self):
