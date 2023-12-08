@@ -3,6 +3,7 @@
 import json
 from icecream import ic
 from interfaces import IGameManager, IQuestTracker, IPlayerSheet
+from utilities import normalize_name
 
 class QuestTracker(IQuestTracker):
     def __init__(self):
@@ -58,7 +59,7 @@ class QuestTracker(IQuestTracker):
     def quest_class_for_slug(self, quest_slug):
         quest_classes = {
             'initialQuest': initialQuest,
-            'echoes-of-avalonia': EchoesOfAvalonia,
+            'echoesOfAvalonia': echoesOfAvalonia,  # Make sure this matches the slug in your JSON
             'the-hidden-knowledge': TheHiddenKnowledge,
             'royal-decrees': RoyalDecrees,
             'guardian-of-the-realms': GuardianOfTheRealms
@@ -83,25 +84,10 @@ class QuestTracker(IQuestTracker):
                     objectives_completed = quest_object.check_objectives()
                     ic(f"Objectives completed for quest {quest_data['name']}:", objectives_completed)
                     if objectives_completed:
-                        ic(f"Marking quest {quest_data['name']} as completed")
                         quest_data['completed'] = True
                         self.player_sheet.update_quest(quest_data)
+                        self.game_manager.game_ui.update_quest_log()
                         ic(f"Quest {quest_data['name']} marked completed in player sheet")
-
-    def check_npc_quests(self, npc_name):
-        ic("Checking quests related to NPC:", npc_name)
-        for quest_data in self.player_sheet.quests:
-            if quest_data['isActive'] and not quest_data['completed']:
-                quest_class = self.quest_class_for_slug(quest_data['slug'])
-                if quest_class:
-                    quest_object = quest_class(self.game_manager, quest_data)
-                    if any(isinstance(obj, SpeakToCharacterObjective) and obj.objective_data['target'] == npc_name for obj in quest_object.objectives):
-                        objectives_completed = quest_object.check_objectives()
-                        if objectives_completed:
-                            quest_data['completed'] = True
-                            self.player_sheet.update_quest(quest_data)
-                            ic(f"Quest {quest_data['name']} marked completed in player sheet")
-
 
 # Base class for all objectives
 class BaseObjective:
@@ -152,22 +138,25 @@ class ReadEmailObjective(BaseObjective):
 
 class SpeakToCharacterObjective(BaseObjective):
     def check_objective(self):
-        target_npc_name = self.objective_data['target']
-        # The objective is marked complete if the target NPC is the one the player just talked to
-        if self.game_manager.world_builder.last_spoken_npc == target_npc_name:
+        ic("Checking speak to character objective")
+        # Normalize the target NPC name and last spoken NPC name
+        target = self.objective_data['target']
+        ic(f'Objective data: {target}')
+        last_spoken_npc = self.game_manager.world_builder.last_spoken_npc
+        ic(f'Last spoken NPC: {last_spoken_npc}')
+        target_npc_name = normalize_name(self.objective_data['target'])
+        last_spoken_npc = normalize_name(self.game_manager.world_builder.last_spoken_npc)
+        
+        ic(f'Normalized Target NPC name: {target_npc_name}')
+        ic(f'Normalized Last spoken NPC: {last_spoken_npc}')
+        
+        if last_spoken_npc == target_npc_name:
+            ic("Objective met, completing objective")
             self.complete()
             return True
+        ic("Objective not met")
         return False
-
-class DefeatEnemyObjective(BaseObjective):
-    def check_objective(self):
-        enemy_name = self.objective_data['target']
-        defeated_enemies = self.game_manager.combat_manager.get_defeated_enemies()
-        if enemy_name in defeated_enemies:
-            self.complete()
-            return True
-        return False
-    
+ 
 class CollectObjective(BaseObjective):
     def check_objective(self):
         target_type = self.objective_data.get('targetType', 'item')  # Assuming 'item' as default
@@ -190,9 +179,17 @@ class CollectObjective(BaseObjective):
 
     def check_resource_collected(self):
         resource_name = self.objective_data['target']
-        required_amount = self.objective_data.get('amount', 1)  # Assuming 1 as default if not specified
+        required_amount = self.objective_data.get('amount', 1)
         current_amount = self.game_manager.resource_manager.get_resource_amount(resource_name)
         if current_amount >= required_amount:
+            self.complete()
+            return True
+        return False
+    
+class GiveItemObjective(BaseObjective):
+    def check_objective(self):
+        item = self.game_manager.player_sheet.get_inventory_item_details(self.objective_data['target'])
+        if item:
             self.complete()
             return True
         return False
@@ -212,24 +209,23 @@ class BaseQuest:
             return ReadEmailObjective(self.game_manager, objective_data)
         elif objective_type == 'speakToCharacter':
             return SpeakToCharacterObjective(self.game_manager, objective_data)
-        elif objective_type == 'defeatEnemy':
-            return DefeatEnemyObjective(self.game_manager, objective_data)
         elif objective_type == 'collect':
             return CollectObjective(self.game_manager, objective_data)
+        elif objective_type == 'giveItem':
+            return GiveItemObjective(self.game_manager, objective_data)
         else:
             raise ValueError(f"Unknown objective type: {objective_type}")
         
     def check_objectives(self):
         all_objectives_completed = all(obj.check_objective() for obj in self.objectives)
-        ic("All objectives completed:", all_objectives_completed)
-
+        ic(f"All objectives completed for quest '{self.quest_data['name']}': {all_objectives_completed}")
         if all_objectives_completed:
             self.complete()  
             return True
-
         return False
 
     def complete(self):
+        ic(f"Completing quest: {self.quest_data['name']}")
         self.quest_data['completed'] = True
         self.distribute_rewards()
         ic(f"Quest completed: {self.quest_data}")
@@ -258,7 +254,7 @@ class initialQuest(BaseQuest):
         return super().check_objectives()
     
 # Echoes of Avalonia quest class
-class EchoesOfAvalonia(BaseQuest):
+class echoesOfAvalonia(BaseQuest):
     def __init__(self, game_manager, quest_data):
         super().__init__(game_manager, quest_data)
 

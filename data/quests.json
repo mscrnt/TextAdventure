@@ -25,32 +25,29 @@
                             "action": "open",
                             "result": {
                                 "randomItem": true,
-                                "experience": 50,
                                 "tokens": 20
                             }
                         }
                     ]
                 }
             ],
-            "experience": 100,
             "tokens": 50
         }
     },
     {
         "name": "Echoes of Avalonia",
         "slug": "echoesOfAvalonia",
-        "description": "Discover the voices of the past within the Grand Castle of Central Avalonia.",
+        "description": "Speak to your AI Assistant, Athena, to learn more about your new surroundings.",
         "isActive": false,
         "completed": false,
         "objectives": [
             {
                 "type": "speakToCharacter",
-                "target": "Monk Jaron",
+                "target": "Athena",
                 "completed": false
             }
         ],
         "rewards": {
-            "experience": 150,
             "tokens": 75,
             "items": [
                 {
@@ -71,14 +68,13 @@
         "completed": false,
         "objectives": [
             {
-                "type": "retrieveItem",
+                "type": "collect",
                 "target": "Enchanted Grimoire",
                 "targetType": "item",
                 "completed": false
             }
         ],
         "rewards": {
-            "experience": 200,
             "tokens": 100,
             "items": [
                 {
@@ -99,7 +95,7 @@
         "completed": false,
         "objectives": [
             {
-                "type": "deliverItem",
+                "type": "giveItem",
                 "target": "Decree of the Realm",
                 "targetType": "item",
                 "targets": ["Central Avalonia Market", "Whispering Forest Entrance", "Sunken Shores Dock"],
@@ -107,41 +103,12 @@
             }
         ],
         "rewards": {
-            "experience": 120,
             "tokens": 60,
             "items": [
                 {
                     "name": "Medallion of Valor",
                     "description": "A medallion that symbolizes one's service to the crown.",
                     "type": "Accessory",
-                    "collectable": true,
-                    "quantity": 1
-                }
-            ]
-        }
-    },
-    {
-        "name": "Guardian of the Realms",
-        "slug": "guardianOfTheRealms",
-        "description": "Defend Avalonia from the shadow creatures emerging from the Ethereal Plains.",
-        "isActive": false,
-        "completed": false,
-        "objectives": [
-            {
-                "type": "defeatEnemies",
-                "targets": ["Shadow Beast", "Ethereal Wraith"],
-                "numberRequired": 3,
-                "completed": false
-            }
-        ],
-        "rewards": {
-            "experience": 300,
-            "tokens": 150,
-            "items": [
-                {
-                    "name": "Sword of Light",
-                    "description": "A sword imbued with the power to repel darkness.",
-                    "type": "Weapon",
                     "collectable": true,
                     "quantity": 1
                 }

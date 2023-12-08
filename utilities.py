@@ -6,6 +6,14 @@ import pickle
 import os
 from icecream import ic
 import glob
+import re
+
+def normalize_name(name):
+    ic(f"Normalizing name: {name}")
+    normalized_name = re.sub(r'^the\s+', '', name, flags=re.IGNORECASE)
+    normalized_name = re.sub(r'\s+', ' ', normalized_name).strip().lower()
+    ic(f"Normalized name: {normalized_name}")
+    return normalized_name
 
 # Function to load text from a JSON file
 def load_text(file_name: str) -> Dict:

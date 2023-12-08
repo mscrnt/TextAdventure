@@ -14,6 +14,10 @@ import threading
 class GameUI(QWidget, IGameUI):
     ui_ready_to_show = Signal()
     update_text_signal = Signal(str)
+    note_selected_signal = Signal(QListWidgetItem)
+    quest_selected_signal = Signal(QListWidgetItem)
+    email_selected_signal = Signal(QListWidgetItem)
+    special_command_signal = Signal(str) 
 
     def __init__(self, game_manager=IGameManager, world_builder=IWorldBuilder, parent=None):
         super().__init__(parent)
@@ -175,6 +179,14 @@ class GameUI(QWidget, IGameUI):
         self.drop_down_menu.setCurrentIndex(3)  # Inventory is the first item
         self.update_ui_from_dropdown(3)  # Update the UI to show inventory items
 
+    def handle_note_selection(self, item):
+        self.note_selected_signal.emit(item)
+
+    def handle_quest_selection(self, item):
+        self.quest_selected_signal.emit(item) 
+
+    def handle_email_selection(self, item):
+        self.email_selected_signal.emit(item)
 
     def update_ui_from_dropdown(self, index):
         ic("Updating UI from dropdown")
@@ -196,12 +208,19 @@ class GameUI(QWidget, IGameUI):
             self.populate_fast_travel_locations()
         elif selected_item == "Notes":
             self.populate_notes()
+            self.inventory_list.itemClicked.connect(self.handle_note_selection)
+            self.is_item_clicked_connected = True
         elif selected_item == "Quest Log":
             self.populate_quest_log()
-            self.update_quest_log()  
+            self.update_quest_log()
+            self.inventory_list.itemClicked.connect(self.handle_quest_selection)
+            self.is_item_clicked_connected = True
         elif selected_item == "Emails":
             self.populate_emails()
+            self.inventory_list.itemClicked.connect(self.handle_email_selection)
+            self.is_item_clicked_connected = True
 
+        # Connect the display of item information to the itemClicked signal of the inventory_list
         self.inventory_list.itemClicked.connect(self.display_item_information)
         self.is_item_clicked_connected = True
 
@@ -211,6 +230,7 @@ class GameUI(QWidget, IGameUI):
         items = self.game_manager.get_inventory_data()
         ic("Inventory items:, items")
         self.inventory_list.clear()  # Clear the list before adding new items
+        self.inventory_list.addItem(f"Tokens: {self.game_manager.player_sheet.get_tokens() if self.game_manager.player_sheet else 0}")
         for item_string in items:
             self.inventory_list.addItem(item_string)
             ic("Item added to inventory list widget:", item_string)
@@ -259,37 +279,46 @@ class GameUI(QWidget, IGameUI):
 
     def process_command(self):
         ic("Entered process_command", threading.get_ident())
-        ic(self.command_input.text())
-        self.is_command_processing = True
         command_text = self.command_input.text().strip().lower()
-        self.command_input.clear()
-        self.command_input.setPlaceholderText("Processing...")
-        ic("disabling command input")
-        self.command_input.setDisabled(True)
-        self.game_text_area.clear()
+        ic("Command text:", command_text)
 
-        # Create a worker instance with the GameManager and command_text
-        self.worker = Worker(self.game_manager, command_text)
+        if command_text:  # Check if command_text is not empty
+            self.is_command_processing = True
+            self.command_input.clear()
+            self.command_input.setPlaceholderText("Processing...")
+            self.command_input.setDisabled(True)
+            self.game_text_area.clear()
 
-        # Create a QThread instance
-        self.thread = QThread()
+            # Create a worker instance with the GameManager and command_text
+            self.worker = Worker(self.game_manager, command_text)
 
-        # Move the worker to the thread
-        self.worker.moveToThread(self.thread)
+            # Create a QThread instance
+            self.thread = QThread()
 
-        # Connect the thread's started signal to the worker's process_command slot
-        self.thread.started.connect(self.worker.process_command)
+            # Move the worker to the thread
+            self.worker.moveToThread(self.thread)
 
-        # Connect signals and slots
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
+            # Connect the thread's started signal to the worker's process_command slot
+            self.thread.started.connect(self.worker.process_command)
 
-        # Ensure display_text is called in the main thread
-        self.worker.finished.connect(self.display_text_wrapped)
+            # Connect signals and slots
+            self.worker.finished.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
 
-        # Start the thread
-        self.thread.start()
+            # Ensure display_text is called in the main thread
+            self.worker.finished.connect(self.display_text_wrapped)
+
+            # Start the thread
+            self.thread.start()
+
+            if command_text in ["help", "talk to athena"]:
+                # Emit signal for special commands
+                self.special_command_signal.emit(command_text)
+        else:
+            ic("No command entered")
+            self.command_input.setPlaceholderText("Type a command...")
+
 
     def display_text_wrapped(self, processed_content):
         # Indicate that command processing is finished
@@ -451,6 +480,13 @@ class GameUI(QWidget, IGameUI):
             self.update_quest_log()
         elif current_selection == "Inventory":
             self.populate_inventory()
+        elif current_selection == "Fast Travel":
+            self.populate_fast_travel_locations()
+        elif current_selection == "Notes":
+            self.populate_notes()
+        elif current_selection == "Emails":
+            self.populate_emails()
+
 
     def update_scene_display(self):
         scene_text = self.game_manager.world_builder.build_scene_text()

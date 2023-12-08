@@ -7,10 +7,8 @@ from icecream import ic
 from interfaces import IGameUI
 from gui.game_ui import GameUI
 from engine.game_manager import GameManager
-from engine.world_builder import WorldBuilder
-from engine.quest_tracker import QuestTracker
-from engine.player_sheet import PlayerSheet
 from intro import IntroAnimation
+from extras.tutorial import Tutorial
 
 
 class MainWindow(QMainWindow):
@@ -21,11 +19,12 @@ class MainWindow(QMainWindow):
         self.player_sheet = None
         self.quest_tracker = None
         self.game_ui = None
+        self.is_new_game = False
         self.use_ai = use_ai
         ic("Initializing main window")
 
         # Set the main window's properties
-        self.setWindowTitle("Odyssey")
+        self.setWindowTitle("Exitium")
         self.setGeometry(100, 100, 800, 600)
 
         # Set the theme
@@ -47,12 +46,13 @@ class MainWindow(QMainWindow):
 
         self.init_entry_point()
 
-    def initialize_game_components(self):
+    def initialize_game_components(self, player_name):
+        ic(f'player_name: {player_name}')
         if not self.game_manager:
             self.game_manager = GameManager(use_ai=self.use_ai)
             
             # This now occurs only after the game_manager has been initialized
-            self.game_manager.initialize_game_data("Player")
+            self.game_manager.initialize_game_data(player_name)
             self.game_manager.initialize_world_builder()
 
             # Here, obtain the GameUI instance from game_manager instead of creating a new one
@@ -223,16 +223,28 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.game_manager.game_ui)  
         self.game_manager.game_ui.show() 
 
+        # Start the tutorial if it's a new game
+        if self.is_new_game:
+            self.start_tutorial()
+
+    def start_tutorial(self):
+        # Assuming you have a Tutorial class that takes GameUI as an argument
+        self.tutorial = Tutorial(self.game_ui, self.game_manager)
+        self.tutorial.start()
 
     def start_new_game(self):
-        self.initialize_game_components()
-        self.player_name = self.prompt_for_player_name() # Store the player name
+        self.is_new_game = True
+        # Prompt for the player's name first
+        self.player_name = self.prompt_for_player_name() 
+
         if self.player_name:
+            # Initialize game components only if a name was entered
+            self.initialize_game_components(self.player_name)
+
             # Add intro animation here
             self.intro_animation = IntroAnimation(self)
             self.setCentralWidget(self.intro_animation)
             self.intro_animation.animationComplete.connect(self.on_intro_animation_complete)
-            self.intro_animation.start()
         else:
             ic("No player name entered.")
 
@@ -241,13 +253,30 @@ class MainWindow(QMainWindow):
         self.game_ui.game_manager.save_game()
 
     def select_save_file(self):
-        self.initialize_game_components()
+        self.is_new_game = False
         filename, _ = QFileDialog.getOpenFileName(self, "Load Game", "save_data/", "Save Files (*.pkl)")
         if filename:
+            # Create a new game manager instance
+            self.game_manager = GameManager(use_ai=self.use_ai)
+
             if self.game_manager.load_game(filename):
-                self.switch_to_game_ui()
+                # Initialize UI components for the loaded game
+                self.initialize_ui_for_loaded_game()
             else:
                 ic("Failed to load the game.")
+
+    def initialize_ui_for_loaded_game(self):
+        # Initialize world builder and quest tracker
+        self.game_manager.initialize_world_builder()
+        self.game_manager.initialize_quest_tracker()
+
+        # Create and set up GameUI
+        self.game_ui = GameUI(self.game_manager)
+        self.game_manager.gameLoaded.connect(self.game_ui.on_game_loaded)
+        self.game_ui.ui_ready_to_show.connect(self.switch_to_game_ui)
+        
+        # Show the game UI
+        self.switch_to_game_ui()
 
     def prompt_for_player_name(self):
         dialog = QInputDialog(self)

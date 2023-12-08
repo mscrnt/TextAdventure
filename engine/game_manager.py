@@ -41,9 +41,7 @@ class GameManager(QObject, IGameManager):
         self.world_builder.set_game_manager(self)
 
         # Initialize QuestTracker
-        self.quest_tracker = QuestTracker()
-        self.quest_tracker.set_game_manager(self)
-        self.quest_tracker.set_player_sheet(self.player_sheet)
+        self.initialize_quest_tracker()
 
         # Initialize GameUI with GameManager and WorldBuilder instances
         self.game_ui = GameUI(self, self.world_builder)
@@ -55,6 +53,12 @@ class GameManager(QObject, IGameManager):
     # def set_player_sheet(self, player_sheet: IPlayerSheet):
     #     ic("Setting player sheet")
     #     self.player_sheet = player_sheet
+
+    def initialize_quest_tracker(self):
+        ic("Initializing quest tracker")
+        self.quest_tracker = QuestTracker()
+        self.quest_tracker.set_game_manager(self)
+        self.quest_tracker.set_player_sheet(self.player_sheet)
 
     def set_quest_tracker(self, quest_tracker: IQuestTracker):
         self.quest_tracker = quest_tracker
@@ -189,20 +193,26 @@ class GameManager(QObject, IGameManager):
         else:
             ic("Warning: Health Potion not found in global items.")
 
-        # Load dynamic world names
-        world_full_names = load_all_worlds()
+        # Load the worlds data to create the working world data
+        _world_full_names = load_all_worlds()
 
-        for world_key, world_display_name in world_full_names.items():
-            single_world_data = load_working_world_data(world_key)
-            if 'locations' in single_world_data:
-                main_area = next((location for location in single_world_data['locations'] if location.get('main-entry', False)), None)
-                if main_area:
-                    self.player_sheet.add_fast_travel_location(main_area, world_display_name)
-                    ic(f"{main_area['name']} (Main Area of {world_display_name}) added to fast travel locations")
-                else:
-                    ic(f"Main entry not found for {world_key}")
+        for _world_key, _world_display_name in _world_full_names.items():
+            # Until i can figure out a better way to ensure that all worlds have a working world data file...
+            _single_world_data = load_working_world_data(_world_key)
+
+        # Assuming 'Odyssey VR' is the key name for the world in your data structure
+        odyssey_vr_key = 'OdysseyVR'  # Adjust if the key is different in your data
+
+        odyssey_vr_data = load_working_world_data(odyssey_vr_key)
+        if 'locations' in odyssey_vr_data:
+            main_area = next((location for location in odyssey_vr_data['locations'] if location.get('main-entry', False)), None)
+            if main_area:
+                self.player_sheet.add_fast_travel_location(main_area, odyssey_vr_key)
+                ic(f"{main_area['name']} (Main Area of {odyssey_vr_key}) added to fast travel locations")
             else:
-                ic(f"'locations' key missing in world data for {world_key}")
+                ic(f"Main entry not found for {odyssey_vr_key}")
+        else:
+            ic(f"'locations' key missing in world data for {odyssey_vr_key}")
 
 
         # Load the notes
@@ -250,6 +260,7 @@ class GameManager(QObject, IGameManager):
         ic("Updating quests UI")
         # Call the update method on the UI instance
         self.ui.update_quest_log(self.get_player_quests())
+
 
     def get_inventory_items(self):
         # Return a formatted list of items from the player's inventory
@@ -332,19 +343,29 @@ class GameManager(QObject, IGameManager):
         ic(f"State Saved: {state}")
 
     def load_game(self, filename):
-        self.player_sheet = PlayerSheet("Player")
         if filename:
             # Attempt to load the game state from the provided file
             state = load_game_data(filename)
             if state:
-                # Update the game manager's state with the loaded data
-                self.player_sheet.__dict__.update(state['player_sheet'].__dict__)
+                # Initialize PlayerSheet with loaded data
+                self.player_sheet = PlayerSheet(state['player_sheet'].name)
+                self.player_sheet.set_state(state['player_sheet'])
+
+                # Initialize WorldBuilder with world data
                 self.world_data = state['world_data']
                 self.world_builder = WorldBuilder(world_data=self.world_data, use_ai_assist=self.use_ai)
                 self.world_builder.set_game_manager(self)
-                self.quest_tracker = QuestTracker()
-                self.quest_tracker.set_game_manager(self)
-                self.quest_tracker.set_player_sheet(self.player_sheet)
+
+                # Initialize QuestTracker
+                self.initialize_quest_tracker()
+
+                # Initialize GameUI with GameManager and WorldBuilder instances
+                self.game_ui = GameUI(self, self.world_builder)
+                self.game_ui.set_game_manager(self)
+                self.game_ui.init_ui()
+                # Emit gameLoaded signal only after UI is initialized
+                self.gameLoaded.connect(self.game_ui.on_game_loaded)
+                
                 QTimer.singleShot(0, self.emit_game_loaded)
                 ic(f"Game loaded. Player: {self.player_sheet.name}, Filename: {filename}")
                 return True

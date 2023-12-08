@@ -4,19 +4,21 @@ import json
 from icecream import ic
 import re
 from engine.ai_assist import AIAssist 
-from utilities import convert_text_to_display, load_working_world_data
+from utilities import convert_text_to_display, load_working_world_data, normalize_name
 from interfaces import IWorldBuilder, IGameManager
 from PySide6.QtCore import QObject, Signal
+#from engine.npc import NPCManager
 
 class WorldBuilder(QObject, IWorldBuilder):
     display_text_signal = Signal(str)
     command_processed_signal = Signal() 
-    last_spoken_npc = None
+    last_spoken_npc = ""
 
     def __init__(self, world_data, use_ai_assist=True):
         super().__init__()
         self.game_manager = None
         self.world_data = world_data
+        self.normalize_name = normalize_name
         ic(f'WorldBuilder initialized with world data')
         self.use_ai_assist = use_ai_assist
         if self.use_ai_assist:
@@ -44,55 +46,72 @@ class WorldBuilder(QObject, IWorldBuilder):
 
     def incoming_command(self, command):
         ic(f"Received command: {command}")
-        command = self.normalize_name(command)
+
+        # Bypass if command is help
+        if command == "help":
+            text = convert_text_to_display(self.display_help())
+            return text
+
+
+        # Check if any container is open
+        if self.is_container_open() and not any(cmd in command for cmd in ['open', 'close']):
+            # Restrict commands to only container interactions
+            allowed_commands = ['give', 'take', 'open', 'close', 'examine']
+            if not any(cmd in command for cmd in allowed_commands):
+                return convert_text_to_display("You must close the open container before doing that.")
+
+        # Display the processing command message
+        html_command = convert_text_to_display(f"Processing command: {command}")
+        self.game_manager.display_text_signal.emit(html_command)
+
+        # Initialize response variable
+        response = ""
+
         try:
-            # Display the processing command message
-            html_command = convert_text_to_display(f"Processing command: {command}")
-            self.game_manager.display_text_signal.emit(html_command)
-
-            # Initialize response variable
-            response = ""
-
             # Check if AI assist is enabled and process the command
             if self.use_ai_assist:
                 ic("Sending command to AI for processing.")
                 response = self.ai_assist.handle_player_command(command)
-                ic(f"AI responsed: ")
+                ic(f"AI responsed: {response}")
             else:
                 ic("Processing command directly.")
-                # Dispatch the command based on the prefix
-                command_dispatch = {
-                    "take": (self.take_item, command[len("take"):].strip()),
-                    "move to": (self.move_player, command[len("move to"):].strip()),
-                    "go to": (self.move_player, command[len("go to"):].strip()),
-                    "examine": (self.examine_item, command[len("examine"):].strip()),
-                    "whereami": (self.where_am_i, ""),
-                    "where am i": (self.where_am_i, ""),
-                    "look around": (self.look_around, ""),
-                    "look": (self.look_around, ""),
-                    "talk to": (self.talk_to_npc, command[len("talk to"):].strip()),
-                    "interact with": (self.interact_with, command[len("interact with"):].strip()),
-                    "open": (self.open_container, command[len("open"):].strip()),
-                    "close": (self.close_container, ""),
-                    "fast travel to": (self.fast_travel_to_world, command[len("fast travel to"):].strip()),
-                    "give": (self.give_item, command[len("give"):].strip()),
-                    "help": (self.display_help, "")
+
+                # Regular expressions for different command patterns
+                patterns = {
+                    r"^(fast travel to) (.+)$": self.fast_travel_to_world,
+                    r"^(move to|go to) (.+)$": self.move_player,
+                    r"^(give) (\d+) (.+)$": self.interact_with,  # for 'give 3 apples'
+                    r"^(give) (.+)$": self.interact_with,        # for 'give sword'
+                    r"^(take) (\d+) (.+)$": self.interact_with,  # for 'take 2 potions'
+                    r"^(take) (.+)$": self.interact_with,        # for 'take key'
+                    r"^(examine) (.+)$": self.examine_item,
+                    r"^(talk to|speak to) (.+)$": self.interact_with,
+                    r"^(open|close) (.+)$": self.interact_with,
+                    r"^(look around|look|whereami|where am i|help)$": self.simple_command_handler
                 }
 
-                # Find the method to call based on the command prefix
-                for prefix, (method, argument) in command_dispatch.items():
-                    if command.startswith(prefix):
-                        # Call the method and pass the argument if there is one
-                        response = method(argument) if argument else method()
-                        response = convert_text_to_display(response)
+                # Iterate through patterns to find a match
+                for pattern, handler in patterns.items():
+                    ic(f"Checking pattern: {pattern}")
+                    ic(f"Checking handler: {handler}")
+                    match = re.match(pattern, command, re.IGNORECASE)
+                    ic(f"Match: {match}")
+                    if match:
+                        groups = match.groups()
+                        if handler in [self.move_player, self.fast_travel_to_world]:
+                            # For move_player and interact_with, pass only the required arguments
+                            response = handler(groups[1])  # groups[1] will contain the target
+                        else:
+                            # For other commands, pass all captured groups
+                            response = handler(*groups)
                         break
                 else:
-                    # If no command matches, return an unknown command response
                     response = convert_text_to_display(f'Unknown command: {command}')
+
 
             # Emit the signal to indicate command processing is complete
             self.command_processed_signal.emit()
-            return response
+            return convert_text_to_display(response)
 
         except Exception as e:
             # Handle any exceptions that occur during command processing
@@ -102,6 +121,431 @@ class WorldBuilder(QObject, IWorldBuilder):
             self.command_processed_signal.emit()
             return response
 
+    def is_container_open(self):
+        current_location = self.game_manager.player_sheet.location
+        if isinstance(current_location, dict):
+            current_location = current_location.get("location/sublocation", "Unknown Location")
+        location_data = self.find_location_data(current_location)
+
+        if location_data and 'containers' in location_data:
+            for container in location_data['containers']:
+                if container.get('isOpen', False):
+                    ic(f"Container open: {container['name']}")
+                    ic(f"Container open: {container['name']}")
+                    return container['name']  
+                
+        ic("No container open.")
+        return None # No container open
+
+    def simple_command_handler(self, command):
+        # Implement the logic for simple commands
+        if command == "look" or command == "look around":
+            return self.look_around()
+        elif command == "whereami" or command == "where am i":
+            return self.where_am_i()
+        elif command == "help":
+            return self.display_help()
+        else:
+            return f"Unknown simple command: {command}"
+
+    def interact_with(self, *args):
+        full_command = ' '.join(args)
+        ic(f"Handling command: {full_command}")
+
+        # Define regex patterns for interaction commands
+        command_patterns = {
+            r"^(talk to) (.+)$": self.handle_talk_to,
+            r"^(give|take) (.+)$": self.handle_give_take,
+            r"^(open) (.+)$": self.handle_open,
+            r"^(close) (.+)$": self.handle_close
+        }
+        
+        # Iterate through patterns to find a match
+        for pattern, handler in command_patterns.items():
+            ic(f"Checking pattern: {pattern}")
+            match = re.match(pattern, full_command, re.IGNORECASE)
+            if match:
+                ic(f"Match found: {match}")
+                # Pass only the necessary groups to the handler
+                if handler in [self.handle_open, self.handle_close]:
+                    return handler(match.group(2))  # Only pass the target name
+                else:
+                    return handler(*match.groups())
+
+        return convert_text_to_display(f"Unknown interaction command: {full_command}")
+
+    def handle_close(self, target_name=None):
+        # Get the current location data
+        current_location_data = self.get_current_location_data()
+
+        if target_name:
+            # Normalize the target name
+            normalized_target_name = self.normalize_name(target_name)
+            # Find the specific container by normalized name
+            container = next((obj for obj in current_location_data.get('containers', [])
+                            if self.normalize_name(obj['name']) == normalized_target_name), None)
+
+            if not container:
+                return convert_text_to_display(f"There is no '{target_name}' to close here.")
+        else:
+            # Find the first open container if no specific name is provided
+            container = next((obj for obj in current_location_data.get('containers', [])
+                            if obj.get('isOpen', False)), None)
+
+            if not container:
+                return convert_text_to_display("There are no open containers to close.")
+
+        # Check if the container is already closed
+        if not container.get('isOpen', True):
+            return convert_text_to_display(f"The '{container['name']}' is already closed.")
+
+        # Close the container
+        container['isOpen'] = False
+
+        return convert_text_to_display(f"You have closed the '{container['name']}'.")
+
+    def handle_open(self, target_name):
+        # Get the current location data
+        current_location_data = self.get_current_location_data()
+
+        # Normalize the target name
+        normalized_target_name = self.normalize_name(target_name)
+        # Find the container in the current location by normalized name
+        container = next((obj for obj in current_location_data.get('containers', [])
+                        if self.normalize_name(obj['name']) == normalized_target_name), None)
+
+        if not container:
+            return convert_text_to_display(f"There is no '{target_name}' to open here.")
+
+        # Check if the container is already open
+        if container.get('isOpen', False):
+            contents = self.list_container_contents(container)
+            return convert_text_to_display(f"The '{target_name}' is already open.\n{contents}")
+        else:
+            # Open the container
+            container['isOpen'] = True
+            contents = self.list_container_contents(container)
+            return convert_text_to_display(f"You have opened the '{target_name}'.\n{contents}")
+
+    def execute_interaction(self, interaction, target):
+        interaction_type = interaction['type']
+
+        if interaction_type == 'talk to':
+            # Extract dialogues specific to the NPC
+            npc_dialogues = target.get('interactions', [])
+            for npc_interaction in npc_dialogues:
+                if npc_interaction['type'] == 'talk to':
+                    dialog = "\n".join(npc_interaction.get('dialog', ["It has nothing to say."]))
+                    return f"{target['name']} says: \"{dialog}\""
+
+        elif interaction_type == 'open':
+            if target.get('isOpen', False):
+                return f"{target['name']} is already open."
+            else:
+                target['isOpen'] = True
+                return f"{target['name']} is now open."
+
+        elif interaction_type == 'close':
+            if not target.get('isOpen', False):
+                return f"{target['name']} is already closed."
+            else:
+                target['isOpen'] = False
+                return f"{target['name']} is now closed."
+
+        elif interaction_type == 'give':
+            return f"{target['name']} takes the {interaction['item']} from you."
+
+        elif interaction_type == 'take':
+            return f"You take the {interaction['item']} from {target['name']}."
+
+        return "Interaction not recognized."
+
+    def handle_talk_to(self, command, npc_name):
+        self.last_spoken_npc = npc_name
+        ic(f"Last spoken NPC: {self.last_spoken_npc}")
+        ic(f"Handling 'talk to' command with NPC: {npc_name}")
+
+        # Get the current location data
+        location_data = self.get_current_location_data()
+
+        # Find the NPC in the current location
+        target_npc = self.find_interaction_target(npc_name, location_data)
+        ic(f"Target NPC: {target_npc}")
+
+        if target_npc:
+            # Execute the 'talk to' interaction if the NPC is found
+            interaction = {'type': 'talk to'}
+            response = self.execute_interaction(interaction, target_npc)
+            ic(f"Response: {response}")
+
+            # New code to handle triggers
+            if 'triggers' in target_npc:
+                self.handle_npc_triggers(target_npc['triggers'])
+
+            # Check and update quests after talking to the NPC
+            ic(f'npc_name: {npc_name}')
+            ic(f'last spoken npc: {self.last_spoken_npc}')
+            self.game_manager.quest_tracker.check_all_quests()
+            ic(f"Quests after talking to NPC: {self.game_manager.player_sheet.quests}")
+
+            return response
+        else:
+            # NPC not found in the current location
+            return convert_text_to_display(f"Cannot find '{npc_name}' to talk to.")
+
+
+    def handle_npc_triggers(self, triggers):
+        for trigger_list in triggers:
+            for trigger in trigger_list:
+                if trigger['trigger'] == 'talk to':
+                    self.process_trigger(trigger)
+
+    def process_trigger(self, trigger):
+        if trigger['type'] == 'fast travel':
+            fast_travel_location = {
+                'name': trigger['name'],
+                'description': trigger['description'],
+                'world_name': trigger['world'],
+                'location': trigger['location']
+            }
+            self.game_manager.player_sheet.add_fast_travel_location(fast_travel_location)
+            ic(f"Fast travel location added: {trigger['name']}")
+
+    def handle_give_take(self, action, details):
+        ic(f"Handling '{action}' command with details: {details}")
+
+        # Split the details into parts
+        target_name, quantity, item_name = self.parse_give_take_details(details.split())
+
+        # Get the current location data
+        location_data = self.get_current_location_data()
+
+        if not target_name:
+            # Find an open container if no target is specified
+            open_containers = [c for c in location_data.get('containers', []) if c.get('isOpen', False)]
+            target = open_containers[0] if open_containers else None
+        else:
+            # Find the specified target
+            target = self.find_interaction_target(target_name, location_data)
+
+        if not target:
+            return convert_text_to_display(f"Cannot find '{target_name}' to {action}.")
+
+        if action == "give":
+            response = self.process_give_command(target, item_name, quantity)
+        elif action == "take":
+            response = self.process_take_command(target, item_name, quantity)
+
+        self.game_manager.game_ui.update_ui()
+
+        return convert_text_to_display(response)
+
+    def parse_give_take_details(self, parts):
+        ic(f"Parsing give/take details: {parts}")
+        quantity = 1  # Default quantity
+        item_name = None
+        target = None
+
+        # Check if the word 'to' is present, indicating giving to an NPC
+        if 'to' in parts:
+            to_index = parts.index('to|from')
+            # Parse quantity if specified
+            if parts[0].isdigit():
+                quantity = int(parts.pop(0))
+                item_name = ' '.join(parts[:to_index - 1])  # Adjust index due to popping quantity
+            else:
+                item_name = ' '.join(parts[:to_index])
+            target = ' '.join(parts[to_index + 1:])  # NPC name comes after 'to'
+        else:
+            # No 'to' present, giving to a container
+            if parts[0].isdigit():
+                quantity = int(parts.pop(0))
+            item_name = ' '.join(parts)
+
+        ic(f"Quantity: {quantity}, Item name: {item_name}, Target: {target}")
+        return target, quantity, item_name
+
+
+    def find_interaction_target(self, target_name, location_data):
+        normalized_target_name = self.normalize_name(target_name)
+
+        # Check NPCs
+        for npc in location_data.get('npcs', []):
+            ic(f"Checking NPC: {npc['name']}")
+            if self.normalize_name(npc['name']) == normalized_target_name:
+                return npc
+
+        # Check items
+        for item in location_data.get('items', []):
+            ic(f"Checking item: {item['name']}")
+            if self.normalize_name(item['name']) == normalized_target_name:
+                return item
+
+        # Check containers
+        for container in location_data.get('containers', []):
+            ic(f"Checking container: {container['name']}")
+            if self.normalize_name(container['name']) == normalized_target_name:
+                return container
+
+        return None
+
+    def process_take_command(self, target, item_name, quantity):
+        ic(f"Processing take command: taking {quantity} of {item_name} from {target['name']}")
+
+        # Check if the target has the item
+        if not self.target_has_item(target, item_name, quantity):
+            return convert_text_to_display(f"The {target['name']} does not have {quantity} of {item_name}.")
+
+        # If the target is a container, check if it is open
+        if target.get('type') == 'container' and not target.get('isOpen', False):
+            return convert_text_to_display(f"The {target['name']} is closed. You cannot take items from it.")
+
+        # Transfer the item
+        return self.transfer_item(target, self.game_manager.player_sheet, item_name, quantity)
+
+
+    def target_has_item(self, target, item_name, quantity):
+        ic(f"Checking if {target} has {quantity} of {item_name}")
+        normalized_item_name = self.normalize_name(item_name)
+
+        # Determine if target is a player or NPC/container, and get the corresponding inventory
+        ic(f"Target: {target}")
+        if self.is_player_entity(target):
+            ic("Target is player entity")
+            target_inventory = target.inventory  # If it's a player entity
+        else:
+            ic("Target is not player entity")
+            target_inventory = target.get('inventory', [])  # If it's an NPC/container
+
+        ic(f"Target inventory: {target_inventory}")
+
+        # Check if the target has the item in the required quantity
+        for item in target_inventory:
+            ic(f"Checking item: {item['name']}")
+            if self.normalize_name(item['name']) == normalized_item_name and item['quantity'] >= quantity:
+                ic(f"Found item: {item['name']}")
+                return True
+
+        ic(f"Item not found: {item_name}")
+        return False
+
+
+    def is_player_entity(self, entity):
+        ic(f"Checking if {entity} is player entity")
+        return entity == self.game_manager.player_sheet
+
+    def transfer_item(self, source, target, item_name, quantity):
+        normalized_item_name = self.normalize_name(item_name)
+        ic(f"Transferring {quantity} of {normalized_item_name} from {source} to {target}")
+
+        # Determine if source and target are players or NPCs/containers
+        source_inventory = source.inventory if self.is_player_entity(source) else source.get('inventory', [])
+        target_inventory = target.inventory if self.is_player_entity(target) else target.get('inventory', [])
+
+        # Find and adjust the item in the source inventory
+        item_removed = False
+        for item in source_inventory:
+            if self.normalize_name(item['name']) == normalized_item_name and item['quantity'] >= quantity:
+                # Clone the item to transfer
+                item_to_transfer = item.copy()
+                item_to_transfer['quantity'] = quantity
+
+                # Adjust quantity or remove the item from source
+                item['quantity'] -= quantity
+                if item['quantity'] <= 0:
+                    source_inventory.remove(item)
+                item_removed = True
+
+                # Add item to target
+                self.add_item_to_inventory(target_inventory, item_to_transfer)
+                return f"Transferred {quantity} of {item_name}"
+
+        if not item_removed:
+            return f"Item not found in source inventory: {item_name}"
+
+    def add_item_to_inventory(self, inventory, item_to_add):
+        # Check if item already exists in the inventory
+        for item in inventory:
+            if item['name'] == item_to_add['name']:
+                item['quantity'] += item_to_add['quantity']
+                return
+        # Add new item if it doesn't exist
+        inventory.append(item_to_add)
+
+    def process_give_command(self, target, item_name, quantity):
+        ic(f"Processing give command: giving {quantity} of {item_name} to {target}")
+
+        # Check if the player has the item
+        ic(f"Checking if player has {quantity} of {item_name}")
+        if not self.target_has_item(self.game_manager.player_sheet, item_name, quantity):
+            ic(f"Player does not have {quantity} of {item_name}")
+            return convert_text_to_display(f"You do not have {quantity} of {item_name} to give.")
+        
+        # Handle case when target is a container
+        if isinstance(target, dict) and target.get('type') == 'Container':
+            ic(f"{target} is a container")
+            if target.get('isOpen', False):
+                # Transfer the item from the player to the container
+                response = self.transfer_item(self.game_manager.player_sheet, target, item_name, quantity)
+            else:
+                response = f"The {target['name']} is closed. You cannot put items in it."
+        elif isinstance(target, dict) and target.get('type') == 'NPC':
+            ic(f"{target} is an NPC")
+            # Verify 'give' as a valid interaction for the NPC
+            can_give_item = any(interaction['type'] == 'give' for interaction in target.get('interactions', []))
+
+            if can_give_item:
+                # Transfer the item from the player to the NPC using transfer_item function
+                response = self.transfer_item(self.game_manager.player_sheet, target, item_name, quantity)
+            else:
+                response = f"{target['name']} cannot receive items."
+        else:
+            response = f"You cannot give items to {target}."
+
+        return convert_text_to_display(response)
+
+    
+    def list_container_contents(self, container):
+        contents_text = f"{container['name']} contains:\n"
+        for item in container.get('inventory', []):
+            contents_text += f"- {item['name']} ({item['quantity']}) - {item['description']}\n"
+        ic(f"Contents text: {contents_text}")
+        return contents_text.strip()
+
+    def get_current_location_data(self):
+        current_location = self.game_manager.player_sheet.location
+        current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
+        location_data = self.find_location_data(current_location_str)
+        if location_data:
+            ic(f"Current location data retrieved for: {current_location_str}")
+        else:
+            ic(f"No data found for current location: {current_location_str}")
+        return location_data
+
+    def find_location_data(self, location_name):
+        if isinstance(location_name, dict):
+            location_name = location_name.get("location/sublocation", "Unknown Location")
+
+        normalized_location_name = self.normalize_name(location_name)
+        ic("finding location debug")
+        ic(self.world_data)
+        for location in self.world_data.get('locations', []):
+            ic(f"Searching for location: {normalized_location_name}")
+            if isinstance(location, dict) and 'name' in location:
+                if self.normalize_name(location['name']) == normalized_location_name:
+                    ic(f"Found location: {location_name}")
+                    return location
+                for sublocation in location.get('sublocations', []):
+                    if self.normalize_name(sublocation['name']) == normalized_location_name:
+                        ic(f"Found sublocation: {location_name}")
+                        return sublocation
+                    for room in sublocation.get('rooms', []):
+                        if self.normalize_name(room['name']) == normalized_location_name:
+                            ic(f"Found room: {location_name}")
+                            room['parent_sublocation'] = sublocation['name']  # This is optional, for context
+                            return room
+        ic(f"Location or room not found: {location_name}")
+        return None
 
     def fast_travel_to_world(self, world_name):
         available_worlds = [world.replace(" ", "").lower() for world in self.game_manager.player_sheet.get_fast_travel_worlds()]
@@ -147,151 +591,62 @@ class WorldBuilder(QObject, IWorldBuilder):
         html_command = convert_text_to_display(f"You have arrived in {CapitalizedWorldName}.")
         self.display_text_signal.emit(f'{html_command}')  # Emit signal instead of direct call
 
-    def find_main_entry_location(self, world_data):
-        # Find the main entry location in the new world data
-        for location in world_data.get('locations', []):
-            if location.get('main-entry', False):
-                return location['name']
-        return None
+    def list_entities(self, entity_type, location_data):
+        entities_text = f"{entity_type.capitalize()} here:\n"
+        entities = location_data.get(entity_type, [])
 
-    def find_location_data(self, location_name):
-        if isinstance(location_name, dict):
-            location_name = location_name.get("location/sublocation", "Unknown Location")
+        for entity in entities:
+            if entity_type == 'rooms' or entity_type == 'sublocations':
+                name = entity.get('name', 'Unnamed')
+                description = entity.get('description', 'No description available')
+                entities_text += f"- {name}: {description}\n"
+            elif entity_type == 'items':
+                name = entity.get('name', 'Unnamed Item')
+                quantity = entity.get('quantity', 1)
+                description = entity.get('description', 'No description available')
+                entities_text += f"- {name} ({quantity}) - {description}\n"
+            elif entity_type == 'npcs':
+                name = entity.get('name', 'Unnamed NPC')
+                description = entity.get('description', 'An interesting character.')
+                entities_text += f"- {name}: {description}\n\n"
+            elif entity_type == 'containers':
+                name = entity.get('name', 'Unnamed Container')
+                description = entity.get('description', 'No description available')
+                entities_text += f"- {name} - {description}\n"
+            elif entity_type == 'paths':
+                for direction, destination in entity.items():
+                    entities_text += f"- {direction.title()}: {destination}\n"
+                break  # Assuming 'paths' is a dictionary, not a list
+            elif entity_type == 'interactables':
+                name = entity.get('name', 'Unnamed Interactable')
+                description = entity.get('description', 'No description available')
+                entities_text += f"- {name} - {description}\n"
 
-        normalized_location_name = self.normalize_name(location_name)
-        ic("finding location debug")
-        ic(self.world_data)
-        for location in self.world_data.get('locations', []):
-            ic(f"Searching for location: {normalized_location_name}")
-            if isinstance(location, dict) and 'name' in location:
-                if self.normalize_name(location['name']) == normalized_location_name:
-                    ic(f"Found location: {location_name}")
-                    return location
-                for sublocation in location.get('sublocations', []):
-                    if self.normalize_name(sublocation['name']) == normalized_location_name:
-                        ic(f"Found sublocation: {location_name}")
-                        return sublocation
-                    for room in sublocation.get('rooms', []):
-                        if self.normalize_name(room['name']) == normalized_location_name:
-                            ic(f"Found room: {location_name}")
-                            room['parent_sublocation'] = sublocation['name']  # This is optional, for context
-                            return room
-        ic(f"Location or room not found: {location_name}")
-        return None
-
-
-    def get_current_location_data(self):
-        current_location = self.game_manager.player_sheet.location
-        current_location_str = current_location if isinstance(current_location, str) else current_location.get("location/sublocation", "Unknown Location")
-        location_data = self.find_location_data(current_location_str)
-        if location_data:
-            ic(f"Current location data retrieved for: {current_location_str}")
-        else:
-            ic(f"No data found for current location: {current_location_str}")
-        return location_data
+        ic(f"{entity_type.capitalize()} text: {entities_text}")
+        return entities_text.strip()
 
 
-    def talk_to_npc(self, npc_name):
-        normalized_npc_name = self.normalize_name(npc_name)
-
-        # Get the current location data
-        location_data = self.get_current_location_data()
-
-        if 'npcs' in location_data:
-            for npc in location_data['npcs']:
-                if self.normalize_name(npc['name']) == normalized_npc_name:
-                    # If we found the NPC, check quests for this NPC before initiating dialogue
-                    self.last_spoken_npc = npc_name
-                    ic(f'Checking objectives for {npc_name}')
-                    self.game_manager.quest_tracker.check_npc_quests(npc_name)
-                    # Handle the dialogue
-                    return self.handle_npc_dialogue(npc)
-
-        return f"No one named '{npc_name}' found here."
-
-    def handle_npc_dialogue(self, npc):
-        dialogue_text = "\n".join(npc['dialog']) if 'dialog' in npc else ""
-        interactions_text = ""
-        if 'interactions' in npc:
-            for interaction in npc['interactions']:
-                interactions_text += f"- {interaction['type']}: {interaction['description']}\n"
-        return f"{npc['name']} says: \"{dialogue_text}\"\nInteractions: {interactions_text}"
-
-
-
-    def interact_with(self, interactable_name):
-        # Normalize the interactable name for comparison
-        normalized_interactable_name = self.normalize_name(interactable_name)
-
-        # Get the current location data using the new method
-        location_data = self.get_current_location_data()
-
-        if 'interactables' in location_data:
-            for interactable in location_data['interactables']:
-                if self.normalize_name(interactable['name']) == normalized_interactable_name:
-                    # Found the interactable, now handle the specific interaction
-                    return self.handle_interactable_interaction(interactable)
-
-        return f"There is nothing to interact with named '{interactable_name}' here."
-
-
-    def handle_interactable_interaction(self, interactable):
-        # Check the type of interaction and perform the corresponding action
-        interaction_type = interactable.get('type', 'generic')
-
-        if interaction_type == 'puzzle':
-            return self.solve_puzzle(interactable)
-        elif interaction_type == 'machine':
-            return self.operate_machine(interactable)
-        else:
-            # Handle generic or other types of interactions
-            return f"You interact with {interactable['name']}. {interactable.get('description', 'It seems interesting.')}"
-
-    def solve_puzzle(self, puzzle):
-        # Add logic for solving puzzles
-        return f"You attempt to solve the puzzle: {puzzle['name']}."
-
-    def load_world_data(self, world_name):
-        world_name = self.normalize_name(world_name)
-        try:
-            with open(f'data/worlds/{world_name}.json', 'r') as f:
-                return json.load(f)
-        except Exception as e:
-            ic(f"Error loading world data for {world_name}: {e}")
-            return None
 
     def build_scene_text(self, location_data):
-        location_data = self.get_current_location_data() 
-
         if not location_data:
             return "You are in an unknown location."
 
-        scene_text = ""
-        if 'type' in location_data and location_data['type'] == 'room':
-            # If the player is in a room, prioritize room details
-            scene_text += self.describe_room(location_data) + "\n"
-            scene_text += self.list_items(location_data) + "\n" if 'items' in location_data else ""
-            scene_text += self.list_npcs(location_data) + "\n" if 'npcs' in location_data else ""
-            scene_text += self.list_containers(location_data) + "\n" if 'containers' in location_data else ""
-        else:
-            # If the player is not in a room, build the scene from the location or sublocation level
-            scene_text += self.describe_location(location_data) + "\n"
-            scene_text += self.list_items(location_data) + "\n" if 'items' in location_data else ""
-            scene_text += self.list_containers(location_data) + "\n" if 'containers' in location_data else ""
-            scene_text += self.list_npcs(location_data) + "\n" if 'npcs' in location_data else ""
-            scene_text += self.show_paths(location_data) + "\n" if 'paths' in location_data else ""
-            scene_text += self.show_sublocations(location_data) + "\n" if 'sublocations' in location_data else ""
-            # Check for rooms only if in a sublocation
-            scene_text += self.list_rooms(location_data) + "\n" if 'rooms' in location_data else ""
+        scene_text = self.describe_location(location_data) + "\n"
+        scene_text += self.list_entities('items', location_data) + "\n"
+        scene_text += self.list_entities('containers', location_data) + "\n"
+        scene_text += self.list_entities('npcs', location_data) + "\n"
+        scene_text += self.list_entities('paths', location_data) + "\n"
+        scene_text += self.list_entities('sublocations', location_data) + "\n"
+        scene_text += self.list_entities('rooms', location_data) + "\n"
 
         return scene_text.strip()
     
-    def build_room_scene_text(self, room_data):
-        # Build scene text specifically for rooms
-        scene_text = self.describe_room(room_data)
-        scene_text += self.list_items(room_data)
-        scene_text += self.list_npcs(room_data)
-        return scene_text
+    # def normalize_name(self, name):
+    #     ic(f"Normalizing name: {name}")
+    #     normalized_name = re.sub(r'^the\s+', '', name, flags=re.IGNORECASE)
+    #     normalized_name = re.sub(r'\s+', ' ', normalized_name).strip().lower()
+    #     ic(f"Normalized name: {normalized_name}")
+    #     return normalized_name
 
     def describe_room(self, room_data):
         description = f"You are in {room_data['name']}. {room_data['description']}"
@@ -301,12 +656,6 @@ class WorldBuilder(QObject, IWorldBuilder):
         ic(f"Room description: {description}")
         return description
 
-    def list_npcs(self, location_data):
-        npcs_text = "People here:\n"
-        for npc in location_data.get('npcs', []):
-            npc_description = npc.get('description', 'An interesting character.')
-            npcs_text += f"- {npc['name']}: {npc_description}\n\n"
-        return npcs_text
 
     def describe_location(self, location_data):
         description = f"You are at {location_data['name']}. {location_data['description']}"
@@ -315,93 +664,7 @@ class WorldBuilder(QObject, IWorldBuilder):
             description += f" \n\n Keywords: {keywords_text}\n"
         ic(f"Location description: {description}")
         return description
-    
-    def list_rooms(self, location_data):
-        rooms_text = "Rooms here:\n"
-        for room in location_data.get('rooms', []):
-            room_name = room.get('name', 'Unnamed Room')
-            room_description = room.get('description', 'No description available')
-            rooms_text += f"- {room_name}: {room_description}\n"
-        ic(f"Rooms text: {rooms_text}")
-        return rooms_text
 
-    def list_items(self, location_data):
-        items_text = "Items here:\n"
-        for item in location_data.get('items', []):
-            items_text += f"- {item['name']} ({item['quantity']}) - {item['description']}\n"
-        ic(f"Items text: {items_text}")
-        return items_text
-
-    def list_interactables(self, location_data):
-        interactables_text = "You can interact with:\n"
-        for interactable in location_data.get('interactables', []):
-            interactables_text += f"- {interactable['name']} - {interactable['description']}\n"
-        ic(f"Interactables text: {interactables_text}")
-        return interactables_text
-
-    def normalize_name(self, name):
-        ic(f"Normalizing name: {name}")
-        normalized_name = re.sub(r'^the\s+', '', name, flags=re.IGNORECASE)
-        normalized_name = re.sub(r'\s+', ' ', normalized_name).strip().lower()
-        ic(f"Normalized name: {normalized_name}")
-        return normalized_name
-
-
-    def open_container(self, container_name):
-        container = self.get_container_data(container_name)
-        if container:
-            container['isOpen'] = True
-            return self.list_container_contents(container)
-        return f"No container named '{container_name}' found here."
-
-
-    def list_container_contents(self, container):
-        contents_text = f"{container['name']} contains:\n"
-        for item in container.get('contains', []):
-            contents_text += f"- {item['name']} ({item['quantity']}) - {item['description']}\n"
-        ic(f"Contents text: {contents_text}")
-        return contents_text.strip()
-
-    def list_containers(self, location_data):
-        containers_text = "Containers:\n"
-        for container in location_data.get('containers', []):
-            containers_text += f"- {container['name']} - {container['description']}\n"
-        ic(f"Containers text: {containers_text}")
-        return containers_text
-
-    def show_paths(self, location_data):
-        paths_text = "Paths available:\n"
-        for direction, destination in location_data.get('paths', {}).items():
-            paths_text += f"- {direction.title()}: {destination}\n"
-        ic(f"Paths text: {paths_text}")
-        return paths_text
-
-    def show_transport_options(self, location_data):
-        transport_text = "Transport options:\n"
-        for transport in location_data.get('transport', []):
-            transport_text += f"- {transport['type']} to {', '.join(transport['destinations'])}\n"
-        ic(f"Transport text: {transport_text}")
-        return transport_text
-
-    def take_item(self, item_name):
-        item_name = self.normalize_name(item_name)
-        current_location_data = self.get_current_location_data()
-        item = self.get_item_data(item_name, current_location_data)
-
-        if item:
-            if item.get('collectable', True):
-                self.game_manager.player_sheet.add_item(item)
-                # Check if the item is in a container
-                if self.is_item_in_open_container(item_name, current_location_data):
-                    self.remove_item_from_container(item, current_location_data)
-                else:
-                    current_location_data['items'].remove(item)
-                self.update_world_data(current_location_data['name'], {'items': current_location_data['items']})
-                return f"You have taken {item['name']}."
-            else:
-                return f"{item['name']} cannot be taken."
-
-        return f"{item_name} not found."
 
     def is_item_in_open_container(self, item_name, location_data):
         normalized_item_name = self.normalize_name(item_name)
@@ -411,41 +674,7 @@ class WorldBuilder(QObject, IWorldBuilder):
                     if self.normalize_name(item['name']) == normalized_item_name:
                         return True
         return False
-
-    def remove_item_from_container(self, item, location_data):
-        for container in location_data.get('containers', []):
-            if container.get('isOpen', False):
-                if item in container.get('contains', []):
-                    container['contains'].remove(item)
-                    break
-
-    
-    def is_container_open(self):
-        current_location = self.game_manager.player_sheet.location
-        if isinstance(current_location, dict):
-            current_location = current_location.get("location/sublocation", "Unknown Location")
-        location_data = self.find_location_data(current_location)
-
-        if location_data and 'containers' in location_data:
-            for container in location_data['containers']:
-                if container.get('isOpen', False):
-                    ic(f"Container open: {container['name']}")
-                    ic(f"Container open: {container['name']}")
-                    return container['name']  
-                
-        ic("No container open.")
-        return None # No container open
-    
-    def close_container(self):
-        open_container_name = self.is_container_open()
-        if open_container_name:
-            container = self.get_container_data(open_container_name)
-            if container:
-                container['isOpen'] = False
-                return f"You have closed {open_container_name}."
-        return "No container open."
-
-
+        
     def move_player(self, location_name):
         # Get the current location data from the player's current location
         current_location = self.game_manager.player_sheet.location
@@ -523,27 +752,17 @@ class WorldBuilder(QObject, IWorldBuilder):
             return self.create_scene_description(current_location_data)
         return "It's too dark to see anything."
 
-    
-    def show_sublocations(self, location_data):
-        sublocations_text = "Sublocations here:\n"
-        for sublocation in location_data.get('sublocations', []):
-            sublocations_text += f"- {sublocation['name']}: {sublocation['description']}\n\n"
-        ic(f"Sublocations text: {sublocations_text}")
-        return sublocations_text
-
     def display_help(self):
         help_text = (
             "Available commands:\n\n"
             "take <item> - Take an item from a NPC or container.\n Example: 'take potion'\n\n"
             "give <quantity> <item> - Give an item to a NPC or container.\n Example: 'give 2 potions'\n\n"
             "move <location> - Move to new location.\n Example: 'move to the garden'\n\n"
-            "examine <item> - Examine an items.\n Example: 'examine key'\n\n"
             "whereami - Find out your current location.\n Example: 'whereami'\n\n"
             "look around: Look around at your environment.\n Example: 'look around'\n\n"
             "open <container>: Open a container.\n Example: 'open chest'\n\n"
             "Fast travel to <world>: Fast travel to a different world.\n Example: 'fast travel to the moon'\n\n"
             "talk to <NPC>: Talk to an NPC.\n Example: 'talk to the guard'\n\n"
-            "interact with <interactable>: Interact with an object.\n Example: 'interact with computer'\n\n"
             "close: Close container.\n Example: 'close'\n\n"
             "help: Display this list of commands.\n"
         )
@@ -592,6 +811,8 @@ class WorldBuilder(QObject, IWorldBuilder):
             if key in location_dict:
                 location_dict[key] = value
 
+
+
     def close_all_containers(self):
         """Close all open containers in the world."""
         for location in self.world_data.get('locations', []):
@@ -604,90 +825,8 @@ class WorldBuilder(QObject, IWorldBuilder):
         for container in location.get('containers', []):
             container['isOpen'] = False
 
-    def give_item(self, command):
-        parts = command.split(maxsplit=1)  # Split command into at most three parts
-        ic(f"Parts: {parts}")
-        if len(parts) < 2:
-            return "Please specify an item and quantity to give. E.g., 'give 2 potions'."
 
-        try:
-            quantity = int(parts[0])
-            item_name = parts[1].strip()
-            ic(f"Quantity: {quantity}, Item: {item_name}")
-        except ValueError:
-            # If the first part is not a number, consider the whole as an item name and quantity as 1
-            quantity = 1
-            item_name = command.strip()
-
-        normalized_item_name = self.normalize_name(item_name)
-
-        # Check if a container is open
-        open_container_name = self.is_container_open()
-        if open_container_name:
-            # Give item to the open container
-            return self._give_item_to_container(normalized_item_name, quantity, open_container_name)
-
-        # Future implementation for NPCs can be added here
-
-        return "You need to open a container or talk to an NPC to give items."
-
-    def _give_item_to_container(self, normalized_item_name, quantity, container_name):
-        player_inventory = self.game_manager.player_sheet.inventory
-        current_location = self.game_manager.player_sheet.location
-        location_str = current_location.get("location/sublocation", "Unknown Location")
-        location_data = self.find_location_data(location_str)
-
-        ic(f"Looking for container '{container_name}' in location: {location_str}")
-
-        for container in location_data.get('containers', []):
-            normalized_container_name = self.normalize_name(container['name'])
-            ic(f"Checking container: {container['name']} (isOpen: {container.get('isOpen', False)})")
-
-            if normalized_container_name == container_name.lower() and container.get('isOpen', False):
-                for item in player_inventory:
-                    normalized_player_item_name = self.normalize_name(item['name'])
-                    ic(f"Checking item in inventory: {item['name']} (Normalized: {normalized_player_item_name})")
-
-                    if normalized_player_item_name == normalized_item_name:
-                        if item.get('quantity', 1) >= quantity:
-                            item['quantity'] = item.get('quantity', 1) - quantity
-                            if item['quantity'] <= 0:
-                                player_inventory.remove(item)
-
-                            self._add_item_to_container(container, item, quantity)
-                            ic(f"Item '{item['name']}' given to container '{container['name']}'")
-                            return f"You have given {quantity} {item['name']} to {container['name']}."
-                        else:
-                            return f"You don't have enough {item['name']} to give."
-            else:
-                ic(f"Skipping container: {container['name']}, open: {container.get('isOpen', False)}, expected: {container_name}")
-
-        ic(f"No container named '{container_name}' found here or it is not open.")
-        return f"No container named '{container_name}' found here or it is not open."
-
-
-    def _add_item_to_container(self, container, item, quantity):
-        for existing_item in container.get('contains', []):
-            if self.normalize_name(existing_item['name']) == self.normalize_name(item['name']):
-                existing_item['quantity'] = existing_item.get('quantity', 0) + quantity
-                return
-
-        new_item = {
-            'name': item['name'],
-            'description': item.get('description', ''),
-            'quantity': quantity
-        }
-        container.setdefault('contains', []).append(new_item)
-
-
-    def get_container_data(self, container_name):
-        location_data = self.get_current_location_data()
-        if 'containers' in location_data:
-            for container in location_data['containers']:
-                if self.normalize_name(container['name']) == self.normalize_name(container_name):
-                    return container
-        return None
-    
+ 
     def get_item_data(self, item_name, location_data):
         # Check in location items
         for item in location_data.get('items', []):
@@ -703,10 +842,30 @@ class WorldBuilder(QObject, IWorldBuilder):
         return None
     
     def create_scene_description(self, location_data):
-        description = f"You are at {location_data['name']}. {location_data['description']}\n"
+        # Introductory description of the scene
+        description = f"As you gaze around the {location_data['name']}, you find yourself immersed in {location_data['description']}. It's truly a sight to behold.\n\n"
+
+        # Adding a touch of narrative to keywords
         if 'keywords' in location_data:
-            description += f"Keywords: {', '.join(location_data['keywords'])}\n"
-        description += self.list_items(location_data)
-        description += self.list_npcs(location_data)
-        description += self.list_containers(location_data)
+            description += f"This place feels {', '.join(location_data['keywords'])}, creating a unique atmosphere that resonates with your senses.\n\n"
+
+        # Descriptive listing of various entities
+        if 'items' in location_data and location_data['items']:
+            description += "Scattered around, you notice a few items:\n"
+            description += self.list_entities('items', location_data) + "\n"
+        else:
+            description += "Strangely, there are no items to be found here.\n"
+
+        if 'npcs' in location_data and location_data['npcs']:
+            description += "Amongst the digital mirage, some figures catch your attention:\n"
+            description += self.list_entities('npcs', location_data) + "\n"
+        else:
+            description += "The area is devoid of any digital inhabitants, adding to the tranquility.\n"
+
+        if 'containers' in location_data and location_data['containers']:
+            description += "You also spot some containers, perhaps holding secrets or treasures:\n"
+            description += self.list_entities('containers', location_data) + "\n"
+        else:
+            description += "There are no containers here, making the space feel more open.\n"
+
         return description.strip()

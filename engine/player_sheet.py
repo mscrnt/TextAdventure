@@ -9,9 +9,6 @@ class PlayerSheet:
     """
     def __init__(self, name):
         self.name = name
-        self.level = 1
-        self.health = 100
-        self.action_points = 10
         self.inventory = []
         self._location = {"world": "OdysseyVR", "location/sublocation": "Lobby"}
         self.fast_travel_locations = []
@@ -36,9 +33,6 @@ class PlayerSheet:
 
     def reset_state(self):
         """Reset the player's state to the initial values."""
-        self.level = 1
-        self.health = 100
-        self.action_points = 10
         self.inventory = []
         self._location = {"world": "OdysseyVR", "location/sublocation": "Home"}
         self.fast_travel_locations = []
@@ -71,6 +65,11 @@ class PlayerSheet:
         ic("Removing fast travel location")
         ic(location_name)
         self.fast_travel_locations = [location for location in self.fast_travel_locations if location["name"] != location_name]
+
+    def add_tokens(self, token):
+        ic("Adding token")
+        ic(token)
+        self.tokens += token
 
     def add_note(self, note):
         ic("Adding note")
@@ -129,11 +128,7 @@ class PlayerSheet:
 
     def add_fast_travel_location(self, location, world_name=None):
         ic("Adding fast travel location")
-        #ic(location)
-        # If world_name is provided, use it; otherwise, try to get it from the location
         world_name = world_name or location.get('world_name')
-        #ic(f'location: {location}')
-        # Store both the location and world name in a new dictionary
         location_with_world = {
             'location': location,
             'world_name': world_name
@@ -169,9 +164,6 @@ class PlayerSheet:
         """Return a serializable representation of the player sheet."""
         return {
             'name': self.name,
-            'level': self.level,
-            'health': self.health,
-            'action_points': self.action_points,
             'inventory': self.inventory,
             'location': self._location,
             'fast_travel_locations': self.fast_travel_locations,
@@ -186,3 +178,23 @@ class PlayerSheet:
             self.__dict__.update(state.__dict__)
         else:
             raise TypeError("state must be an instance of PlayerSheet")
+
+    def get_quest(self, quest_name):
+        ic(f"Getting quest: {quest_name}")
+        return next((quest for quest in self.quests if quest['name'] == quest_name), None)
+
+    def get_all_quests(self):
+        ic("Getting all quests")
+        return self.quests
+
+    def is_quest_active(self, quest_name):
+        quest = self.get_quest(quest_name)
+        return quest is not None and quest.get('isActive', False)
+
+    def is_quest_completed(self, quest_name):
+        quest = self.get_quest(quest_name)
+        return quest is not None and quest.get('completed', False)
+
+    def get_tokens(self):
+        ic("Getting tokens")
+        return self.tokens
