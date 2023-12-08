@@ -275,25 +275,20 @@ class WorldBuilder(QObject, IWorldBuilder):
         if target_npc:
             # Check if NPCManager instance exists for the NPC, create if not
             if 'npc_manager' not in target_npc:
-                target_npc['npc_manager'] = NPCManager(target_npc)
-            
+                target_npc['npc_manager'] = NPCManager(target_npc, self.world_builder)
+
+            # Set the GameUI in NPC interaction mode
+            self.game_manager.game_ui.set_npc_interaction_mode(True, target_npc['npc_manager'])
+
             # Delegate interaction handling to the NPCManager instance
             npc_manager = target_npc['npc_manager']
             npc_manager.display_interaction_menu()
-
-            # Enter interaction mode
-            while True:
-                player_choice = input("Enter your choice (type 'exit' to end conversation): ")
-                if player_choice.lower() == 'exit':
-                    break
-                npc_manager.handle_player_choice(player_choice)
 
             # After conversation, handle triggers and quests
             if 'triggers' in target_npc:
                 self.handle_npc_triggers(target_npc['triggers'])
             self.game_manager.quest_tracker.check_all_quests()
             ic(f"Quests after talking to NPC: {self.game_manager.player_sheet.quests}")
-
         else:
             return convert_text_to_display(f"Cannot find '{npc_name}' to talk to.")
 

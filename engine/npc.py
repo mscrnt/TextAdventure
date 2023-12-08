@@ -1,12 +1,17 @@
 # engine/npc.py
 
 class NPCManager:
-    def __init__(self, npc_data, world_builder):
+    def __init__(self, npc_data, game_ui):
         self.npc_data = npc_data
-        self.world_builder = world_builder  # Reference to the WorldBuilder instance
+        self.game_ui = game_ui
         self.current_dialogue_index = 0
         self.conversational_context = {}
 
+    def exit_interaction(self):
+        self.game_ui.in_npc_interaction = False
+        self.game_ui.current_npc_manager = None
+        self.game_ui.display_text("Exited NPC interaction.")
+        
     def display_interaction_menu(self):
         print(f"{self.npc_data['name']}: {self.get_current_dialogue()}")
         self.update_dialogue_index()

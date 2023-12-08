@@ -22,6 +22,8 @@ class GameUI(QWidget, IGameUI):
         self.is_item_clicked_connected = False 
         self.was_command_help = False
         self.is_command_processing = False
+        self.in_npc_interaction = False
+        self.current_npc_manager = None
 
         if not self.game_manager:
             raise ValueError("GameUI requires a GameManager instance.")
@@ -256,40 +258,58 @@ class GameUI(QWidget, IGameUI):
                 font.setBold(True)
                 item.setFont(font)
             self.inventory_list.addItem(item)
+            
+    def set_npc_interaction_mode(self, is_interacting, npc_manager=None):
+        self.in_npc_interaction = is_interacting
+        self.current_npc_manager = npc_manager
+        if is_interacting:
+            # Change the placeholder text to indicate interaction mode
+            self.command_input.setPlaceholderText("Interact with NPC...")
+        else:
+            # Reset the placeholder text
+            self.command_input.setPlaceholderText("Type a command...")
 
     def process_command(self):
         ic("Entered process_command", threading.get_ident())
-        ic(self.command_input.text())
-        self.is_command_processing = True
-        command_text = self.command_input.text().strip().lower()
+        command_text = self.command_input.text().strip()
         self.command_input.clear()
         self.command_input.setPlaceholderText("Processing...")
-        ic("disabling command input")
-        self.command_input.setDisabled(True)
-        self.game_text_area.clear()
 
-        # Create a worker instance with the GameManager and command_text
-        self.worker = Worker(self.game_manager, command_text)
+        if self.in_npc_interaction:
+            # Directly handle the command as part of the NPC interaction
+            self.current_npc_manager.handle_player_choice(command_text)
+            self.command_input.setPlaceholderText("Type a command...")
+            self.command_input.setEnabled(True)
+        else:
+            # Standard command processing with threading
+            self.is_command_processing = True
+            ic("disabling command input")
+            self.command_input.setDisabled(True)
+            self.game_text_area.clear()
 
-        # Create a QThread instance
-        self.thread = QThread()
+            # Create a worker instance with the GameManager and command_text
+            self.worker = Worker(self.game_manager, command_text)
 
-        # Move the worker to the thread
-        self.worker.moveToThread(self.thread)
+            # Create a QThread instance
+            self.thread = QThread()
 
-        # Connect the thread's started signal to the worker's process_command slot
-        self.thread.started.connect(self.worker.process_command)
+            # Move the worker to the thread
+            self.worker.moveToThread(self.thread)
 
-        # Connect signals and slots
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
+            # Connect the thread's started signal to the worker's process_command slot
+            self.thread.started.connect(self.worker.process_command)
 
-        # Ensure display_text is called in the main thread
-        self.worker.finished.connect(self.display_text_wrapped)
+            # Connect signals and slots
+            self.worker.finished.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
 
-        # Start the thread
-        self.thread.start()
+            # Ensure display_text is called in the main thread
+            self.worker.finished.connect(self.display_text_wrapped)
+
+            # Start the thread
+            self.thread.start()
+
 
     def display_text_wrapped(self, processed_content):
         # Indicate that command processing is finished
