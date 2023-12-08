@@ -7,7 +7,7 @@ from engine.ai_assist import AIAssist
 from utilities import convert_text_to_display, load_working_world_data, normalize_name
 from interfaces import IWorldBuilder, IGameManager
 from PySide6.QtCore import QObject, Signal
-#from engine.npc import NPCManager
+from engine.npc import NPCManager
 
 class WorldBuilder(QObject, IWorldBuilder):
     display_text_signal = Signal(str)
@@ -273,29 +273,31 @@ class WorldBuilder(QObject, IWorldBuilder):
         ic(f"Target NPC: {target_npc}")
 
         if target_npc:
-            # Increment dialogue index and cycle through dialogues
-            if 'current_dialogue_index' not in target_npc:
-                target_npc['current_dialogue_index'] = 0
-            dialogue = target_npc['interactions'][1]['dialog'][target_npc['current_dialogue_index']]
-            target_npc['current_dialogue_index'] = (target_npc['current_dialogue_index'] + 1) % len(target_npc['interactions'][1]['dialog'])
+            # Check if NPCManager instance exists for the NPC, create if not
+            if 'npc_manager' not in target_npc:
+                target_npc['npc_manager'] = NPCManager(target_npc)
+            
+            # Delegate interaction handling to the NPCManager instance
+            npc_manager = target_npc['npc_manager']
+            npc_manager.display_interaction_menu()
 
-            # Execute the 'talk to' interaction
-            response = dialogue
-            ic(f"Response: {response}")
+            # Enter interaction mode
+            while True:
+                player_choice = input("Enter your choice (type 'exit' to end conversation): ")
+                if player_choice.lower() == 'exit':
+                    break
+                npc_manager.handle_player_choice(player_choice)
 
-            # Handle triggers and quests
+            # After conversation, handle triggers and quests
             if 'triggers' in target_npc:
                 self.handle_npc_triggers(target_npc['triggers'])
-
             self.game_manager.quest_tracker.check_all_quests()
             ic(f"Quests after talking to NPC: {self.game_manager.player_sheet.quests}")
 
-            return convert_text_to_display(response)
         else:
-            # NPC not found in the current location
             return convert_text_to_display(f"Cannot find '{npc_name}' to talk to.")
 
-
+        
     def handle_npc_triggers(self, triggers):
         for trigger_list in triggers:
             for trigger in trigger_list:
