@@ -26,6 +26,8 @@ class GameUI(QWidget, IGameUI):
         self.is_item_clicked_connected = False 
         self.was_command_help = False
         self.is_command_processing = False
+        self.message_queue = []
+        self.displaying_message = False
 
         if not self.game_manager:
             raise ValueError("GameUI requires a GameManager instance.")
@@ -282,7 +284,7 @@ class GameUI(QWidget, IGameUI):
         command_text = self.command_input.text().strip().lower()
         ic("Command text:", command_text)
 
-        if command_text:  # Check if command_text is not empty
+        if command_text and not self.is_command_processing:  # Check if command_text is not empty and no other command is being processed
             self.is_command_processing = True
             self.command_input.clear()
             self.command_input.setPlaceholderText("Processing...")
@@ -321,13 +323,26 @@ class GameUI(QWidget, IGameUI):
 
 
     def display_text_wrapped(self, processed_content):
-        # Indicate that command processing is finished
-        self.is_command_processing = False
+        self.queue_message(processed_content)
+        self.display_next_message()
 
-        # Execute this only in the main thread
-        if QThread.currentThread() == QThread.currentThread().thread():
-            self.display_text(processed_content)
+    def queue_message(self, message):
+        self.message_queue.append(message)
 
+    def display_next_message(self):
+        if not self.displaying_message and self.message_queue:
+            self.displaying_message = True
+            message_to_display = self.message_queue.pop(0)
+            QTimer.singleShot(5000, self.message_display_complete)  # Adjust the timing as necessary
+            self.display_text(message_to_display)  # This method should immediately display the message
+
+    def message_display_complete(self):
+        self.displaying_message = False
+        if not self.message_queue:
+            self.is_command_processing = False
+            self.enable_command_input()
+        else:
+            self.display_next_message()
 
     def display_item_information(self, item_widget):
         ic("Displaying item information")

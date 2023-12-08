@@ -1,6 +1,6 @@
 [
     {
-        "name": "Read Email",
+        "name": "Read Emails",
         "slug": "initialQuest",
         "description": "Check unread emails",
         "isActive": false,

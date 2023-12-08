@@ -5,14 +5,16 @@ from icecream import ic
 import re
 from engine.ai_assist import AIAssist 
 from utilities import convert_text_to_display, load_working_world_data, normalize_name
+from engine.worker import TriggerWorker
 from interfaces import IWorldBuilder, IGameManager
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, QThread
 #from engine.npc import NPCManager
 
 class WorldBuilder(QObject, IWorldBuilder):
     display_text_signal = Signal(str)
     command_processed_signal = Signal() 
     last_spoken_npc = ""
+    trigger_threads = {}
 
     def __init__(self, world_data, use_ai_assist=True):
         super().__init__()
@@ -250,13 +252,16 @@ class WorldBuilder(QObject, IWorldBuilder):
                 return f"{target['name']} is already closed."
             else:
                 target['isOpen'] = False
-                return f"{target['name']} is now closed."
+                text = convert_text_to_display(f"{target['name']} is now closed.")
+                return text
 
         elif interaction_type == 'give':
-            return f"{target['name']} takes the {interaction['item']} from you."
+            text = convert_text_to_display(f"You give {target['name']} {interaction['item']}.")
+            return text
 
         elif interaction_type == 'take':
-            return f"You take the {interaction['item']} from {target['name']}."
+            text = convert_text_to_display(f"You take {interaction['item']} from {target['name']}.")
+            return text
 
         return "Interaction not recognized."
 
@@ -280,7 +285,7 @@ class WorldBuilder(QObject, IWorldBuilder):
 
             # New code to handle triggers
             if 'triggers' in target_npc:
-                self.handle_npc_triggers(target_npc['triggers'])
+                self.handle_triggers("talk to", target_npc)
 
             # Check and update quests after talking to the NPC
             ic(f'npc_name: {npc_name}')
@@ -293,23 +298,37 @@ class WorldBuilder(QObject, IWorldBuilder):
             # NPC not found in the current location
             return convert_text_to_display(f"Cannot find '{npc_name}' to talk to.")
 
+    def handle_triggers(self, action, target):
+        if 'triggers' in target:
+            for trigger_list in target['triggers']:
+                for trigger in trigger_list:
+                    if trigger['trigger'] == action:
+                        # Create a TriggerWorker instance
+                        trigger_worker = TriggerWorker(self.game_manager, trigger)
 
-    def handle_npc_triggers(self, triggers):
-        for trigger_list in triggers:
-            for trigger in trigger_list:
-                if trigger['trigger'] == 'talk to':
-                    self.process_trigger(trigger)
+                        # Create a QThread instance and store it
+                        trigger_thread = QThread()
+                        self.trigger_threads[trigger['name']] = trigger_thread  # Use a unique identifier
 
-    def process_trigger(self, trigger):
-        if trigger['type'] == 'fast travel':
-            fast_travel_location = {
-                'name': trigger['name'],
-                'description': trigger['description'],
-                'world_name': trigger['world'],
-                'location': trigger['location']
-            }
-            self.game_manager.player_sheet.add_fast_travel_location(fast_travel_location)
-            ic(f"Fast travel location added: {trigger['name']}")
+                        # Move the TriggerWorker to the thread
+                        trigger_worker.moveToThread(trigger_thread)
+
+                        # Connect signals and slots
+                        trigger_thread.started.connect(trigger_worker.process_trigger)
+                        trigger_worker.triggerProcessed.connect(self.game_manager.game_ui.display_text_wrapped)
+                        trigger_worker.triggerProcessed.connect(trigger_thread.quit)
+                        trigger_worker.triggerProcessed.connect(trigger_worker.deleteLater)
+                        trigger_thread.finished.connect(trigger_thread.deleteLater)
+                        trigger_thread.finished.connect(lambda: self.cleanup_thread(trigger['name']))
+
+                        # Start the thread
+                        trigger_thread.start()
+
+    def cleanup_thread(self, trigger_name):
+        if trigger_name in self.trigger_threads:
+            thread = self.trigger_threads.pop(trigger_name)
+            thread.wait()  # Ensure the thread has finished
+            thread.deleteLater()  # Clean up the thread object
 
     def handle_give_take(self, action, details):
         ic(f"Handling '{action}' command with details: {details}")
@@ -320,6 +339,7 @@ class WorldBuilder(QObject, IWorldBuilder):
         # Get the current location data
         location_data = self.get_current_location_data()
 
+        target = None
         if not target_name:
             # Find an open container if no target is specified
             open_containers = [c for c in location_data.get('containers', []) if c.get('isOpen', False)]
@@ -331,48 +351,50 @@ class WorldBuilder(QObject, IWorldBuilder):
         if not target:
             return convert_text_to_display(f"Cannot find '{target_name}' to {action}.")
 
+        response = ""
         if action == "give":
             response = self.process_give_command(target, item_name, quantity)
         elif action == "take":
             response = self.process_take_command(target, item_name, quantity)
 
         self.game_manager.game_ui.update_ui()
-
         return convert_text_to_display(response)
 
     def parse_give_take_details(self, parts):
         ic(f"Parsing give/take details: {parts}")
-        quantity = 1  # Default quantity
-        item_name = None
-        target = None
 
-        # Check if the word 'to' is present, indicating giving to an NPC
-        if 'to' in parts:
-            to_index = parts.index('to|from')
-            # Parse quantity if specified
-            if parts[0].isdigit():
-                quantity = int(parts.pop(0))
-                item_name = ' '.join(parts[:to_index - 1])  # Adjust index due to popping quantity
+        # Join parts back to a single string
+        command_str = " ".join(parts)
+
+        # Regex pattern to extract quantity, item name, and target (if present)
+        pattern = re.compile(r"(?:(\d+)\s+)?([\w\s]+?)(?:\s+(to|from)\s+([\w\s]+))?$")
+        match = pattern.match(command_str)
+
+        if not match:
+            return None, None, None
+
+        # Extract components from the regex match
+        quantity_str, item_name, preposition, target = match.groups()
+        quantity = int(quantity_str) if quantity_str else 1
+
+        # Check for open container if no target is specified
+        if not target:
+            open_container = self.is_container_open()
+            if open_container:
+                target = open_container
             else:
-                item_name = ' '.join(parts[:to_index])
-            target = ' '.join(parts[to_index + 1:])  # NPC name comes after 'to'
-        else:
-            # No 'to' present, giving to a container
-            if parts[0].isdigit():
-                quantity = int(parts.pop(0))
-            item_name = ' '.join(parts)
+                return None, None, None
 
         ic(f"Quantity: {quantity}, Item name: {item_name}, Target: {target}")
         return target, quantity, item_name
-
 
     def find_interaction_target(self, target_name, location_data):
         normalized_target_name = self.normalize_name(target_name)
 
         # Check NPCs
         for npc in location_data.get('npcs', []):
-            ic(f"Checking NPC: {npc['name']}")
             if self.normalize_name(npc['name']) == normalized_target_name:
+                npc['type'] = 'NPC'  # Add this line
                 return npc
 
         # Check items
@@ -397,11 +419,27 @@ class WorldBuilder(QObject, IWorldBuilder):
             return convert_text_to_display(f"The {target['name']} does not have {quantity} of {item_name}.")
 
         # If the target is a container, check if it is open
-        if target.get('type') == 'container' and not target.get('isOpen', False):
-            return convert_text_to_display(f"The {target['name']} is closed. You cannot take items from it.")
+        if isinstance(target, dict) and target.get('type') == 'Container':
+            if target.get('isOpen', False):
+                # Transfer the item from the container to the player
+                response = self.transfer_item(target, self.game_manager.player_sheet, item_name, quantity)
+                # Handle any triggers associated with taking from the container
+                self.handle_triggers("take", target)
+            else:
+                return convert_text_to_display(f"The {target['name']} is closed. You cannot take items from it.")
 
-        # Transfer the item
-        return self.transfer_item(target, self.game_manager.player_sheet, item_name, quantity)
+        # If the target is an NPC, handle taking the item
+        elif isinstance(target, dict) and target.get('type') == 'NPC':
+            # For NPCs, check if 'take' is a valid interaction (if required in your game logic)
+            # Here we assume NPCs allow taking items without specific interactions defined
+            response = self.transfer_item(target, self.game_manager.player_sheet, item_name, quantity)
+            # Handle any triggers associated with taking from the NPC
+            self.handle_triggers("take", target)
+
+        else:
+            return convert_text_to_display("The action cannot be completed.")
+
+        return convert_text_to_display(response)
 
 
     def target_has_item(self, target, item_name, quantity):
@@ -476,35 +514,36 @@ class WorldBuilder(QObject, IWorldBuilder):
         ic(f"Processing give command: giving {quantity} of {item_name} to {target}")
 
         # Check if the player has the item
-        ic(f"Checking if player has {quantity} of {item_name}")
         if not self.target_has_item(self.game_manager.player_sheet, item_name, quantity):
-            ic(f"Player does not have {quantity} of {item_name}")
             return convert_text_to_display(f"You do not have {quantity} of {item_name} to give.")
-        
+
         # Handle case when target is a container
         if isinstance(target, dict) and target.get('type') == 'Container':
-            ic(f"{target} is a container")
             if target.get('isOpen', False):
                 # Transfer the item from the player to the container
                 response = self.transfer_item(self.game_manager.player_sheet, target, item_name, quantity)
+                # Handle any triggers associated with giving to the container
+                self.handle_triggers("give", target)
             else:
-                response = f"The {target['name']} is closed. You cannot put items in it."
+                return convert_text_to_display(f"The {target['name']} is closed. You cannot put items in it.")
+
+        # Handle case when target is an NPC and can receive items
         elif isinstance(target, dict) and target.get('type') == 'NPC':
-            ic(f"{target} is an NPC")
             # Verify 'give' as a valid interaction for the NPC
             can_give_item = any(interaction['type'] == 'give' for interaction in target.get('interactions', []))
-
             if can_give_item:
-                # Transfer the item from the player to the NPC using transfer_item function
+                # Transfer the item from the player to the NPC
                 response = self.transfer_item(self.game_manager.player_sheet, target, item_name, quantity)
+                # After transferring the item, check for any special triggers associated with the action
+                self.handle_triggers("give", target)
             else:
-                response = f"{target['name']} cannot receive items."
+                return convert_text_to_display(f"{target['name']} cannot receive items.")
+
         else:
-            response = f"You cannot give items to {target}."
+            return convert_text_to_display("The action cannot be completed.")
 
         return convert_text_to_display(response)
 
-    
     def list_container_contents(self, container):
         contents_text = f"{container['name']} contains:\n"
         for item in container.get('inventory', []):

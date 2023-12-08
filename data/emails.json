@@ -7,10 +7,10 @@
         "sender": "Odyssey Admin"
       },
       {
-        "name": "Your Adventure Awaits",
-        "description": "Are you ready to embark on a journey of a lifetime? Gear up and meet us at the Guild.",
+        "name": "What is happening!!!",
+        "description": "Are you able to log out?! I can't log out! What is happening?! Come meet me in Central Avalonia. I gave the fast travel location to your assistant Athena.",
         "read": false,
-        "sender": "The Adventurer's Guild"
+        "sender": "Gam0rGurl"
       },
       {
         "name": "Treasure Map Sale",
@@ -29,6 +29,12 @@
         "description": "You are cordially invited to attend the grand banquet hosted by King Arthur.",
         "read": false,
         "sender": "Royal Messenger"
+      },
+      {
+        "name": "Sorry for the Inconvenience",
+        "description": "We apologize for the inconvenience. We are currently experiencing technical difficulties.\n\n Due to issues outside of our control, we are unable to provide a secure way for you to log out at them moment. \n\n Please stay calm while we work to resolve this issue.",
+        "read": false,
+        "sender": "Odyssey Admin"
       }
     ]
   }

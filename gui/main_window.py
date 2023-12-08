@@ -233,7 +233,7 @@ class MainWindow(QMainWindow):
         self.tutorial.start()
 
     def start_new_game(self):
-        self.is_new_game = True
+        self.is_new_game = False
         # Prompt for the player's name first
         self.player_name = self.prompt_for_player_name() 
 

@@ -71,28 +71,31 @@
                             "world": "Avalonia",
                             "location": "Central Avalonia",
                             "trigger": "talk to"
+                        },
+                        {
+                            "type": "fast travel",
+                            "name": "Diablo Realm",
+                            "description": "Diablo Realm Fast Travel Unlocked: \n\n Type 'fast travel to Blizzard World' to go.",
+                            "dialog": "Thanks for returning my sword to me! In return, I've unlocked the fast travel location for the Diablo Realm. Type 'fast travel to Blizzard World' to go there.",
+                            "world": "Blizzard World",
+                            "location": "Diablo Realm",
+                            "trigger": "give"
                         }
                     ]],
                     "interactions": [
-                        {
-                            "type": "Tutorial",
-                            "description": "Provides a step-by-step guide to new players about navigating and using Odyssey VR's features."
-                        },
                         {
                             "type": "talk to",
                             "dialog": [
                                 "Welcome to your virtual home!",
                                 "I hope you're enjoying your time in Odyssey VR.",
-                                "If you are looking for where to start, why not try exploring the world of Avalonia?",
-                                "I've added it to your Fast Travel list. You can access it by typing 'fast travel to avalonia'.",
+                                "You're friend has sent you the fast travel location for Central Avalonia.",
+                                "You can access it by typing 'fast travel to avalonia'.",
                                 "You can also type 'help' at any time to see a list of commands."
                             ]
                         },
                         {
-                            "type": "give",
-                            "description": "Give Athena an item."
-                        }
-                    ],
+                            "type": "give"
+                        }                    ],
                     "inventory": []
                 } 
             ],

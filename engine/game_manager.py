@@ -178,9 +178,9 @@ class GameManager(QObject, IGameManager):
             ic("Warning: global_items is empty after loading.")
 
         # Add items to the player's inventory and verify
-        excalibur = find_item_by_name("Excalibur")
-        if excalibur:
-            self.player_sheet.add_item(excalibur)
+        Sword_of_Athena = find_item_by_name("Sword of Athena")
+        if Sword_of_Athena:
+            self.player_sheet.add_item(Sword_of_Athena)
             ic("Excalibur added to inventory", self.player_sheet.inventory)
         else:
             ic("Warning: Excalibur not found in global items.")
@@ -234,21 +234,21 @@ class GameManager(QObject, IGameManager):
         emails = self.load_emails()
 
         # Add the emails to the player's emails
-        Welcome_to_Odyssey = next((email for email in emails if email['name'] == "Welcome to Odyssey"), None)
-        Treasure_Map_Sale = next((email for email in emails if email['name'] == "Treasure Map Sale"), None)
+        What_Is_Happening = next((email for email in emails if email['name'] == "What is happening!!!"), None)
+        Sorry = next((email for email in emails if email['name'] == "Sorry for the Inconvenience"), None)
 
-        if Welcome_to_Odyssey:
-            self.player_sheet.add_email(Welcome_to_Odyssey)
+        if What_Is_Happening:
+            self.player_sheet.add_email(What_Is_Happening)
             ic("Welcome to Odyssey email added")
 
-        if Treasure_Map_Sale:
-            self.player_sheet.add_email(Treasure_Map_Sale)
+        if Sorry:
+            self.player_sheet.add_email(Sorry)
             ic("Treasure Map Sale email added")
 
-        read_email_quest = self.quest_tracker.get_quest("Read Email")
+        read_email_quest = self.quest_tracker.get_quest("Read Emails")
         if read_email_quest:
             ic("Activating Read Email quest")
-            self.quest_tracker.activate_quest("Read Email") 
+            self.quest_tracker.activate_quest("Read Emails") 
 
         Echoes_of_Avalonia_quest = self.quest_tracker.get_quest("Echoes of Avalonia")
         if Echoes_of_Avalonia_quest:
