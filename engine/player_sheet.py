@@ -133,10 +133,16 @@ class PlayerSheet:
             'location': location,
             'world_name': world_name
         }
+        # Log current fast travel locations before adding
+        ic(f"Current fast travel locations before adding: {self.fast_travel_locations}")
         # Ensure we're not adding duplicates
         if location_with_world not in self.fast_travel_locations:
             ic(f"Adding fast travel location: {location['name']}")
             self.fast_travel_locations.append(location_with_world)
+            # Log current fast travel locations after adding
+            ic(f"Current fast travel locations after adding: {self.fast_travel_locations}")
+        else:
+            ic(f"Location already exists: {location['name']}")
 
 
 
