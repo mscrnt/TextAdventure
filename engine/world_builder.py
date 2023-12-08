@@ -273,24 +273,22 @@ class WorldBuilder(QObject, IWorldBuilder):
         ic(f"Target NPC: {target_npc}")
 
         if target_npc:
-            # Increment dialogue index and cycle through dialogues
-            if 'current_dialogue_index' not in target_npc:
-                target_npc['current_dialogue_index'] = 0
-            dialogue = target_npc['interactions'][1]['dialog'][target_npc['current_dialogue_index']]
-            target_npc['current_dialogue_index'] = (target_npc['current_dialogue_index'] + 1) % len(target_npc['interactions'][1]['dialog'])
-
-            # Execute the 'talk to' interaction
-            response = dialogue
+            # Execute the 'talk to' interaction if the NPC is found
+            interaction = {'type': 'talk to'}
+            response = self.execute_interaction(interaction, target_npc)
             ic(f"Response: {response}")
 
-            # Handle triggers and quests
+            # New code to handle triggers
             if 'triggers' in target_npc:
                 self.handle_npc_triggers(target_npc['triggers'])
 
+            # Check and update quests after talking to the NPC
+            ic(f'npc_name: {npc_name}')
+            ic(f'last spoken npc: {self.last_spoken_npc}')
             self.game_manager.quest_tracker.check_all_quests()
             ic(f"Quests after talking to NPC: {self.game_manager.player_sheet.quests}")
 
-            return convert_text_to_display(response)
+            return response
         else:
             # NPC not found in the current location
             return convert_text_to_display(f"Cannot find '{npc_name}' to talk to.")
@@ -760,13 +758,11 @@ class WorldBuilder(QObject, IWorldBuilder):
             "take <item> - Take an item from a NPC or container.\n Example: 'take potion'\n\n"
             "give <quantity> <item> - Give an item to a NPC or container.\n Example: 'give 2 potions'\n\n"
             "move <location> - Move to new location.\n Example: 'move to the garden'\n\n"
-            "examine <item> - Examine an items.\n Example: 'examine key'\n\n"
             "whereami - Find out your current location.\n Example: 'whereami'\n\n"
             "look around: Look around at your environment.\n Example: 'look around'\n\n"
             "open <container>: Open a container.\n Example: 'open chest'\n\n"
             "Fast travel to <world>: Fast travel to a different world.\n Example: 'fast travel to the moon'\n\n"
             "talk to <NPC>: Talk to an NPC.\n Example: 'talk to the guard'\n\n"
-            "interact with <interactable>: Interact with an object.\n Example: 'interact with computer'\n\n"
             "close: Close container.\n Example: 'close'\n\n"
             "help: Display this list of commands.\n"
         )

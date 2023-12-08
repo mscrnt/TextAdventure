@@ -7,10 +7,8 @@ from icecream import ic
 from interfaces import IGameUI
 from gui.game_ui import GameUI
 from engine.game_manager import GameManager
-from engine.world_builder import WorldBuilder
-from engine.quest_tracker import QuestTracker
-from engine.player_sheet import PlayerSheet
 from intro import IntroAnimation
+from extras.tutorial import Tutorial
 
 
 class MainWindow(QMainWindow):
@@ -21,11 +19,12 @@ class MainWindow(QMainWindow):
         self.player_sheet = None
         self.quest_tracker = None
         self.game_ui = None
+        self.is_new_game = False
         self.use_ai = use_ai
         ic("Initializing main window")
 
         # Set the main window's properties
-        self.setWindowTitle("Odyssey")
+        self.setWindowTitle("Exitium")
         self.setGeometry(100, 100, 800, 600)
 
         # Set the theme
@@ -224,8 +223,17 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.game_manager.game_ui)  
         self.game_manager.game_ui.show() 
 
+        # Start the tutorial if it's a new game
+        if self.is_new_game:
+            self.start_tutorial()
+
+    def start_tutorial(self):
+        # Assuming you have a Tutorial class that takes GameUI as an argument
+        self.tutorial = Tutorial(self.game_ui, self.game_manager)
+        self.tutorial.start()
 
     def start_new_game(self):
+        self.is_new_game = True
         # Prompt for the player's name first
         self.player_name = self.prompt_for_player_name() 
 
@@ -237,17 +245,15 @@ class MainWindow(QMainWindow):
             self.intro_animation = IntroAnimation(self)
             self.setCentralWidget(self.intro_animation)
             self.intro_animation.animationComplete.connect(self.on_intro_animation_complete)
-            self.intro_animation.start()
         else:
             ic("No player name entered.")
-
-
 
     # Method to save the game
     def trigger_save_game(self):
         self.game_ui.game_manager.save_game()
 
     def select_save_file(self):
+        self.is_new_game = False
         filename, _ = QFileDialog.getOpenFileName(self, "Load Game", "save_data/", "Save Files (*.pkl)")
         if filename:
             # Create a new game manager instance

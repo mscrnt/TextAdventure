@@ -81,12 +81,11 @@
                         {
                             "type": "talk to",
                             "dialog": [
-                                "Welcome to Odyssey VR! How can I assist you today?",
-                                "Here are some tips for customizing your virtual home.",
-                                "I can help you connect with friends or explore new virtual landscapes.",
-                                "Need assistance with any in-game challenges or quests? I'm here to help!",
-                                "Feeling lost? I can guide you to any location within Odyssey VR.",
-                                "If you're looking for something fun to do, I can suggest some popular activities and events."
+                                "Welcome to your virtual home!",
+                                "I hope you're enjoying your time in Odyssey VR.",
+                                "If you are looking for where to start, why not try exploring the world of Avalonia?",
+                                "I've added it to your Fast Travel list. You can access it by typing 'fast travel to avalonia'.",
+                                "You can also type 'help' at any time to see a list of commands."
                             ]
                         },
                         {
