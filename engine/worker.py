@@ -17,16 +17,13 @@ class Worker(QObject):
 
     @Slot()
     def process_command(self):
-        ic("Entered Worker process_command", threading.get_ident())
+        try:
+            response = self.game_manager.world_builder.incoming_command(self.command_text)
+            self.finished.emit(response)
+        except Exception as e:
+            ic("Error in Worker process_command:", e)
+            self.finished.emit(convert_text_to_display(f"Error processing command: {e}"))
 
-        if not self.game_manager:
-            raise ValueError("Worker requires a GameManager instance.")
-        
-        response = self.game_manager.world_builder.incoming_command(self.command_text)
-        ic("Response from WorldBuilder: ", response)
-        
-        # Emit the signal
-        self.finished.emit(response)
 
 
 class TriggerWorker(QObject):
@@ -41,13 +38,18 @@ class TriggerWorker(QObject):
 
     @Slot()
     def process_trigger(self):
-        # First, process any dialog related to the trigger
-        if 'dialog' in self.trigger:
-            dialog = self.trigger['dialog']
-            self.emit_dialog(dialog)
+        ic("Entered TriggerWorker process_trigger", threading.get_ident())
+        try:
+            if 'dialog' in self.trigger:
+                ic("Processing dialog in trigger")
+                dialog = self.trigger['dialog']
+                self.emit_dialog(dialog)
 
-        # Then, after a delay, process the fast travel addition
-        QTimer.singleShot(5000, self.process_fast_travel_trigger)  # 5000 ms = 5 seconds
+            if self.trigger['type'] == 'fast travel':
+                ic("Processing fast travel in trigger")
+                self.process_fast_travel_trigger()
+        except Exception as e:
+            ic("Error in TriggerWorker process_trigger:", e)
 
     def emit_dialog(self, dialog):
         # Convert and emit the dialog text
@@ -56,6 +58,7 @@ class TriggerWorker(QObject):
 
     def process_fast_travel_trigger(self):
         # Check and add the fast travel location
+        ic("Entered TriggerWorker process_fast_travel_trigger", threading.get_ident())
         if self.trigger['type'] == 'fast travel':
             fast_travel_location = {
                 'name': self.trigger['name'],
@@ -68,5 +71,5 @@ class TriggerWorker(QObject):
             ic(f"Fast travel location added: {self.trigger['name']}")
 
             # Emit the response to update the UI accordingly
-            response = f"Fast travel location added: {self.trigger['name']}"
-            self.triggerProcessed.emit(response)
+            #response = f"Fast travel location added: {self.trigger['name']}"
+            #self.triggerProcessed.emit(response)
