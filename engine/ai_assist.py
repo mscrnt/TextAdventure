@@ -46,6 +46,7 @@ class AIAssist:
 
         # Step 2: Send command to GPT for interpretation
         interpret_prompt = self.construct_command_context_prompt(command, world_data, player_data)
+        ic(f"Interpretation prompt: {interpret_prompt}")
         interpreted_command = self.generate_ai_response(interpret_prompt)
         ic(f"Interpreted command: {interpreted_command}")
 
@@ -75,13 +76,6 @@ class AIAssist:
                 "command_to_perform": "talk to, speak to",
                 "command_format": "talk to <NPC>, e.g., talk to the guard"
             },
-            "take": {
-                "description": "Take an item from the current location or container.",
-                "examples": ["take potion", "pick up sword", "grab the key"],
-                "parsing_guideline": "Identify the item and quantity to be taken from the command.",
-                "command_to_perform": "take",
-                "command_format": "take <item>, e.g., take potion"
-            },
             "examine": {
                 "description": "Examine an item or the surroundings.",
                 "examples": ["examine map", "look at the statue", "inspect the chest"],
@@ -105,14 +99,17 @@ class AIAssist:
             },
             "give": {
                 "description": "Give an item to an NPC or place it in a container.",
-                "examples": ["give potion to guard", "put 5 potion in chest"],
-                "parsing_guideline": "Identify the item and recipient (NPC or container) from the command.",
+                "examples": ["give potion to guard", "give sword of athena to athena"],
+                "parsing_guideline": "Identify the item, quantity (if applicable), and target from the command.",
                 "command_to_perform": "give",
-                "command_format": [
-                    "give <item> to <NPC>, e.g., give potion to guard",
-                    "give <item>, e.g., give sword",
-                    "give <quantity> <item> to <npc>, e.g., give 5 potion to guard",
-                ]
+                "command_format": ["give <item> to <target>", "give <quantity> <item> to <Target>"]
+            },
+            "take": {
+                "description": "Take an item from the current location or container.",
+                "examples": ["take potion from chest", "pick up 3 arrows from quiver"],
+                "parsing_guideline": "Identify the item, quantity (if applicable), and source from the command.",
+                "command_to_perform": "take",
+                "command_format": ["take <item> from <source>", "take <quantity> <item> from <source>"]
             },
             "fast travel to": {
                 "description": "Instantly travel to a different world or major location.",
@@ -120,6 +117,13 @@ class AIAssist:
                 "parsing_guideline": "Identify the target world or major location for fast travel from the command.",
                 "command_to_perform": "fast travel to",
                 "command_format": "fast travel to <world/location>, e.g., fast travel to Shadowlands"
+            },
+            "go home": {
+                "description": "Travel to the player's home location.",
+                "examples": ["go home", "I want to go home", "travel to home"],
+                "parsing_guideline": "Interpret as a request to travel to the player's home location.",
+                "command_to_perform": "go home",
+                "command_format": "go home, e.g., go home"
             },
             "look around": {
                 "description": "Describe the surroundings in the current location.",
@@ -166,71 +170,80 @@ class AIAssist:
             + "\n\n"
             + player_context + "\n" + location_context + "\n\n"
             f"Player's command: '{command}'\n"
-            "Please interpret this command by providing a structured response with 'Action', 'Subject', and 'Quantity' (if applicable). Format the interpretation exactly as shown in these examples:\n"
+            "Please interpret this command by providing a structured response with 'Action', 'Subject', and if applicable, 'Quantity' and 'Target'. Format the interpretation exactly as shown in these examples:\n"
             "- 'Action: go to, Subject: Great Bazaar'\n"
-            "- 'Action: give, Subject: health potion, Quantity: 3'\n\n"
+            "- 'Action: give, Subject: health potion, Quantity: 3'\n"
+            "- 'Action: give, Subject: sword of athena, Target: chest'\n"
             "Ensure the response follows this format strictly for ease of parsing."
         )
         return prompt
     
     def determine_action_from_interpretation(self, interpreted_command):
         print(f"Determining action from interpreted command: {interpreted_command}")
-        command, details, quantity = self.parse_interpreted_command(interpreted_command)
-        print(f"Extracted command: {command}, details: {details}, quantity: {quantity}")
+        # Unpack the returned values including the new 'target'
+        action, subject, quantity, target = self.parse_interpreted_command(interpreted_command)
+        print(f"Extracted command: {action}, details: {subject}, quantity: {quantity}, target: {target}")
 
-        if command == "move to":
-            return self.world_builder.move_player(details)
+        if action == "move to":
+            return self.world_builder.move_player(subject)
 
-        elif command == "talk to":
+        elif action == "talk to":
             # Ensure that only the NPC name is passed to handle_talk_to
-            npc_name = details.strip("'")  # Strip any extraneous characters like quotes
-            return self.world_builder.handle_talk_to(command, npc_name)
+            npc_name = subject.strip("'")  # Strip any extraneous characters like quotes
+            return self.world_builder.handle_talk_to(action, npc_name)
 
+        elif action in ["take", "give"]:
+            details = f"{quantity} {subject}" if quantity > 1 else subject
+            if target:
+                preposition = "to" if action == "give" else "from"
+                details += f" {preposition} {target}"
+                return self.world_builder.handle_give_take(action, details)
 
-        elif command in ["take", "give"]:
-            details = details.strip("'")
-            return self.world_builder.handle_give_take(command, details)
+        elif action == "examine":
+            subject = subject.strip("'")
+            return self.world_builder.examine_item(subject)
 
-        elif command == "examine":
-            details = details.strip("'")
-            return self.world_builder.examine_item(details)
-
-        elif command in ["open"]:
-            details = details.strip("'") 
-            return self.world_builder.handle_open(details)
+        elif action in ["open"]:
+            subject = subject.strip("'") 
+            return self.world_builder.handle_open(subject)
         
-        elif command in ["close"]:
-            details = details.strip("'")
-            return self.world_builder.handle_close(details)
+        elif action in ["close"]:
+            subject = subject.strip("'")
+            return self.world_builder.handle_close(subject)
 
-        elif command == "fast travel to":
-            # Strip any extraneous characters like quotes from details
-            ic('fast travel command detected')
-            world_name = details.strip("'")
-            ic(f'Command: {command}, World name: {world_name}')
+        elif action == "fast travel to":
+            # Strip any extraneous characters like quotes from subject
+            ic('fast travel action detected')
+            world_name = subject.strip("'")
+            ic(f'action: {action}, World name: {world_name}')
             return self.world_builder.fast_travel_to_world(world_name)
 
 
-        elif command in ["look around", "where am i", "help"]:
-            return self.world_builder.simple_command_handler(command)
+        elif action in ["look around", "where am i", "help"]:
+            return self.world_builder.simple_command_handler(action)
+        
+        elif action == "go home":
+            return self.world_builder.simple_command_hanlder(action)
 
         else:
-            print(f"Unknown command received: {command}")
+            print(f"Unknown action received: {action}")
             return self.world_builder.display_help()
 
     def parse_interpreted_command(self, interpreted_command):
         print(f"Extracting command details from: {interpreted_command}")
-        
-        # Regular expressions to extract Action, Subject, and Quantity
+
+        # Regular expressions to extract Action, Subject, Quantity, and Target
         # Stops at a comma or a newline
         action_match = re.search(r"Action:\s*([^\n,]+)", interpreted_command)
         subject_match = re.search(r"Subject:\s*([^\n,]+)", interpreted_command)
         quantity_match = re.search(r"Quantity:\s*(\d+)", interpreted_command)
+        target_match = re.search(r"Target:\s*([^\n,]+)", interpreted_command)  
 
         # Initialize default values
         action = "unknown"
         subject = ""
         quantity = 1  # Default quantity
+        target = None  # Default target
 
         # Extract Action
         if action_match:
@@ -244,10 +257,16 @@ class AIAssist:
         if quantity_match:
             quantity = int(quantity_match.group(1))
 
-        print(f"Extracted Action: {action}, Subject: {subject}, Quantity: {quantity}")
-        return action, subject, quantity
+        # Extract Target
+        if target_match:
+            target = target_match.group(1).strip()
 
-        
+        print(f"Extracted Action: {action}, Subject: {subject}, Quantity: {quantity}, Target: {target}")
+        return action, subject, quantity, target
+
+
+
+            
     def generate_narrative_response(self, action_response, original_command):
         print(f"Generating narrative response for action: {action_response}, original command: {original_command}")
         player_data = self.player_sheet

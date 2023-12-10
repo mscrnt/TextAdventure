@@ -10,24 +10,23 @@
             "main-entry": true,
             "npcs": [
                 {
-                    "name": "Lost Player",
-                    "description": "A lost player from real life, wandering aimlessly in Central Avalonia.",
+                    "name": "Gam0rGurl",
+                    "description": "Your real life friend in Odyssey VR. Gam0rGurl is a lone wolf, but is very reliable and will always have your back. Although she isn't always around, she is always there when you need her.",
+                    "keywords": ["reliable", "lone wolf", "always there"],
+                    "triggers": [],
                     "interactions": [
-                        {
-                            "type": "guidance",
-                            "description": "Offer guidance on how to escape the virtual world."
-                        },
                         {
                             "type": "talk to",
                             "dialog": [
-                                "I'm lost! How do I get out of here?",
-                                "I've been wandering for hours. Can you help me find my way back?",
-                                "I'm stuck in this game! How do I get out?"
+                                "Thanks for meeting me. I have no idea what's going on, but I'm glad you're here.",
+                                "I'm not sure what to do next. I think we should split up and explore the area.",
+                                "Maybe the Grand Castle has some answers, or maybe the Library.",
+                                "Once you figure out anything, come meet me in Diablo Realm",
+                                "You should have it unlocked if gave Athena her sword back."
                             ]
                         },
                         {
-                            "type": "quest",
-                            "description": "Talk to Monk Jaron in the Grand Castle."
+                            "type": "give"
                         }
                     ]
                 }
